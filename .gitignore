@@ -1,0 +1,7 @@
+env_var.py
+importer-data.txt
+*.pyc
+schedule.py
+logs.txt
+__pycache__/
+templates/
