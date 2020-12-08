@@ -33,4 +33,4 @@ def authenticate():
         return jsonify({"msg": "Bad username or password"}), 401
 
     access_token = create_access_token(identity=user.as_dict())
-    return jsonify(access_token=access_token), 200
+    return jsonify({"access_token": access_token, "is_admin": user.is_admin}), 200

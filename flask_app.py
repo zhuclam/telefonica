@@ -9,7 +9,10 @@ from services import phone_service
 
 @app.route('/login', methods=['POST'])
 def login():
-    authenticate()
+    try:
+        return authenticate()
+    except Exception as e:
+        return handle_error(e, 'login')
 
 @app.route('/protected', methods=['GET'])
 @admin_required
