@@ -33,7 +33,7 @@ def index():
             phone = Tel().query.get(request.args.get("id"))
         else:
             #phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
-            phone = Tel().query.filter(Tel.no_call != 1).order_by(Tel.fulfilled_on.asc()).first()
+            phone = Tel().query.filter().order_by(Tel.fulfilled_on.asc()).first()
             phone.postponed_days = 1
             phone.non_existent = 0
             db.session.commit()

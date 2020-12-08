@@ -18,6 +18,7 @@ class phone_service():
     def send_to_end_of_queue(phone, postponed_days = 0):
         phone.fulfilled_on = today()
         phone.postponed_days = postponed_days
+        phone.no_call = 0
         phone.unanswered_count = 0
         phone.unanswered_date = None
         phone.answering_machine_date = None
@@ -86,8 +87,8 @@ class phone_service():
         is_genuine = phone_service.is_genuine(phone)
         if restore is None:
             phone_service.handle_comments(phone, comments)
-        phone.no_call = 1
         phone_service.send_to_end_of_queue(phone)
+        phone.no_call = 1
         db.session.commit()
 
         if restore and restore["last_status"] is not None:

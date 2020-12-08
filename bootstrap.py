@@ -2,9 +2,11 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from datetime import date
 
 # mine
 from env_var import app_name, short_name, db_name
+from utils import to_locale_string
 
 # APP
 app = Flask(__name__)
@@ -61,7 +63,9 @@ class Telefonica(db.Model):
     answering_machine_date = db.Column(db.Date)
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       return dict
 
 class Telefonica_test(db.Model):
     __tablename__ = "telefonica_test"
@@ -80,7 +84,9 @@ class Telefonica_test(db.Model):
     answering_machine_date = db.Column(db.Date)
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       return dict
 
 class History(db.Model):
     __tablename__ = "history"
@@ -91,7 +97,9 @@ class History(db.Model):
     genuine = db.Column(db.Boolean)
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       return dict
 
 class History_test(db.Model):
     __tablename__ = "history_test"
@@ -102,4 +110,6 @@ class History_test(db.Model):
     genuine = db.Column(db.Boolean)
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       return dict
