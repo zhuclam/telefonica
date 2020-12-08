@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_cors import cross_origin
 
 # mine
 from bootstrap import app, db, Telefonica, Telefonica_test
@@ -8,6 +9,7 @@ from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_r
 from services import phone_service
 
 @app.route('/login', methods=['POST'])
+@cross_origin()
 def login():
     try:
         return authenticate()
@@ -15,12 +17,14 @@ def login():
         return handle_error(e, 'login')
 
 @app.route('/protected', methods=['GET'])
+@cross_origin()
 @admin_required
 def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
 
 @app.route("/next", methods=["GET"])
+@cross_origin()
 @jwt_required
 def index():
     try:
@@ -64,6 +68,7 @@ def index():
         return handle_error(e, 'main')
 
 @app.route("/update_phone", methods=["PUT"])
+@cross_origin()
 @jwt_required
 def update_phone():
     try:
@@ -94,6 +99,7 @@ def update_phone():
         return handle_error(e, "update_phone")
 
 @app.route("/statistics", methods=["GET"])
+@cross_origin()
 @admin_required
 def admin_dashboard():
     try:

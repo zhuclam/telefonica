@@ -1,11 +1,16 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+
+# mine
 from env_var import app_name, short_name, db_name
 
+# APP
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
+# SQLALCHEMY
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username= short_name,
     password= "databasedatabase",
@@ -17,9 +22,14 @@ app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
+# AUTH
 app.config['JWT_SECRET_KEY'] = 'reino1914'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
 jwt = JWTManager(app)
+
+# CORS
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 class User(db.Model):
     __tablename__ = "users"
