@@ -1,6 +1,6 @@
 import React, { createContext, useState, FunctionComponent } from 'react'
 import { LOCAL_STORAGE } from 'consts'
-import { Fetch } from 'services'
+import { useFetch } from 'hooks'
 
 interface AuthType {
   isAuth: boolean
@@ -34,26 +34,26 @@ export const useAuth = (): AuthType => {
   )
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const Fetch = useFetch()
+
   const doLogin = async (username: string, password: string) => {
     try {
       setIsLoading(true)
 
-      const [err, response] = await new Fetch(false).post<LoginResponse>(
-        'login',
-        {
-          username,
-          password,
-        }
-      )
+      const [err, response] = await Fetch(false).post<LoginResponse>('login', {
+        username,
+        password,
+      })
 
       if (err) throw err
 
-      setIsAuth(true)
-      setIsAdmin(response.isAdmin)
       localStorage.setItem(LOCAL_STORAGE.TOKEN, response.accessToken)
       response.isAdmin
         ? localStorage.setItem(LOCAL_STORAGE.IS_ADMIN, '1')
         : localStorage.removeItem(LOCAL_STORAGE.IS_ADMIN)
+
+      setIsAuth(true)
+      setIsAdmin(response.isAdmin)
     } catch (e) {
     } finally {
       setIsLoading(false)
@@ -70,7 +70,7 @@ export const useAuth = (): AuthType => {
   return {
     isAuth,
     isLoading,
-    isAdmin,
+    isAdmin: isAuth && isAdmin,
     doLogin,
     doLogout,
   }

@@ -4,12 +4,12 @@ import {
   Switch,
   Route,
 } from 'react-router-dom'
-import { RouteProps, useHistory, useLocation } from 'react-router'
+import { Redirect, RouteProps, useHistory, useLocation } from 'react-router'
 import { ThemeProvider } from 'theme'
 import { ContextProviders } from 'contexts'
 import { useAuth } from 'hooks'
 import { Layout } from './components'
-import { Login, Telefonica } from './features'
+import { AdminPanel, Login, Telefonica } from './features'
 import './app.css'
 
 interface ProtectedRouteProps extends RouteProps {
@@ -33,10 +33,9 @@ const MainRouter: React.FC = () => {
 
   useLayoutEffect(() => {
     if (!isAuth && !location.pathname.includes('/login')) history.push('/login')
-    if (isAuth && location.pathname.includes('/login')) history.push('/')
+    if (isAuth && location.pathname.includes('/login'))
+      history.push('/telefonica')
   }, [isAuth, location.pathname, history])
-
-  const isAdminIn = isAuth && isAdmin
 
   return (
     <Switch>
@@ -45,8 +44,7 @@ const MainRouter: React.FC = () => {
 
       {/* User */}
       <ProtectedRoute
-        path="/"
-        exact
+        path="/telefonica"
         component={Telefonica}
         condition={isAuth}
       />
@@ -55,10 +53,10 @@ const MainRouter: React.FC = () => {
       <ProtectedRoute
         path="/admin-panel"
         exact
-        component={Telefonica}
-        condition={isAdminIn}
+        component={AdminPanel}
+        condition={isAdmin}
       />
-      <Route render={() => <h1>404 no encontrado</h1>} />
+      <Redirect to="/login" />
     </Switch>
   )
 }

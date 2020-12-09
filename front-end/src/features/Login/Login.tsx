@@ -7,6 +7,7 @@ import {
   Button,
   Jumbotron,
 } from 'reactstrap'
+import { Helmet } from 'react-helmet'
 import { Spinner } from 'components'
 import { useAuth } from 'hooks'
 
@@ -21,10 +22,13 @@ const Login: React.FC = () => {
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) =>
     e.key === 'Enter' && submit()
 
-  if (isLoading) return <Spinner fulfill />
+  if (isLoading) return <Spinner fulfill container />
 
   return (
     <>
+      <Helmet>
+        <title>{process.env.REACT_APP_CONG_INITIALS} Telefónica Login</title>
+      </Helmet>
       <Jumbotron fluid>
         <Container>
           <h1 className="display-5">Iniciar sesión</h1>

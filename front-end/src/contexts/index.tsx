@@ -1,12 +1,15 @@
 import React from 'react'
 import { ConfigContext, ConfigProvider } from './config'
 import { AuthContext, AuthProvider } from './auth'
+import { AlertProvider } from 'components/Alert'
 
 const ContextProviders: React.FC = ({ children }) => {
   return (
-    <ConfigProvider>
-      <AuthProvider>{children}</AuthProvider>
-    </ConfigProvider>
+    <AlertProvider>
+      <ConfigProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </ConfigProvider>
+    </AlertProvider>
   )
 }
 

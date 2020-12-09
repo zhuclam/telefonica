@@ -2,3 +2,12 @@ html {
   overflow-x: hidden;
   overflow-y: scroll;
 }
+
+.table-bordered td,
+.table-bordered th {
+  white-space: nowrap;
+}
+
+.nav-link {
+  color: #fff !important;
+}

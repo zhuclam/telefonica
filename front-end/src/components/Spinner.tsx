@@ -2,17 +2,22 @@ import React from 'react'
 import { Spinner as RSSpinner, Container } from 'reactstrap'
 import styled, { css } from 'styled-components'
 
-const colors = ['primary', 'success', 'danger', 'warning', 'info']
+const colors = ['success', 'danger', 'warning', 'info']
 const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)]
 
 interface SpinnerProps {
   fulfill?: boolean
+  container?: boolean
 }
 
-const Spinner: React.FC<SpinnerProps> = ({ fulfill = false }) => (
+const Spinner: React.FC<SpinnerProps> = ({
+  fulfill = false,
+  container = false,
+}) => (
   <Container className="h-100">
     <SpinnerContainer
       fulfill={fulfill}
+      container={container}
       className="d-flex justify-content-center align-items-center"
     >
       <RSSpinner
@@ -23,12 +28,12 @@ const Spinner: React.FC<SpinnerProps> = ({ fulfill = false }) => (
   </Container>
 )
 
-const SpinnerContainer = styled.div<Required<Pick<SpinnerProps, 'fulfill'>>>`
-  ${({ fulfill }) =>
+const SpinnerContainer = styled.div<Required<SpinnerProps>>`
+  ${({ fulfill, container, theme }) =>
     fulfill &&
     css`
       width: 100%;
-      height: 100%;
+      height: ${container ? `calc(100vh - ${theme.navbarHeight}px)` : '100%'};
     `}
 `
 

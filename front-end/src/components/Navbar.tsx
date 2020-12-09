@@ -25,11 +25,13 @@ const Navbar: React.FC = () => {
   const {
     darkModeEnabled,
     advancedModeEnabled,
+    testModeEnabled,
     toggleAdvancedMode,
     toggleDarkMode,
+    toggleTestMode,
   } = useConfig()
 
-  const { isAuth, doLogout } = useAuth()
+  const { isAuth, isAdmin, doLogout } = useAuth()
 
   return (
     <div ref={mobileNavRef}>
@@ -56,6 +58,15 @@ const Navbar: React.FC = () => {
                   onChange={toggleAdvancedMode}
                 />
               </NavItem>
+              {isAdmin && (
+                <NavItem>
+                  <Switch
+                    label="Modo de prueba"
+                    checked={testModeEnabled}
+                    onChange={toggleTestMode}
+                  />
+                </NavItem>
+              )}
               {isAuth && (
                 <NavItem>
                   <Button onClick={doLogout}>Cerrar sesión</Button>

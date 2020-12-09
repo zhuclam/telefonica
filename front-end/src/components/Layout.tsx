@@ -1,16 +1,26 @@
 import React from 'react'
-import styled from 'styled-components'
+import { css } from 'styled-components'
+import { Alert } from '.'
 import { Navbar } from './Navbar'
 
 const Layout: React.FC = ({ children }) => (
   <>
     <Navbar />
-    <ContentContainer>{children}</ContentContainer>
+    {children}
+    <Alert name="not-so-fast" position="bottom" containerCSS={FailedAlertCss}>
+      ¡No tan rápido! No es recomendable tocar un botón tan seguido.
+    </Alert>
   </>
 )
 
-const ContentContainer = styled.div`
-  height: calc(100vh - ${({ theme }) => theme.navbarHeight}px);
+const FailedAlertCss = css`
+  background: #444;
+  border-bottom: #28a745 5px solid;
+  height: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: ${({ theme }) => theme.text.colors.error} 5px solid;
 `
 
 export { Layout }

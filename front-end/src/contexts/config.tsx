@@ -3,8 +3,10 @@ import React, { createContext, useState, FunctionComponent } from 'react'
 interface ConfigType {
   darkModeEnabled: boolean
   advancedModeEnabled: boolean
+  testModeEnabled: boolean
   toggleDarkMode: (checked: boolean) => void
   toggleAdvancedMode: (checked: boolean) => void
+  toggleTestMode: (checked: boolean) => void
 }
 
 export const ConfigContext = createContext<ConfigType>({} as ConfigType)
@@ -26,6 +28,7 @@ export const useConfig = (): ConfigType => {
   const [advancedModeEnabled, setAdvancedModeEnabled] = useState<boolean>(
     !!localStorage.getItem('advanced-mode')
   )
+  const [testModeEnabled, setTestModeEnabled] = useState<boolean>(false)
 
   const toggleDarkMode = (checked: boolean) => {
     checked
@@ -41,10 +44,14 @@ export const useConfig = (): ConfigType => {
     setAdvancedModeEnabled(checked)
   }
 
+  const toggleTestMode = () => setTestModeEnabled(!testModeEnabled)
+
   return {
     darkModeEnabled,
     advancedModeEnabled,
+    testModeEnabled,
     toggleDarkMode,
     toggleAdvancedMode,
+    toggleTestMode,
   }
 }

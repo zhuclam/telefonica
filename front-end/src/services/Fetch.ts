@@ -5,11 +5,19 @@ type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 
 type ReturnStatement<T> = [Record<string, unknown> | null, T]
 
+type URLObject =
+  | string
+  | {
+      path: string
+      params: Record<string, string>
+    }
+
 class Fetch {
   private token: string
   private useToken: boolean
+  private isTest: boolean
 
-  constructor(useToken = true) {
+  constructor(isTest: boolean, useToken: boolean) {
     const token = localStorage.getItem(LOCAL_STORAGE.TOKEN) ?? ''
     if (useToken && !token)
       console.warn(
@@ -18,14 +26,22 @@ class Fetch {
 
     this.token = token
     this.useToken = useToken
+    this.isTest = isTest
   }
 
   private generateFetchParams(
-    url: string,
+    url: URLObject,
     method: Method = 'GET',
     body?: Record<string, unknown>
   ) {
-    const URI = `${backendURL}${url}`
+    const URL: string = typeof url === 'string' ? url : url.path
+
+    const params: string = `${this.composeQueryParams({
+      ...(typeof url !== 'string' ? url.params : {}),
+      ...(this.isTest ? { test: '1' } : {}),
+    })}`
+
+    const URI = `${backendURL}${URL}${params}`
     const options = {
       method,
       body: body ? JSON.stringify(decamelizeKeys(body)) : undefined,
@@ -43,29 +59,39 @@ class Fetch {
     try {
       const request = await fetch
       if (!request.ok) throw request
-      const response = camelizeKeys(await request.json())
-      if (process.env.NODE_ENV === 'development')
-        console.log('response', response)
-      return ([null, response] as unknown) as ReturnStatement<T>
+      const contentType = request.headers.get('content-type')
+      const response = contentType?.includes('application/json')
+        ? await request.json()
+        : await request.text()
+      const data = response && camelizeKeys(response)
+      if (process.env.NODE_ENV === 'development') console.log('response', data)
+      return ([null, data] as unknown) as ReturnStatement<T>
     } catch (error) {
       console.warn('Fetching error:', error)
       return ([error, null] as unknown) as ReturnStatement<T>
     }
   }
 
-  async get<T>(url: string): Promise<ReturnStatement<T>> {
+  private composeQueryParams(params: Record<string, string>): string {
+    const query = Object.keys(params)
+      .map((k) => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+      .join('&')
+    return query && '?' + query
+  }
+
+  async get<T>(url: URLObject): Promise<ReturnStatement<T>> {
     return this.doRequest(fetch(...this.generateFetchParams(url)))
   }
 
   async post<T>(
-    url: string,
+    url: URLObject,
     body: Record<string, unknown>
   ): Promise<ReturnStatement<T>> {
     return this.doRequest(fetch(...this.generateFetchParams(url, 'POST', body)))
   }
 
   async put<T>(
-    url: string,
+    url: URLObject,
     body: Record<string, unknown>
   ): Promise<ReturnStatement<T>> {
     return this.doRequest(fetch(...this.generateFetchParams(url, 'PUT', body)))
