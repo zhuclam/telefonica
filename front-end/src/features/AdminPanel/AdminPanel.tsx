@@ -26,6 +26,11 @@ const AdminPanel: React.FC = () => (
           <span>🔎</span> Buscador inteligente
         </RouterLink>
       </Item>
+      <Item>
+        <RouterLink to="/admin-panel/settings">
+          <span>🛠</span> Configuración de la App
+        </RouterLink>
+      </Item>
     </Container>
   </>
 )
