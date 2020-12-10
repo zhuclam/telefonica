@@ -10,6 +10,7 @@ import {
   Container,
 } from 'reactstrap'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 import { useAuth, useConfig } from 'hooks'
 import { Switch } from './Switch'
 import { useOnClickOutside } from 'hooks/utils'
@@ -33,6 +34,13 @@ const Navbar: React.FC = () => {
 
   const { isAuth, isAdmin, doLogout } = useAuth()
 
+  const onLogout = () => {
+    doLogout()
+    onLinkClicked()
+  }
+
+  const onLinkClicked = () => toggleNavbar()
+
   return (
     <div ref={mobileNavRef}>
       <BNavbar color="dark" dark>
@@ -51,13 +59,15 @@ const Navbar: React.FC = () => {
                   onChange={toggleDarkMode}
                 />
               </NavItem>
-              <NavItem>
-                <Switch
-                  label="Modo avanzado"
-                  checked={advancedModeEnabled}
-                  onChange={toggleAdvancedMode}
-                />
-              </NavItem>
+              {isAuth && (
+                <NavItem>
+                  <Switch
+                    label="Modo avanzado"
+                    checked={advancedModeEnabled}
+                    onChange={toggleAdvancedMode}
+                  />
+                </NavItem>
+              )}
               {isAdmin && (
                 <NavItem>
                   <Switch
@@ -67,9 +77,21 @@ const Navbar: React.FC = () => {
                   />
                 </NavItem>
               )}
+              {isAdmin && (
+                <LinkSection>
+                  <NavItem onClick={onLinkClicked}>
+                    <RouterLink to="/admin-panel">
+                      Ir al Panel de administración
+                    </RouterLink>
+                  </NavItem>
+                  <NavItem onClick={onLinkClicked}>
+                    <RouterLink to="/telefonica">Ir a Telefónica</RouterLink>
+                  </NavItem>
+                </LinkSection>
+              )}
               {isAuth && (
                 <NavItem>
-                  <Button onClick={doLogout}>Cerrar sesión</Button>
+                  <Button onClick={onLogout}>Cerrar sesión</Button>
                 </NavItem>
               )}
             </MobileNav>
@@ -91,7 +113,18 @@ const MobileNav = styled(Nav)`
 `
 
 const Button = styled(NavLink)`
+  border-top: 1px solid gray;
   cursor: pointer;
 `
 
-export { Navbar }
+const RouterLink = styled(Link)<{ noPadding?: boolean }>`
+  color: ${({ theme }) => theme.text.colors.lightgreen};
+  display: inline-block;
+  padding: ${({ noPadding }) => (noPadding ? 0 : 0.5)}rem 0rem;
+`
+
+const LinkSection = styled.div`
+  border-top: 1px solid gray;
+`
+
+export { Navbar, RouterLink }

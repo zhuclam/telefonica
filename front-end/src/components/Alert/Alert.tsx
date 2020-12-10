@@ -6,6 +6,7 @@ import React, {
   Children,
   isValidElement,
   ReactElement,
+  useRef,
 } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { css, Keyframes } from 'styled-components'
@@ -48,12 +49,14 @@ export const Alert: FunctionComponent<AlertProps> = ({
 
   const [isShowing, setIsShowing] = useState(false)
   const [storedData, setStoredData] = useState<any>(null)
+  const hideTimeoutRef = useRef<number | undefined>(undefined)
 
   const waitAnimation = () =>
     new Promise((r) => setTimeout(r, animationDuration * 1000))
 
   const handleHide = () => {
     const doHide = () => {
+      clearTimeout(hideTimeoutRef.current)
       setIsShowing(false)
       setStoredData(null)
       onClose?.()
@@ -66,10 +69,16 @@ export const Alert: FunctionComponent<AlertProps> = ({
     if (show) {
       setIsShowing(true)
       data && setStoredData(data)
-      !permanent && setTimeout(() => AlertManager.hide(name), timeout)
+      if (!permanent) {
+        hideTimeoutRef.current = setTimeout(
+          () => AlertManager.hide(name),
+          timeout
+        )
+      }
     } else if (isShowing) {
       handleHide()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show])
 
   if (!isShowing) return null

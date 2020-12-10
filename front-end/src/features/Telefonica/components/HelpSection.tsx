@@ -10,7 +10,7 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
   const { advancedModeEnabled } = useConfig()
 
   return (
-    <Container id="FAQ-container">
+    <Container>
       <div className="text-center">
         <h6>
           ¿Qué hace el botón de <span className="text-success">atendió</span>?
@@ -86,11 +86,7 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
         territorios.
       </p>
 
-      <Button
-        id="FAQ-back-button"
-        className="btn btn-secondary"
-        onClick={close}
-      >
+      <Button className="btn btn-secondary" onClick={close}>
         Volver
       </Button>
     </Container>

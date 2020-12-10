@@ -1,29 +1,11 @@
 import React, { useState } from 'react'
-import { Button, Modal, ModalHeader, ModalFooter, Collapse } from 'reactstrap'
+import { Collapse } from 'reactstrap'
 import styled from 'styled-components'
 import { usePhoneStorage } from 'hooks'
 import { Feedback, StoragePhone } from 'types'
 import { isToday } from 'utils'
-
-const colors = {
-  0: 'danger',
-  1: 'success',
-  2: 'dark',
-  3: 'warning',
-  4: 'primary',
-  5: 'info',
-  6: 'secondary',
-}
-
-const labels: Record<Feedback, string> = {
-  [Feedback.UNANSWERED]: 'No en casa',
-  [Feedback.ANSWERED]: 'Atendió',
-  [Feedback.NON_EXISTENT]: 'No existe',
-  [Feedback.NO_CALL]: 'No visitar',
-  [Feedback.ANSWERING_MACHINE]: 'Contestador',
-  [Feedback.POSTPONE]: 'Aplazar',
-  [Feedback.IGNORE]: 'Ignorar',
-}
+import { colors, labels } from '../constants'
+import { useConfirmationModal, ConfirmationModal } from './'
 
 interface PhonesInStorageProps {
   currentPhoneId: number
@@ -37,28 +19,18 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
   PhoneStorage,
 }) => {
   const [collapsed, setCollapsed] = useState<number | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-  const [feedbackToConfirm, setFeedbackToConfirm] = useState<Feedback | null>(
-    null
-  )
-  const [
-    storagePhoneToConfirm,
-    setStoragePhoneToConfirm,
-  ] = useState<StoragePhone | null>(null)
-
-  const toggleModal = () => setIsModalOpen(!isModalOpen)
-
-  const askEditConfirmation = (f: Feedback, p: StoragePhone) => {
-    toggleModal()
-    setFeedbackToConfirm(f)
-    setStoragePhoneToConfirm(p)
-  }
+  const {
+    isModalOpen,
+    feedbackToConfirm,
+    data: storagePhoneToConfirm,
+    askEditConfirmation,
+    toggleModal,
+    reset,
+  } = useConfirmationModal()
 
   const resetStates = () => {
     setCollapsed(null)
-    setIsModalOpen(false)
-    setFeedbackToConfirm(null)
-    setStoragePhoneToConfirm(null)
+    reset()
   }
 
   const handleCollapsed = (i: number) =>
@@ -188,16 +160,14 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
           <tbody>{rows}</tbody>
         </table>
       </div>
-      <Modal centered isOpen={isModalOpen} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>¿Seguro?</ModalHeader>
-        <ModalFooter>
-          {feedbackToConfirm !== null && (
-            <Button color={colors[feedbackToConfirm]} onClick={doConfirm}>
-              {labels[feedbackToConfirm]}
-            </Button>
-          )}
-        </ModalFooter>
-      </Modal>
+      {!!feedbackToConfirm && (
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          toggleModal={toggleModal}
+          onConfirm={doConfirm}
+          feedbackToConfirm={feedbackToConfirm}
+        />
+      )}
     </>
   )
 }
