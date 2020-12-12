@@ -160,7 +160,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
           <tbody>{rows}</tbody>
         </table>
       </div>
-      {!!feedbackToConfirm && (
+      {feedbackToConfirm !== null && (
         <ConfirmationModal
           isOpen={isModalOpen}
           toggleModal={toggleModal}
