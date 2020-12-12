@@ -32,8 +32,7 @@ def index():
         if request.args.get("id"):
             phone = Tel().query.get(request.args.get("id"))
         else:
-            #phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
-            phone = Tel().query.filter().order_by(Tel.fulfilled_on.asc()).first()
+            phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
             phone.postponed_days = 1
             phone.non_existent = 0
             db.session.commit()
@@ -180,9 +179,11 @@ def add_numbers():
         data = request.get_json()
         validate("body", data)
         phones = data.get('phones')
-        validate('body.phones', phones, lambda p: isinstance(p, list) and len(p) > 0)
+        validate('body.phones', phones, lambda p: phone_service.validate_new_phones(p))
 
-        return jsonify({"phones": phones, "sample": phones[0]})
+        success_count, failure_count = phone_service.add_numbers(phones)
+
+        return jsonify({"success_count": success_count, "failure_count": failure_count}), 201
 
     except Exception as e:
         return handle_error(e, "add_numbers")

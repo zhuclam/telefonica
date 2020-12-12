@@ -148,6 +148,43 @@ class phone_service():
         if restore and restore["last_status"] is not None:
             history_service.restore_call(id=id, new_status=PHONE_STATUS.ignored, is_test=is_test, genuine=is_genuine, last_status=restore["last_status"])
 
+    def validate_new_phones(phones):
+        if not isinstance(phones, list) or not len(phones) > 0: return False
+        for phone in phones:
+            if not isinstance(phone, dict): return False
+            address = phone.get("address")
+            number = phone.get("number")
+            if not number: return False
+            if address is not None and not isinstance(address, str): return False
+        return True
+
+    def add_numbers(phones):
+        success_count = 0
+        failure_count = 0
+
+        for phone in phones:
+            try:
+                address = phone.get("address")
+                if address is None:
+                    address = ""
+                address = address.replace("'", "").strip()
+                number = phone.get("number").replace("'", "").strip()
+
+                found = Telefonica().query.filter(Telefonica.telefono == number).first()
+
+                if found:
+                    failure_count = failure_count + 1
+                    continue
+
+                phone = Telefonica(direccion=address, telefono=number, non_existent=0, unanswered_count=0, postponed_days=0, comentarios="", no_call=0)
+                db.session.add(phone)
+                success_count = success_count + 1
+            except:
+                failure_count = failure_count + 1
+
+        db.session.commit()
+        return success_count, failure_count
+
 class history_service():
     def register_call(*, id, status, is_test, genuine):
         table = History_test if is_test else History
