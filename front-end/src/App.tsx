@@ -9,7 +9,7 @@ import { ThemeProvider } from 'theme'
 import { ContextProviders } from 'contexts'
 import { useAuth } from 'hooks'
 import { Layout } from './components'
-import { AdminPanel, Login, Telefonica } from './features'
+import { AdminPanel, Login, Telefonica, StatisticsPanel } from './features'
 import './app.css'
 
 interface ProtectedRouteProps extends RouteProps {
@@ -34,8 +34,8 @@ const MainRouter: React.FC = () => {
   useLayoutEffect(() => {
     if (!isAuth && !location.pathname.includes('/login')) history.push('/login')
     if (isAuth && location.pathname.includes('/login'))
-      history.push('/telefonica')
-  }, [isAuth, location.pathname, history])
+      isAdmin ? history.push('/admin-panel') : history.push('/telefonica')
+  }, [isAuth, isAdmin, location.pathname, history])
 
   return (
     <Switch>
@@ -56,6 +56,14 @@ const MainRouter: React.FC = () => {
         component={AdminPanel}
         condition={isAdmin}
       />
+      <ProtectedRoute
+        path="/admin-panel/statistics"
+        exact
+        component={StatisticsPanel}
+        condition={isAdmin}
+      />
+
+      {/* Misc */}
       <Redirect to="/login" />
     </Switch>
   )

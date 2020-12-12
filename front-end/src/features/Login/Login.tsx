@@ -8,7 +8,7 @@ import {
   Jumbotron,
 } from 'reactstrap'
 import { Helmet } from 'react-helmet'
-import { Spinner } from 'components'
+import { Alert, Spinner } from 'components'
 import { useAuth } from 'hooks'
 
 const Login: React.FC = () => {
@@ -17,7 +17,10 @@ const Login: React.FC = () => {
 
   const { doLogin, isLoading } = useAuth()
 
-  const submit = () => doLogin(username, password)
+  const submit = () => {
+    if (!username || !password) return
+    doLogin(username, password)
+  }
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) =>
     e.key === 'Enter' && submit()
@@ -29,6 +32,9 @@ const Login: React.FC = () => {
       <Helmet>
         <title>{process.env.REACT_APP_CONG_INITIALS} Telefónica Login</title>
       </Helmet>
+      <Alert name="wrong-login-credentials" position="bottom">
+        Usuario o contraseña incorrectos.
+      </Alert>
       <Jumbotron fluid>
         <Container>
           <h1 className="display-5">Iniciar sesión</h1>
@@ -41,7 +47,6 @@ const Login: React.FC = () => {
         <FormGroup>
           <Label for="username">Usuario</Label>
           <Input
-            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             onKeyDown={onKeyDown}
@@ -50,10 +55,10 @@ const Login: React.FC = () => {
         <FormGroup>
           <Label for="password">Contraseña</Label>
           <Input
-            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={onKeyDown}
+            type="password"
           />
         </FormGroup>
         <div className="d-flex justify-content-center mt-4">

@@ -17,6 +17,26 @@ def db_result_to_dict(db_result):
         return dict(row)
     return list(map(to_dict, db_result))
 
+class PHONE_STATUS:
+    unanswered = 0
+    answered = 1
+    non_existent = 2
+    no_call = 3
+    answering_machine = 4
+    postponed = 5
+    ignored = 6
+
+def validate(name, data, validator = None, **kwargs):
+    if data is None:
+        if kwargs.get('optional'):
+            return
+        raise Exception("'{}' is required".format(name))
+
+    if validator:
+        valid = validator(data)
+        if not valid:
+            raise Exception("'{}' is invalid".format(name))
+
 """
 
 Date utils here
@@ -89,12 +109,3 @@ class days_utils():
             else:
                 months[month] = months[month] + item["total_calls"] - item["non_existent"]
         return months
-
-class PHONE_STATUS:
-    unanswered = 0
-    answered = 1
-    non_existent = 2
-    no_call = 3
-    answering_machine = 4
-    postponed = 5
-    ignored = 6

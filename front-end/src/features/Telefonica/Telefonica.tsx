@@ -141,11 +141,13 @@ const Telefonica: React.FC = () => {
         openHelpSection={openHelpSection}
         handlePhoneFeedback={sendFeedback}
       />
-      <PhonesInStorage
-        PhoneStorage={PhoneStorage}
-        currentPhoneId={phone.id}
-        onEditRequest={editNumber}
-      />
+      {advancedModeEnabled && (
+        <PhonesInStorage
+          PhoneStorage={PhoneStorage}
+          currentPhoneId={phone.id}
+          onEditRequest={editNumber}
+        />
+      )}
     </>
   )
 

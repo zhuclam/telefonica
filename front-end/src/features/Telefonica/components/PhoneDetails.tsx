@@ -2,6 +2,8 @@ import { useConfig } from 'hooks'
 import React from 'react'
 import styled from 'styled-components'
 import { Feedback, Phone } from 'types'
+import { ConfirmationModal, useConfirmationModal } from './ConfirmationModal'
+import { PhoneLink } from './PhoneLink'
 
 interface PhoneDetailsProps {
   phone: Phone
@@ -20,7 +22,24 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 }) => {
   const { advancedModeEnabled } = useConfig()
 
-  const handleGeneric = (n: Feedback) => () => handlePhoneFeedback(n)
+  const {
+    isModalOpen,
+    feedbackToConfirm,
+    askEditConfirmation,
+    toggleModal,
+    reset,
+  } = useConfirmationModal()
+
+  const handleGeneric = (feedback: Feedback) => () => {
+    if (advancedModeEnabled) askEditConfirmation(feedback)
+    else handlePhoneFeedback(feedback)
+  }
+
+  const doConfirm = () => {
+    if (feedbackToConfirm === null) return
+    handlePhoneFeedback(feedbackToConfirm)
+    reset()
+  }
 
   const handleAnswered = handleGeneric(Feedback.ANSWERED)
   const handleUnanswered = handleGeneric(Feedback.UNANSWERED)
@@ -45,12 +64,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
         <tbody>
           <tr>
             <td>
-              <a
-                style={{ textDecoration: 'underline' }}
-                href={`tel:${phone.telefono}`}
-              >
-                {phone.telefono}
-              </a>
+              <PhoneLink phone={phone.telefono} />
             </td>
             <td>{phone.direccion}</td>
             {phone.comentarios ? <td>{phone.comentarios}</td> : null}
@@ -77,12 +91,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
     <div className="d-block d-sm-none text-center">
       <span>Teléfono:</span>
       <div>
-        <a
-          style={{ textDecoration: 'underline' }}
-          href="tel:{ phone.telefono }"
-        >
-          {phone.telefono}
-        </a>
+        <PhoneLink phone={phone.telefono} />
       </div>
       <br />
 
@@ -121,7 +130,6 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   const HelpButton = (
     <div className="mt-3 mr-3 d-flex justify-content-end">
       <button
-        id="FAQ-trigger"
         className="text-secondary mb-0 border-0"
         style={{ textDecoration: 'underline', background: 'none' }}
         onClick={openHelpSection}
@@ -139,11 +147,11 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
         </span>
         <Input
           autoFocus
-          id="comments"
           placeholder="Sus comentarios acá..."
           type="text"
           value={comments}
           onChange={(e) => handleComments(e.target.value)}
+          readOnly={!advancedModeEnabled}
         />
 
         {phone.commentedOn && (
@@ -266,13 +274,21 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   )
 
   return (
-    <main id="main">
+    <main>
       <div className="container py-4">
         {DesktopTable}
         {MobileTable}
         {advancedModeEnabled && HelpButton}
         {CommentsSection}
         {ButtonGroup}
+        {feedbackToConfirm !== null && (
+          <ConfirmationModal
+            isOpen={isModalOpen}
+            toggleModal={toggleModal}
+            onConfirm={doConfirm}
+            feedbackToConfirm={feedbackToConfirm}
+          />
+        )}
       </div>
     </main>
   )
@@ -287,9 +303,13 @@ const Input = styled.input`
   border-bottom: 2px solid ${({ theme }) => theme.text.colors.secondary};
   outline: none;
   transition: border-bottom-color 0.25s;
+  margin-bottom: 0.5em;
+  border-radius: 5px;
+  padding: 0 10px;
 
   :focus {
-    border-bottom-color: ${({ theme }) => theme.text.colors.black};
+    border-bottom-color: ${({ theme }) =>
+      theme.darkMode ? theme.text.colors.white : theme.text.colors.black};
   }
 `
 

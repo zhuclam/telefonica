@@ -3,6 +3,10 @@ html {
   overflow-y: scroll;
 }
 
+input {
+  background-color: #f3f3f3 !important;
+}
+
 .table-bordered td,
 .table-bordered th {
   white-space: nowrap;

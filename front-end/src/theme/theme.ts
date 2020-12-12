@@ -9,14 +9,17 @@ const sizes: Record<Size, string> = {
 }
 
 const theme = (darkMode: boolean) => ({
+  darkMode,
   navbarHeight: 56,
   text: {
     colors: {
-      secondary: darkMode ? 'blue' : '#999',
+      secondary: '#999',
       error: '#ff5e5e',
       green: '#11fc00',
       blue: '#2000d4',
       black: '#222',
+      white: '#fff',
+      lightgreen: 'lightgreen',
     },
   },
   breakpoints: {

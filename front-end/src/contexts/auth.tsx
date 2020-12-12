@@ -1,6 +1,7 @@
 import React, { createContext, useState, FunctionComponent } from 'react'
 import { LOCAL_STORAGE } from 'consts'
 import { useFetch } from 'hooks'
+import { useAlerts } from 'components'
 
 interface AuthType {
   isAuth: boolean
@@ -34,6 +35,8 @@ export const useAuth = (): AuthType => {
   )
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const { AlertManager } = useAlerts()
+
   const Fetch = useFetch()
 
   const doLogin = async (username: string, password: string) => {
@@ -52,9 +55,10 @@ export const useAuth = (): AuthType => {
         ? localStorage.setItem(LOCAL_STORAGE.IS_ADMIN, '1')
         : localStorage.removeItem(LOCAL_STORAGE.IS_ADMIN)
 
-      setIsAuth(true)
       setIsAdmin(response.isAdmin)
+      setIsAuth(true)
     } catch (e) {
+      e.status === 401 && AlertManager.show('wrong-login-credentials')
     } finally {
       setIsLoading(false)
     }

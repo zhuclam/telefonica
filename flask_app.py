@@ -5,7 +5,7 @@ from flask_cors import cross_origin
 # mine
 from bootstrap import app, db, Telefonica, Telefonica_test
 from auth import authenticate, admin_required
-from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict
+from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate
 from services import phone_service
 
 @app.route('/login', methods=['POST'])
@@ -32,8 +32,7 @@ def index():
         if request.args.get("id"):
             phone = Tel().query.get(request.args.get("id"))
         else:
-            #phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
-            phone = Tel().query.filter().order_by(Tel.fulfilled_on.asc()).first()
+            phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
             phone.postponed_days = 1
             phone.non_existent = 0
             db.session.commit()
@@ -73,11 +72,18 @@ def index():
 def update_phone():
     try:
         data = request.get_json()
+        validate("body", data)
+
         id = data.get('id')
         answered = int(data.get('answered'))
         comments = data.get("comments")
         is_test = request.args.get("test")
         restore = data.get("restore")
+
+        validate("body.answered", answered, lambda d: isinstance(d, int))
+        validate("body.comments", comments, lambda c: isinstance(c, str), optional = True)
+
+        answered = int(answered)
 
         if answered == PHONE_STATUS.unanswered:
             phone_service.handle_unanswered(id, comments, is_test, restore)
@@ -164,3 +170,20 @@ def admin_dashboard():
         return jsonify({ "per_day_data": per_day_data, "calls": calls, "general_data": general_data, "per_month_data": per_month_data }), 200
     except Exception as e:
         return handle_error(e, "statistics")
+
+@app.route("/add_numbers", methods=["POST"])
+@cross_origin()
+@admin_required
+def add_numbers():
+    try:
+        data = request.get_json()
+        validate("body", data)
+        phones = data.get('phones')
+        validate('body.phones', phones, lambda p: phone_service.validate_new_phones(p))
+
+        success_count, failure_count = phone_service.add_numbers(phones)
+
+        return jsonify({"success_count": success_count, "failure_count": failure_count}), 201
+
+    except Exception as e:
+        return handle_error(e, "add_numbers")
