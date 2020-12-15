@@ -11,6 +11,11 @@ interface AuthType {
   doLogout: () => void
 }
 
+interface LoginPayload {
+  username: string
+  password: string
+}
+
 interface LoginResponse {
   accessToken: string
   isAdmin: boolean
@@ -43,7 +48,10 @@ export const useAuth = (): AuthType => {
     try {
       setIsLoading(true)
 
-      const [err, response] = await Fetch(false).post<LoginResponse>('login', {
+      const [err, response] = await Fetch(false).post<
+        LoginPayload,
+        LoginResponse
+      >('login', {
         username,
         password,
       })

@@ -32,7 +32,7 @@ class Fetch {
   private generateFetchParams(
     url: URLObject,
     method: Method = 'GET',
-    body?: Record<string, unknown>
+    body?: object
   ) {
     const URL: string = typeof url === 'string' ? url : url.path
 
@@ -83,17 +83,17 @@ class Fetch {
     return this.doRequest(fetch(...this.generateFetchParams(url)))
   }
 
-  async post<T>(
+  async post<Payload extends object, Response>(
     url: URLObject,
-    body: Record<string, unknown>
-  ): Promise<ReturnStatement<T>> {
+    body: Payload
+  ): Promise<ReturnStatement<Response>> {
     return this.doRequest(fetch(...this.generateFetchParams(url, 'POST', body)))
   }
 
-  async put<T>(
+  async put<Payload extends object, Response>(
     url: URLObject,
-    body: Record<string, unknown>
-  ): Promise<ReturnStatement<T>> {
+    body: Payload
+  ): Promise<ReturnStatement<Response>> {
     return this.doRequest(fetch(...this.generateFetchParams(url, 'PUT', body)))
   }
 }

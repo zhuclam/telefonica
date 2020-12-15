@@ -9,7 +9,13 @@ import { ThemeProvider } from 'theme'
 import { ContextProviders } from 'contexts'
 import { useAuth } from 'hooks'
 import { Layout } from './components'
-import { AdminPanel, Login, Telefonica, StatisticsPanel } from './features'
+import {
+  AdminPanel,
+  Login,
+  Telefonica,
+  StatisticsPanel,
+  AddPhones,
+} from './features'
 import './app.css'
 
 interface ProtectedRouteProps extends RouteProps {
@@ -60,6 +66,12 @@ const MainRouter: React.FC = () => {
         path="/admin-panel/statistics"
         exact
         component={StatisticsPanel}
+        condition={isAdmin}
+      />
+      <ProtectedRoute
+        path="/admin-panel/add-phones"
+        exact
+        component={AddPhones}
         condition={isAdmin}
       />
 

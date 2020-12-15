@@ -15,11 +15,13 @@ const theme = (darkMode: boolean) => ({
     colors: {
       secondary: '#999',
       error: '#ff5e5e',
-      green: '#11fc00',
+      green: '#28a745',
       blue: '#2000d4',
       black: '#222',
       white: '#fff',
       lightgreen: 'lightgreen',
+      info: '#007bff',
+      red: '#dc3545',
     },
   },
   breakpoints: {
@@ -29,5 +31,7 @@ const theme = (darkMode: boolean) => ({
       `@media (min-width: ${sizes[from]}) and (max-width: ${sizes[to]})`,
   },
 })
+
+export type Theme = ReturnType<typeof theme>
 
 export { theme }

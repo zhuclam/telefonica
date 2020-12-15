@@ -12,22 +12,22 @@ const AdminPanel: React.FC = () => (
     </Jumbotron>
     <Container>
       <Item>
-        <RouterLink to="/admin-panel/statistics">
+        <RouterLink to="/admin-panel/statistics" background="dark">
           <span>📚</span> Estadísticas
         </RouterLink>
       </Item>
       <Item>
-        <RouterLink to="/admin-panel/add-phones">
+        <RouterLink to="/admin-panel/add-phones" background="dark">
           <span>➕</span> Agregar números a la base de datos
         </RouterLink>
       </Item>
       <Item>
-        <RouterLink to="/admin-panel/search-and-edit">
+        <RouterLink to="/admin-panel/search-and-edit" background="dark">
           <span>🔎</span> Buscador inteligente
         </RouterLink>
       </Item>
       <Item>
-        <RouterLink to="/admin-panel/settings">
+        <RouterLink to="/admin-panel/settings" background="dark">
           <span>🛠</span> Configuración de la App
         </RouterLink>
       </Item>
