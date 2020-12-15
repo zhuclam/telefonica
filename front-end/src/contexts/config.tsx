@@ -28,7 +28,9 @@ export const useConfig = (): ConfigType => {
   const [advancedModeEnabled, setAdvancedModeEnabled] = useState<boolean>(
     !!localStorage.getItem('advanced-mode')
   )
-  const [testModeEnabled, setTestModeEnabled] = useState<boolean>(false)
+  const [testModeEnabled, setTestModeEnabled] = useState<boolean>(
+    !!localStorage.getItem('test-mode')
+  )
 
   const toggleDarkMode = (checked: boolean) => {
     checked
@@ -44,7 +46,12 @@ export const useConfig = (): ConfigType => {
     setAdvancedModeEnabled(checked)
   }
 
-  const toggleTestMode = () => setTestModeEnabled(!testModeEnabled)
+  const toggleTestMode = (checked: boolean) => {
+    checked
+      ? localStorage.setItem('test-mode', '1')
+      : localStorage.removeItem('test-mode')
+    setTestModeEnabled(checked)
+  }
 
   return {
     darkModeEnabled,
