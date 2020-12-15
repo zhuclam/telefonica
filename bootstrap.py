@@ -5,7 +5,7 @@ from flask_cors import CORS
 from datetime import date
 
 # mine
-from env_var import app_name, short_name, db_name
+from env_var import username, short_name, db_name, db_password
 from utils import to_locale_string
 
 # APP
@@ -15,8 +15,8 @@ app.config["DEBUG"] = True
 # SQLALCHEMY
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username= short_name,
-    password= "databasedatabase",
-    hostname= app_name + ".mysql.pythonanywhere-services.com",
+    password= db_password,
+    hostname= username + ".mysql.pythonanywhere-services.com",
     databasename= short_name + "$" + db_name,
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI

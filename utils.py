@@ -2,13 +2,13 @@ import traceback
 from datetime import datetime, timedelta
 import functools
 from flask import jsonify
-from env_var import app_name
+from env_var import username
 import calendar
 import locale
 locale.setlocale(locale.LC_TIME, "es_AR")
 
 def handle_error(e, id):
-        with open("/home/" + app_name + "/mysite/logs.txt", "a") as f:
+        with open("/home/" + username + "/mysite/logs.txt", "a") as f:
                 f.write(str(now()) + " - Error in " + id + " route: " + str(e) + ".\n" + traceback.format_exc() + "\n")
         return jsonify({"error": str(e)}), 500
 
