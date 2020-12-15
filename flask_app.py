@@ -23,7 +23,7 @@ def login():
 @app.route("/next", methods=["GET"])
 @cross_origin()
 @jwt_required
-def index():
+def next():
     try:
         Tel = Telefonica_test if request.args.get("test") else Telefonica
         if request.args.get("id"):
