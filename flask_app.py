@@ -1,3 +1,4 @@
+import os
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
@@ -8,9 +9,13 @@ from auth import authenticate, admin_required
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate
 from services import phone_service
 
-@app.route('/', methods=['GET'])
-def index():
-    return app.send_static_file('index.html')
+@app.route('/', defaults={'path': ''}, methods=["GET"])
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return app.send_static_file(path)
+    else:
+        return app.send_static_file('index.html')
 
 @app.route('/login', methods=['POST'])
 @cross_origin()

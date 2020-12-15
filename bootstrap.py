@@ -9,7 +9,7 @@ from env_var import app_name, short_name, db_name
 from utils import to_locale_string
 
 # APP
-app = Flask(__name__, static_folder='front-end/build', static_url_path='/')
+app = Flask(__name__, static_folder='front-end/build')
 app.config["DEBUG"] = True
 
 # SQLALCHEMY
