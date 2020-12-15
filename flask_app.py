@@ -8,6 +8,10 @@ from auth import authenticate, admin_required
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate
 from services import phone_service
 
+@app.route('/', methods=['GET'])
+def index():
+    return app.send_static_file('index.html')
+
 @app.route('/login', methods=['POST'])
 @cross_origin()
 def login():
@@ -15,13 +19,6 @@ def login():
         return authenticate()
     except Exception as e:
         return handle_error(e, 'login')
-
-@app.route('/protected', methods=['GET'])
-@cross_origin()
-@admin_required
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
 
 @app.route("/next", methods=["GET"])
 @cross_origin()
