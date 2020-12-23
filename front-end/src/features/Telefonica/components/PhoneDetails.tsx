@@ -55,7 +55,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
         <thead>
           <tr>
             <th>Teléfono</th>
-            <th>Dirección</th>
+            <th>Otros datos</th>
             {phone.comments ? <th>Comentarios</th> : null}
             <th>Última fecha que atendió</th>
             <th>Última fecha que se lo llamó</th>
@@ -89,29 +89,29 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
   const MobileTable = (
     <div className="d-block d-sm-none text-center">
-      <span>Teléfono:</span>
+      <span style={{ fontWeight: 500 }}>Teléfono:</span>
       <div>
         <PhoneLink phone={phone.phone} />
       </div>
       <br />
 
-      <span>Dirección:</span>
+      <span style={{ fontWeight: 500 }}>Otros datos:</span>
       <div>{phone.info}</div>
       <br />
 
       {phone.comments && (
         <>
-          <span>Comentarios:</span>
+          <span style={{ fontWeight: 500 }}>Comentarios:</span>
           <div>{phone.comments}</div>
           <br />
         </>
       )}
 
-      <span>Última fecha que atendió:</span>
+      <span style={{ fontWeight: 500 }}>Última fecha que atendió:</span>
       <div>{phone.answeredOn ?? 'Nunca'}</div>
       <br />
 
-      <span>Última fecha que se lo llamó:</span>
+      <span style={{ fontWeight: 500 }}>Última fecha que se lo llamó:</span>
       <div>
         {phone.unansweredDate ? (
           phone.unansweredDate
