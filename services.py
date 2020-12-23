@@ -22,16 +22,16 @@ class phone_service():
         phone.unanswered_count = 0
         phone.unanswered_date = None
         phone.answering_machine_date = None
-        if "contestador" in phone.comentarios or "mensaj" in phone.comentarios or "msj" in phone.comentarios or "casilla" in phone.comentarios:
-            phone.comentarios = ''
+        if "contestador" in phone.comments or "mensaj" in phone.comments or "msj" in phone.comments or "casilla" in phone.comments:
+            phone.comments = ''
             phone.commented_on = None
 
     def is_genuine(phone):
         return phone.unanswered_date is None
 
     def handle_comments(phone, comments):
-        if phone.comentarios.strip() != comments.strip():
-            phone.comentarios = comments.strip()
+        if phone.comments.strip() != comments.strip():
+            phone.comments = comments.strip()
             phone.commented_on = today() if comments.strip() != '' else None
 
     def handle_unanswered(id, comments, is_test, restore):
@@ -164,19 +164,19 @@ class phone_service():
 
         for phone in phones:
             try:
-                address = phone.get("address")
-                if address is None:
-                    address = ""
-                address = address.replace("'", "").strip()
+                info = phone.get("info")
+                if info is None:
+                    info = ""
+                info = info.replace("'", "").strip()
                 number = phone.get("number").replace("'", "").strip()
 
-                found = Telefonica().query.filter(Telefonica.telefono == number).first()
+                found = Telefonica().query.filter(Telefonica.phone == number).first()
 
                 if found:
                     failure_count = failure_count + 1
                     continue
 
-                phone = Telefonica(direccion=address, telefono=number, non_existent=0, unanswered_count=0, postponed_days=0, comentarios="", no_call=0)
+                phone = Telefonica(info=address, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0)
                 db.session.add(phone)
                 success_count = success_count + 1
             except:
