@@ -117,7 +117,7 @@ class History(db.Model):
     __tablename__ = "history"
     id = db.Column(db.Integer, primary_key=True)
     phone_id = db.Column(db.Integer, nullable=False, index=True, unique=True)
-    called_on = db.Column(db.Date(), nullable=False)
+    called_on = db.Column(db.Date(), nullable=False, index=True)
     status = db.Column(db.Integer, nullable=False)
     genuine = db.Column(db.Boolean, nullable=False)
 
@@ -130,7 +130,7 @@ class History_test(db.Model):
     __tablename__ = "history_test"
     id = db.Column(db.Integer, primary_key=True)
     phone_id = db.Column(db.Integer, nullable=False, index=True, unique=True)
-    called_on = db.Column(db.Date(), nullable=False)
+    called_on = db.Column(db.Date(), nullable=False, index=True)
     status = db.Column(db.Integer, nullable=False)
     genuine = db.Column(db.Boolean, nullable=False)
 
@@ -144,7 +144,7 @@ class History_backup(db.Model):
     __tablename__ = "history_backup"
     id = db.Column(db.Integer, primary_key=True)
     phone_id = db.Column(db.Integer, nullable=False, index=True, unique=True)
-    called_on = db.Column(db.Date(), nullable=False)
+    called_on = db.Column(db.Date(), nullable=False, index=True)
     status = db.Column(db.Integer, nullable=False)
     genuine = db.Column(db.Boolean, nullable=False)
 
