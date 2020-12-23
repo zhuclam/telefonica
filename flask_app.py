@@ -111,6 +111,10 @@ def update_phone():
 @admin_required
 def admin_dashboard():
     try:
+        is_test = request.args.get("test")
+        history_table = "history_test" if is_test else "history"
+        telefonica_table = "telefonica_test" if is_test else "telefonica"
+
         result = db.engine.execute("""
             select
               t1.called_on as date,
@@ -119,12 +123,12 @@ def admin_dashboard():
               sum(if(t1.status = 2, 1, 0)) as non_existent,
               sum(if(t1.status = 3, 1, 0)) as no_call,
               sum(if(t1.status = 1, 1, 0)) as answered
-            from history t1
+            from {} t1
             inner join (
               select
                 count(*) as total_calls,
                 called_on
-              from history
+              from {}
               group by date(called_on)
             ) t2
             on date(t2.called_on) = date(t1.called_on)
@@ -132,7 +136,8 @@ def admin_dashboard():
               t1.genuine = 1
             group by date(t1.called_on)
             order by t1.called_on desc;
-        """)
+            """.format(history_table, history_table)
+        )
 
         def row_str_to_date(row):
             row = dict(row)
@@ -151,7 +156,7 @@ def admin_dashboard():
             "last_month": days_utils.last_month(per_day_data)
         }
 
-        general_result = db.engine.execute("select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent from telefonica;")
+        general_result = db.engine.execute("select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent from {};".format(telefonica_table))
         general_result = list(general_result)
 
         general_data = {
@@ -160,7 +165,8 @@ def admin_dashboard():
             "non_existent": general_result[0]["non_existent"],
         }
 
-        per_month_result = db.engine.execute("select count(*) total, count(distinct phone_id) different, date_format(called_on, '%m/%Y') date, sum(if(status = 2, 1, 0)) inexistent, sum(if(status = 1, 1, 0)) answered from history group by date_format(called_on, '%Y-%m') order by date desc;")
+        per_month_result = db.engine.execute("select count(*) total, count(distinct phone_id) different, date_format(called_on, '%m/%Y') date, sum(if(status = 2, 1, 0)) inexistent, sum(if(status = 1, 1, 0)) answered from {} group by date_format(called_on, '%Y-%m') order by date desc;".format(history_table))
+
         per_month_result = db_result_to_dict(per_month_result)
 
         per_month_data = {
@@ -183,7 +189,9 @@ def add_numbers():
         phones = data.get('phones')
         validate('body.phones', phones, lambda p: phone_service.validate_new_phones(p))
 
-        success_count, failure_count = phone_service.add_numbers(phones)
+        is_test = request.args.get("test")
+
+        success_count, failure_count = phone_service.add_numbers(phones, is_test)
 
         return jsonify({"success_count": success_count, "failure_count": failure_count}), 201
 

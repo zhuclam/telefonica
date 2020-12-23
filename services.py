@@ -158,7 +158,9 @@ class phone_service():
             if info is not None and not isinstance(info, str): return False
         return True
 
-    def add_numbers(phones):
+    def add_numbers(phones, is_test = False):
+        Tel = Telefonica_test if is_test else Telefonica
+
         success_count = 0
         failure_count = 0
 
@@ -170,13 +172,13 @@ class phone_service():
                 info = info.replace("'", "").strip()
                 number = phone.get("number").replace("'", "").strip()
 
-                found = Telefonica().query.filter(Telefonica.phone == number).first()
+                found = Tel().query.filter(Tel.phone == number).first()
 
                 if found:
                     failure_count = failure_count + 1
                     continue
 
-                phone = Telefonica(info=info, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0)
+                phone = Tel(info=info, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0)
                 db.session.add(phone)
                 success_count = success_count + 1
             except:
