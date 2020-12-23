@@ -102,7 +102,7 @@ const EntryData: React.FC<EntryDataProps> = ({
     handleSetEntrydata(
       numbers.split('\n').map((number, index) => ({
         number,
-        address: additional.split('\n')[index],
+        info: additional.split('\n')[index],
       }))
     )
     onNextStep()

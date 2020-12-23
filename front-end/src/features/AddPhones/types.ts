@@ -1,6 +1,6 @@
 export interface NewPhone {
   number: string
-  address: string
+  info: string
 }
 
 export interface AddPhonePayload {
