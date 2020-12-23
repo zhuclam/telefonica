@@ -53,11 +53,11 @@ class User(db.Model):
 class Telefonica(db.Model):
     __tablename__ = "telefonica"
     id = db.Column(db.Integer, primary_key=True)
-    direccion = db.Column(db.String(40))
-    telefono = db.Column(db.String(40), unique=True, nullable=False)
+    info = db.Column(db.String(40))
+    phone = db.Column(db.String(40), unique=True, nullable=False)
     answered_on = db.Column(db.DateTime())
     fulfilled_on = db.Column(db.Date())
-    comentarios = db.Column(db.String(100))
+    comments = db.Column(db.String(100))
     no_call = db.Column(db.Boolean, nullable=False)
     non_existent = db.Column(db.Boolean, nullable=False)
     unanswered_count = db.Column(db.Integer, nullable=False)
