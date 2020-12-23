@@ -33,14 +33,14 @@ const Telefonica: React.FC = () => {
       if (err) throw err
 
       setPhone(newPhone.phone)
-      setComments(newPhone.phone.comentarios)
+      setComments(newPhone.phone.comments)
       AlertManager.show('new-phone-received', {
         timeout: 5000,
       })
       PhoneStorage.add({
         id: newPhone.phone.id,
         status: null,
-        phone: newPhone.phone.telefono,
+        phone: newPhone.phone.phone,
         savedOn: Date.now(),
         restore: {
           ...newPhone.original,

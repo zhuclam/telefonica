@@ -56,7 +56,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           <tr>
             <th>Teléfono</th>
             <th>Dirección</th>
-            {phone.comentarios ? <th>Comentarios</th> : null}
+            {phone.comments ? <th>Comentarios</th> : null}
             <th>Última fecha que atendió</th>
             <th>Última fecha que se lo llamó</th>
           </tr>
@@ -64,10 +64,10 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
         <tbody>
           <tr>
             <td>
-              <PhoneLink phone={phone.telefono} />
+              <PhoneLink phone={phone.phone} />
             </td>
-            <td>{phone.direccion}</td>
-            {phone.comentarios ? <td>{phone.comentarios}</td> : null}
+            <td>{phone.info}</td>
+            {phone.comments ? <td>{phone.comments}</td> : null}
             <td>{phone.answeredOn ?? 'Nunca'}</td>
             <td>
               {phone.unansweredDate ? (
@@ -91,18 +91,18 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
     <div className="d-block d-sm-none text-center">
       <span>Teléfono:</span>
       <div>
-        <PhoneLink phone={phone.telefono} />
+        <PhoneLink phone={phone.phone} />
       </div>
       <br />
 
       <span>Dirección:</span>
-      <div>{phone.direccion}</div>
+      <div>{phone.info}</div>
       <br />
 
-      {phone.comentarios && (
+      {phone.comments && (
         <>
           <span>Comentarios:</span>
-          <div>{phone.comentarios}</div>
+          <div>{phone.comments}</div>
           <br />
         </>
       )}

@@ -19,12 +19,11 @@ const Review: React.FC<ReviewProps> = ({ entryData, onGoBack, onConfirm }) => (
       Por favor, revise bien la información y confirme si es correcta.
     </Description>
     <Info>
-      {entryData.map(({ number, address }, i) => (
+      {entryData.map(({ number, info }, i) => (
         <>
           <span key={number + i}>
             <span>Número:</span> {number}{' '}
-            <span className="separator">{'->'}</span> <span>Info:</span>{' '}
-            {address}
+            <span className="separator">{'->'}</span> <span>Info:</span> {info}
           </span>
           <br />
         </>

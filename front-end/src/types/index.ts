@@ -11,15 +11,15 @@ export enum Feedback {
 export interface Phone {
   answeredOn: null | string
   answeringMachineDate: null | string
-  comentarios: string
+  comments: string
   commentedOn: null | string
-  direccion: string | null
+  info: string | null
   fulfilledOn: null | string
   id: number
   noCall: boolean
   nonExistent: boolean
   postponedDays: number
-  telefono: string
+  phone: string
   unansweredCount: number
   unansweredDate: null | string
 }
@@ -38,7 +38,7 @@ export type OriginalData = Pick<
 export interface StoragePhone {
   id: Phone['id']
   status: null | Feedback
-  phone: Phone['telefono']
+  phone: Phone['phone']
   savedOn: number
   restore: OriginalData & {
     lastStatus: null | Feedback
