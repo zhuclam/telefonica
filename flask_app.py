@@ -116,27 +116,34 @@ def admin_dashboard():
         telefonica_table = "telefonica_test" if is_test else "telefonica"
 
         result = db.engine.execute("""
-            select
-              t1.called_on as date,
-              t2.total_calls,
-              count(t1.phone_id) as different,
-              sum(if(t1.status = 2, 1, 0)) as non_existent,
-              sum(if(t1.status = 3, 1, 0)) as no_call,
-              sum(if(t1.status = 1, 1, 0)) as answered
-            from {} t1
+            select r1.called_on as date, total_calls, different, answered, no_call, non_existent from (  
+                select
+                called_on,
+                count(phone_id) as different,
+                sum(if(status = 2, 1, 0)) as non_existent,
+                sum(if(status = 3, 1, 0)) as no_call
+                from {}
+                where genuine = 1
+                group by date(called_on)
+            ) r1
             inner join (
               select
                 count(*) as total_calls,
                 called_on
               from {}
               group by date(called_on)
-            ) t2
-            on date(t2.called_on) = date(t1.called_on)
-            where
-              t1.genuine = 1
-            group by date(t1.called_on)
-            order by t1.called_on desc;
-            """.format(history_table, history_table)
+            ) r2
+            on date(r2.called_on) = date(r1.called_on)
+            inner join (
+                select
+                sum(if(status = 1, 1, 0)) as answered,
+                called_on
+                from {}
+                group by date(called_on)
+            ) r3
+            on date(r3.called_on) = date(r1.called_on)
+            order by date desc
+            """.format(history_table, history_table, history_table)
         )
 
         def row_str_to_date(row):
