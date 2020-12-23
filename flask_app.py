@@ -116,27 +116,34 @@ def admin_dashboard():
         telefonica_table = "telefonica_test" if is_test else "telefonica"
 
         result = db.engine.execute("""
-            select
-              t1.called_on as date,
-              t2.total_calls,
-              count(t1.phone_id) as different,
-              sum(if(t1.status = 2, 1, 0)) as non_existent,
-              sum(if(t1.status = 3, 1, 0)) as no_call,
-              sum(if(t1.status = 1, 1, 0)) as answered
-            from {} t1
+            select r1.called_on as date, total_calls, different, answered, no_call, non_existent from (  
+                select
+                called_on,
+                count(phone_id) as different,
+                sum(if(status = 2, 1, 0)) as non_existent,
+                sum(if(status = 3, 1, 0)) as no_call
+                from {}
+                where genuine = 1
+                group by date(called_on)
+            ) r1
             inner join (
               select
                 count(*) as total_calls,
                 called_on
               from {}
               group by date(called_on)
-            ) t2
-            on date(t2.called_on) = date(t1.called_on)
-            where
-              t1.genuine = 1
-            group by date(t1.called_on)
-            order by t1.called_on desc;
-            """.format(history_table, history_table)
+            ) r2
+            on date(r2.called_on) = date(r1.called_on)
+            inner join (
+                select
+                sum(if(status = 1, 1, 0)) as answered,
+                called_on
+                from {}
+                group by date(called_on)
+            ) r3
+            on date(r3.called_on) = date(r1.called_on)
+            order by date desc
+            """.format(history_table, history_table, history_table)
         )
 
         def row_str_to_date(row):
@@ -147,16 +154,7 @@ def admin_dashboard():
             return row
         per_day_data = list(map(row_str_to_date, result))
 
-        calls = {
-            "today": days_utils.today(per_day_data),
-            "yesterday": days_utils.yesterday(per_day_data),
-            "this_week": days_utils.this_week(per_day_data),
-            "last_week": days_utils.last_week(per_day_data),
-            "this_month": days_utils.this_month(per_day_data),
-            "last_month": days_utils.last_month(per_day_data)
-        }
-
-        general_result = db.engine.execute("select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent from {};".format(telefonica_table))
+        general_result = db.engine.execute("select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent from telefonica;")
         general_result = list(general_result)
 
         general_data = {
@@ -175,7 +173,7 @@ def admin_dashboard():
             "total_valid_numbers": general_result[0]["total_numbers"] - general_result[0]["non_existent"]
         }
 
-        return jsonify({ "per_day_data": per_day_data, "calls": calls, "general_data": general_data, "per_month_data": per_month_data }), 200
+        return jsonify({ "per_day_data": per_day_data, "general_data": general_data, "per_month_data": per_month_data }), 200
     except Exception as e:
         return handle_error(e, "statistics")
 

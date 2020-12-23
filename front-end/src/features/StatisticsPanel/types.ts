@@ -1,12 +1,4 @@
 export interface Statistics {
-  calls: {
-    lastMonth: number
-    lastWeek: number
-    thisMonth: number
-    thisWeek: number
-    today: number
-    yesterday: number
-  }
   generalData: { noCall: number; nonExistent: number; totalNumbers: number }
   perDayData: [
     {

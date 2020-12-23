@@ -45,7 +45,7 @@ const StatisticsPanel: React.FC = () => {
 
   if (isLoading || !data) return <Spinner fulfill container />
 
-  const { calls, generalData, perMonthData, perDayData } = data
+  const { generalData, perMonthData, perDayData } = data
 
   const formatDecimals = (n: number) => n.toFixed(2)
 
@@ -80,35 +80,6 @@ const StatisticsPanel: React.FC = () => {
                 )}
                 %)
               </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <hr />
-
-      <h4 className="mb-4">Llamadas</h4>
-
-      <div className="table-responsive">
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Llamados hoy</th>
-              <th>Ayer</th>
-              <th>Esta semana</th>
-              <th>Semana pasada</th>
-              <th>Este mes</th>
-              <th>Mes pasado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{calls.today}</td>
-              <td>{calls.yesterday}</td>
-              <td>{calls.thisWeek}</td>
-              <td>{calls.lastWeek}</td>
-              <td>{calls.thisMonth}</td>
-              <td>{calls.lastMonth}</td>
             </tr>
           </tbody>
         </table>
