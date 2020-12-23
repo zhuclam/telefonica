@@ -152,10 +152,10 @@ class phone_service():
         if not isinstance(phones, list) or not len(phones) > 0: return False
         for phone in phones:
             if not isinstance(phone, dict): return False
-            address = phone.get("address")
+            info = phone.get("info")
             number = phone.get("number")
             if not number: return False
-            if address is not None and not isinstance(address, str): return False
+            if info is not None and not isinstance(info, str): return False
         return True
 
     def add_numbers(phones):
@@ -176,7 +176,7 @@ class phone_service():
                     failure_count = failure_count + 1
                     continue
 
-                phone = Telefonica(info=address, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0)
+                phone = Telefonica(info=info, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0)
                 db.session.add(phone)
                 success_count = success_count + 1
             except:
