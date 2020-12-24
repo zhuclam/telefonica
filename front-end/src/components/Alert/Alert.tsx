@@ -28,6 +28,7 @@ interface AlertProps {
   position?: AllowedPositions
   id?: string
   onClick?: () => void
+  variant?: 'success' | 'failure'
 }
 
 export const Alert: FunctionComponent<AlertProps> = ({
@@ -43,6 +44,7 @@ export const Alert: FunctionComponent<AlertProps> = ({
   position,
   id,
   onClick,
+  variant,
 }) => {
   const { getByName, AlertManager } = useContext(AlertContext)
   const { show, timeout, data, permanent } = getByName(name)
@@ -99,6 +101,7 @@ export const Alert: FunctionComponent<AlertProps> = ({
       position={position}
       onClick={onClick}
       role="alert"
+      variant={variant}
     >
       {Children.map(processedChildren, (child) => {
         if (!child) return child
@@ -131,6 +134,7 @@ const Container = styled.div<{
   animationTimingFunction: string
   position?: AllowedPositions
   onClick?: () => void
+  variant?: AlertProps['variant']
 }>`
   ${({
     noStyle,
@@ -141,11 +145,19 @@ const Container = styled.div<{
     animationTimingFunction,
     position,
     onClick,
+    variant,
   }) => {
     const animationProps = css`
       animation: ${animation} ${animationDuration}s ${animationTimingFunction};
       opacity: ${show ? 1 : 0};
     `
+
+    const variantCss = variant
+      ? variant === 'success'
+        ? SuccessVariant
+        : FailureVariant
+      : ''
+
     return noStyle
       ? css`
           ${animationProps}
@@ -162,8 +174,23 @@ const Container = styled.div<{
           display: inline-block;
           cursor: ${onClick ? 'pointer' : 'initial'};
           ${animationProps}
+          ${variantCss}
           ${containerCSS}
           ${getPositionalCSS(position, show, animationDuration)}
         `
   }}
+`
+
+const SuccessVariant = css`
+  background: #444;
+  border-bottom: #28a745 5px solid;
+  height: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const FailureVariant = css`
+  ${SuccessVariant}
+  border-bottom: ${({ theme }) => theme.text.colors.error} 5px solid;
 `

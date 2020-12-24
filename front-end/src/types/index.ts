@@ -22,6 +22,7 @@ export interface Phone {
   phone: string
   unansweredCount: number
   unansweredDate: null | string
+  noWeekends: boolean
 }
 
 export type OriginalData = Pick<
@@ -43,4 +44,8 @@ export interface StoragePhone {
   restore: OriginalData & {
     lastStatus: null | Feedback
   }
+}
+
+export interface PhoneOptionsType {
+  callOnWeekends: boolean
 }
