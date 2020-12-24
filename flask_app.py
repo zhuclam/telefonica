@@ -234,3 +234,38 @@ def edit_options(phone_id):
 
     except Exception as e:
         return handle_error(e, "edit_options")
+
+@app.route("/phones", methods=["GET"])
+@cross_origin()
+@jwt_required
+def get_phones():
+    try:
+        is_test = request.args.get("test")
+        Tel = Telefonica_test if is_test else Telefonica
+
+        filters = {
+            Tel.info : request.args.get("info", defaults="undefined"),
+            Tel.phone: request.args.get("number", defaults="undefined"),
+            Tel.id: request.args.get("id", defaults="undefined"),
+            Tel.answered_on: request.args.get("answeredOn", defaults="undefined"),
+            # calledOn is the same value for both fulfilled_on and unanswered_date
+            Tel.fulfilled_on: request.args.get("calledOn", defaults="undefined"),
+            Tel.unanswered_date: request.args.get("calledOn", defaults="undefined"),
+            # end comment
+            Tel.no_weekends: request.args.get("noWeekends", defaults="undefined"),
+            Tel.no_call: request.args.get("noCall", defaults="undefined"),
+            Tel.non_existent: request.args.get("nonExistent", defaults="undefined")
+        }
+        
+        return jsonify(filters)
+
+        if all(x == 'undefined' for x in filters.values()):
+            return jsonify(error= "At least 1 filter is required"), 400
+
+        filters = {k: a.get(k) if a.get(k) != 'never' else None for k in a if a.get(k) is not "undefined"}
+        
+        return jsonify(filters)
+
+
+    except Exception as e:
+        return handle_error(e, "get_phones")
