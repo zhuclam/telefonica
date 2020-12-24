@@ -313,9 +313,11 @@ def get_phones():
 @jwt_required
 def delete_phone(phone_id):
     try:
-
         is_test = request.args.get("test")
         Tel = Telefonica_test if is_test else Telefonica
+
+        if not phone_id.isnumeric():
+            return jsonify({"error": "Invalid phone id"}), 400
 
         phone = Tel().query.get(phone_id)
 
