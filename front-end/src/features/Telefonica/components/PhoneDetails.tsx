@@ -1,9 +1,10 @@
-import { useConfig } from 'hooks'
 import React from 'react'
+import { useConfig } from 'hooks'
 import styled from 'styled-components'
 import { Feedback, Phone } from 'types'
 import { ConfirmationModal, useConfirmationModal } from './ConfirmationModal'
 import { PhoneLink } from './PhoneLink'
+import { PhoneOptions } from './PhoneOptions'
 
 interface PhoneDetailsProps {
   phone: Phone
@@ -127,16 +128,10 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
     </div>
   )
 
-  const HelpButton = (
-    <div className="mt-3 mr-3 d-flex justify-content-end">
-      <button
-        className="text-secondary mb-0 border-0"
-        style={{ textDecoration: 'underline', background: 'none' }}
-        onClick={openHelpSection}
-      >
-        ¿Qué hace cada botón?
-      </button>
-    </div>
+  const helpButton = (
+    <MiniSection>
+      <HelpButton onClick={openHelpSection}>¿Qué hace cada botón?</HelpButton>
+    </MiniSection>
   )
 
   const CommentsSection = (
@@ -178,7 +173,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   )
 
   const ButtonGroup = !advancedModeEnabled ? (
-    <div className="my-3 row d-flex justify-content-center">
+    <div className="my-4 row d-flex justify-content-center">
       <div className="col-6 mb-3 col-md-auto">
         <button
           className="btn btn-success btn-lg mx-auto mx-md-0 d-block w-100"
@@ -213,7 +208,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
       </div>
     </div>
   ) : (
-    <div className="my-3 row d-flex justify-content-center">
+    <div className="my-4 row d-flex justify-content-center">
       <div className="col-6 mb-2 col-md-auto">
         <button
           className="btn btn-success btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -278,9 +273,17 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
       <div className="container py-4">
         {DesktopTable}
         {MobileTable}
-        {advancedModeEnabled && HelpButton}
         {CommentsSection}
+        {advancedModeEnabled && (
+          <MiniSection>
+            <PhoneOptions
+              phoneId={phone.id}
+              initialNoCallOnWeekends={phone.noWeekends}
+            />
+          </MiniSection>
+        )}
         {ButtonGroup}
+        {advancedModeEnabled && helpButton}
         {feedbackToConfirm !== null && (
           <ConfirmationModal
             isOpen={isModalOpen}
@@ -311,6 +314,31 @@ const Input = styled.input`
     border-bottom-color: ${({ theme }) =>
       theme.darkMode ? theme.text.colors.white : theme.text.colors.black};
   }
+`
+
+const MiniSection = styled.div`
+  border-top: 1px solid
+    ${({ theme }) =>
+      theme.darkMode ? theme.text.colors.white : theme.text.colors.secondary};
+  border-bottom: 1px solid
+    ${({ theme }) =>
+      theme.darkMode ? theme.text.colors.white : theme.text.colors.secondary};
+  padding: 10px 0;
+  margin-top: 2em;
+  display: flex;
+
+  > div {
+    width: 100%;
+  }
+`
+
+const HelpButton = styled.button`
+  margin-bottom: 0;
+  border: none;
+  color: ${({ theme }) => (theme.darkMode ? theme.text.colors.white : '#555')};
+  text-decoration: underline;
+  background: none;
+  margin: auto;
 `
 
 export { PhoneDetails }

@@ -5,7 +5,6 @@ import { Alert, ErrorDisplay, Spinner, useAlerts } from 'components'
 import { PhoneResponse } from './types'
 import { HelpSection, PhoneDetails, PhonesInStorage } from './components'
 import { Route, Switch, useHistory } from 'react-router'
-import { css } from 'styled-components'
 import { useConfig, usePhoneStorage, useFetch } from 'hooks'
 import { Feedback, StoragePhone } from 'types'
 import { useThrottle } from 'hooks/utils'
@@ -121,17 +120,13 @@ const Telefonica: React.FC = () => {
       <Helmet>
         <title>{process.env.REACT_APP_CONG_INITIALS} Telefónica</title>
       </Helmet>
-      <Alert name="new-phone-received" position="top" containerCSS={AlertCss}>
+      <Alert name="new-phone-received" position="top" variant="success">
         <div className="text-center">✨ ¡Nuevo número recibido! ✨🎉</div>
       </Alert>
-      <Alert
-        name="feedback-failed"
-        position="top"
-        containerCSS={FailedAlertCss}
-      >
+      <Alert name="feedback-failed" position="top" variant="failure">
         <div className="text-center">No se pudo enviar su feedback 😢</div>
       </Alert>
-      <Alert name="edit-success" position="bottom" containerCSS={AlertCss}>
+      <Alert name="edit-success" position="bottom" variant="success">
         <div className="text-center">Número actualizado.</div>
       </Alert>
       <PhoneDetails
@@ -169,19 +164,5 @@ const Telefonica: React.FC = () => {
     </Container>
   )
 }
-
-const AlertCss = css`
-  background: #444;
-  border-bottom: #28a745 5px solid;
-  height: 76px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
-const FailedAlertCss = css`
-  ${AlertCss}
-  border-bottom: ${({ theme }) => theme.text.colors.error} 5px solid;
-`
 
 export { Telefonica }

@@ -90,7 +90,7 @@ class Fetch {
     return this.doRequest(fetch(...this.generateFetchParams(url, 'POST', body)))
   }
 
-  async put<Payload extends object, Response>(
+  async put<Payload extends object, Response = undefined>(
     url: URLObject,
     body: Payload
   ): Promise<ReturnStatement<Response>> {

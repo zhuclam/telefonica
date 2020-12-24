@@ -12,9 +12,8 @@ import {
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { useAuth, useConfig } from 'hooks'
-import { Switch } from './Switch'
 import { useOnClickOutside } from 'hooks/utils'
-import { Alert, useAlerts } from './Alert'
+import { Alert, useAlerts, Switch } from '.'
 
 const Navbar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(true)

@@ -1,5 +1,4 @@
 import React from 'react'
-import { css } from 'styled-components'
 import { useConfig } from 'hooks'
 import { Alert } from '.'
 import { Navbar } from './Navbar'
@@ -15,7 +14,7 @@ const Layout: React.FC = ({ children }) => {
       {testModeEnabled && <TestingLabel />}
       <Navbar />
       {children}
-      <Alert name="not-so-fast" position="bottom" containerCSS={FailedAlertCss}>
+      <Alert name="not-so-fast" position="bottom" variant="failure">
         ¡No tan rápido! No es recomendable tocar un botón tan seguido.
       </Alert>
     </>
@@ -70,15 +69,5 @@ const backgroundGlobalStyles = (
     }
 `}</style>
 )
-
-const FailedAlertCss = css`
-  background: #444;
-  border-bottom: #28a745 5px solid;
-  height: 76px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-bottom: ${({ theme }) => theme.text.colors.error} 5px solid;
-`
 
 export { Layout }

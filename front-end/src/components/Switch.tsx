@@ -2,12 +2,12 @@ import React from 'react'
 import styled from 'styled-components'
 
 interface SwitchProps {
-  label: string
+  label?: string
   onChange: (checked: boolean) => void
   checked: boolean
 }
 
-const Switch: React.FC<SwitchProps> = ({ label, onChange, checked }) => (
+const Switch: React.FC<SwitchProps> = ({ label = '', onChange, checked }) => (
   <SwitchContainer>
     <input
       type="checkbox"
@@ -15,7 +15,9 @@ const Switch: React.FC<SwitchProps> = ({ label, onChange, checked }) => (
       checked={checked}
       onChange={(e) => onChange(e.target.checked)}
     />
-    <label htmlFor={`${label.split(' ').join('-')}-check`}>{label}</label>
+    <label htmlFor={`${label.split(' ').join('-')}-check`}>
+      {label || <span>&nbsp;</span>}
+    </label>
   </SwitchContainer>
 )
 
@@ -41,6 +43,7 @@ const SwitchContainer = styled.div`
     :checked + label:after {
       left: 16px;
       background-color: cornflowerblue;
+      border-color: cornflowerblue;
     }
   }
 
@@ -71,12 +74,13 @@ const SwitchContainer = styled.div`
       width: 20px;
       height: 20px;
       background-color: #fff;
+      border: 1px solid #ededed;
       border-radius: 14px;
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
         0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
       z-index: 2;
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      transition-property: left, background-color;
+      transition-property: left, background-color, border-color;
     }
   }
 `
