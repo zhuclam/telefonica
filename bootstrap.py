@@ -65,6 +65,7 @@ class Telefonica(db.Model):
     postponed_days = db.Column(db.Integer, nullable=False)
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
+    no_weekends = db.Column(db.Boolean, nullable=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -86,6 +87,7 @@ class Telefonica_test(db.Model):
     postponed_days = db.Column(db.Integer, nullable=False)
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
+    no_weekends = db.Column(db.Boolean, nullable=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -107,6 +109,7 @@ class Telefonica_backup(db.Model):
     postponed_days = db.Column(db.Integer, nullable=False)
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
+    no_weekends = db.Column(db.Boolean, nullable=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
