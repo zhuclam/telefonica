@@ -37,6 +37,14 @@ def validate(name, data, validator = None, **kwargs):
         if not valid:
             raise Exception("'{}' is invalid".format(name))
 
+def validate_keys(dic, keys_list):
+    invalid_key = None
+    for key in dic.keys():
+        if not key in keys_list:
+            invalid_key = key
+            break
+    return invalid_key
+
 """
 
 Date utils here
@@ -54,6 +62,8 @@ def to_locale_string(d, show_time = False):
     return d.strftime("%a, %d %b %Y")
 
 class days_utils():
+    def check_today_is_weekend(): return datetime.today().weekday() > 4
+
     def today(per_day_data):
         today_data = list(filter(lambda x: x["date"] == today().strftime("%d/%m/%Y"), per_day_data))
         if len(today_data) > 0:

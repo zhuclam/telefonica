@@ -6,7 +6,7 @@ from flask_cors import cross_origin
 # mine
 from bootstrap import app, db, Telefonica, Telefonica_test
 from auth import authenticate, admin_required
-from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate
+from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
 from services import phone_service
 
 @app.route('/', defaults={'path': ''}, methods=["GET"])
@@ -34,7 +34,11 @@ def next():
         if request.args.get("id"):
             phone = Tel().query.get(request.args.get("id"))
         else:
-            phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
+            is_weekend = days_utils.check_today_is_weekend()
+            if is_weekend:
+                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.no_weekends == False).order_by(Tel.fulfilled_on.asc()).first()
+            else:
+                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
             phone.postponed_days = 1
             phone.non_existent = 0
             db.session.commit()
@@ -116,7 +120,7 @@ def admin_dashboard():
         telefonica_table = "telefonica_test" if is_test else "telefonica"
 
         result = db.engine.execute("""
-            select r1.called_on as date, total_calls, different, answered, no_call, non_existent from (  
+            select r1.called_on as date, total_calls, different, answered, no_call, non_existent from (
                 select
                 called_on,
                 count(phone_id) as different,
@@ -152,9 +156,10 @@ def admin_dashboard():
                 row["date"] = row["date"].strftime("%d/%m/%Y")
 
             return row
+
         per_day_data = list(map(row_str_to_date, result))
 
-        general_result = db.engine.execute("select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent from telefonica;")
+        general_result = db.engine.execute("select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent from {};".format(telefonica_table))
         general_result = list(general_result)
 
         general_data = {
@@ -195,3 +200,37 @@ def add_numbers():
 
     except Exception as e:
         return handle_error(e, "add_numbers")
+
+@app.route("/phones/<phone_id>/options", methods=["PUT"])
+@cross_origin()
+@jwt_required
+def edit_options(phone_id):
+    try:
+        data = request.get_json()
+        validate("body", data, lambda d: len(d) > 0)
+        invalid_key = validate_keys(data, ['call_on_weekends'])
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        call_on_weekends = data.get('call_on_weekends')
+        is_test = request.args.get("test")
+
+
+        if call_on_weekends is not None:
+            validate("body.call_on_weekends", call_on_weekends, lambda val: type(val) == bool)
+
+        Tel = Telefonica_test if is_test else Telefonica
+        phone = Tel().query.get(phone_id)
+
+        if phone is None:
+            return jsonify({"error": "Invalid phone id"}), 400
+
+        if call_on_weekends is not None:
+            phone.no_weekends = not call_on_weekends
+
+        db.session.commit()
+
+        return "", 204
+
+    except Exception as e:
+        return handle_error(e, "edit_options")
