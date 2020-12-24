@@ -15,6 +15,7 @@ import {
   Telefonica,
   StatisticsPanel,
   AddPhones,
+  SearchAndEdit,
 } from './features'
 import './app.css'
 
@@ -72,6 +73,12 @@ const MainRouter: React.FC = () => {
         path="/admin-panel/add-phones"
         exact
         component={AddPhones}
+        condition={isAdmin}
+      />
+      <ProtectedRoute
+        path="/admin-panel/search-and-edit"
+        exact
+        component={SearchAndEdit}
         condition={isAdmin}
       />
 
