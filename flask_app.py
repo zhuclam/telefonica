@@ -237,35 +237,95 @@ def edit_options(phone_id):
 
 @app.route("/phones", methods=["GET"])
 @cross_origin()
-@jwt_required
+@admin_required
 def get_phones():
     try:
         is_test = request.args.get("test")
-        Tel = Telefonica_test if is_test else Telefonica
+        Telefonica_table = 'telefonica_test' if is_test else 'telefonica'
+
+        invalid_key = validate_keys(request.args, ['info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent'])
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
 
         filters = {
-            Tel.info : request.args.get("info", defaults="undefined"),
-            Tel.phone: request.args.get("number", defaults="undefined"),
-            Tel.id: request.args.get("id", defaults="undefined"),
-            Tel.answered_on: request.args.get("answeredOn", defaults="undefined"),
+            "info" : request.args.get("info", "undefined"),
+            "phone": request.args.get("number", "undefined"),
+            "id": request.args.get("id", "undefined"),
+            "answered_on": request.args.get("answeredOn", "undefined"),
             # calledOn is the same value for both fulfilled_on and unanswered_date
-            Tel.fulfilled_on: request.args.get("calledOn", defaults="undefined"),
-            Tel.unanswered_date: request.args.get("calledOn", defaults="undefined"),
+            "fulfilled_on": request.args.get("calledOn", "undefined"),
+            "unanswered_date": request.args.get("calledOn", "undefined"),
             # end comment
-            Tel.no_weekends: request.args.get("noWeekends", defaults="undefined"),
-            Tel.no_call: request.args.get("noCall", defaults="undefined"),
-            Tel.non_existent: request.args.get("nonExistent", defaults="undefined")
+            "no_weekends": request.args.get("noWeekends", "undefined"),
+            "no_call": request.args.get("noCall", "undefined"),
+            "non_existent": request.args.get("nonExistent", "undefined")
         }
-        
-        return jsonify(filters)
 
         if all(x == 'undefined' for x in filters.values()):
             return jsonify(error= "At least 1 filter is required"), 400
 
-        filters = {k: a.get(k) if a.get(k) != 'never' else None for k in a if a.get(k) is not "undefined"}
-        
-        return jsonify(filters)
+        filters = {k: filters.get(k) if filters.get(k) != 'never' else None for k in filters if filters.get(k) is not "undefined"}
+
+        query = "select * from {} where ".format(Telefonica_table)
+
+        for i, k in enumerate(filters):
+            value = filters.get(k)
+            value = value if type(value) != bool else int(value)
+            if value is None:
+                query += "{} is null".format(k)
+            else:
+                query += "{} like '%{}%'".format(k, value)
+            if i != len(filters) - 1:
+                query += " and "
+
+        query += " limit 100"
+
+        found_phones = db.engine.execute(query)
+
+        def phone_date_to_locale(phone):
+            if phone.get("answered_on") is not None:
+                phone["answered_on"] = to_locale_string(phone.get("answered_on"), True)
+
+            if phone.get("fulfilled_on") is not None:
+                phone["fulfilled_on"] = to_locale_string(phone.get("fulfilled_on"))
+
+            if phone.get("unanswered_date") is not None:
+                phone["unanswered_date"] = to_locale_string(phone.get("unanswered_date"), True)
+
+            if phone.get("answering_machine_date") is not None:
+                phone["answering_machine_date"] = to_locale_string(phone.get("answering_machine_date"))
+
+            if phone.get("commented_on") is not None:
+                phone["commented_on"] = to_locale_string(phone.get("commented_on"))
+
+            return phone
+
+        found_phones = list(map(lambda p: phone_date_to_locale(p), db_result_to_dict(found_phones)))
+
+        return jsonify(found_phones)
 
 
     except Exception as e:
         return handle_error(e, "get_phones")
+
+@app.route("/phones/<phone_id>", methods=["DELETE"])
+@cross_origin()
+@jwt_required
+def delete_phone(phone_id):
+    try:
+
+        is_test = request.args.get("test")
+        Tel = Telefonica_test if is_test else Telefonica
+
+        phone = Tel().query.get(phone_id)
+
+        if phone is None:
+            return jsonify({"error": "Invalid phone id"}), 400
+
+        db.session.delete(phone)
+        db.session.commit()
+
+        return "{}", 200
+
+    except Exception as e:
+        return handle_error(e, "delete_phone")
