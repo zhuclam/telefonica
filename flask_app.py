@@ -57,7 +57,7 @@ def next():
             phone.answered_on = to_locale_string(phone.answered_on, True)
 
         if phone.fulfilled_on is not None:
-            phone.fulfilled_on = to_locale_string(phone.fulfilled_on)
+            phone.fulfilled_on = to_locale_string(phone.fulfilled_on, True)
 
         if phone.unanswered_date is not None:
             phone.unanswered_date = to_locale_string(phone.unanswered_date, True)
