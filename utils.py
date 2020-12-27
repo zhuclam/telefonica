@@ -25,6 +25,7 @@ class PHONE_STATUS:
     answering_machine = 4
     postponed = 5
     ignored = 6
+    rushed = 7
 
 def validate(name, data, validator = None, **kwargs):
     if data is None:

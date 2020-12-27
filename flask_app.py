@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
 
 # mine
-from bootstrap import app, db, Telefonica, Telefonica_test
+from bootstrap import app, db, Telefonica, Telefonica_test, Configurations, Configurations_test
 from auth import authenticate, admin_required
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
 from services import phone_service
@@ -57,7 +57,7 @@ def next():
             phone.answered_on = to_locale_string(phone.answered_on, True)
 
         if phone.fulfilled_on is not None:
-            phone.fulfilled_on = to_locale_string(phone.fulfilled_on)
+            phone.fulfilled_on = to_locale_string(phone.fulfilled_on, True)
 
         if phone.unanswered_date is not None:
             phone.unanswered_date = to_locale_string(phone.unanswered_date, True)
@@ -81,12 +81,12 @@ def update_phone():
         validate("body", data)
 
         id = data.get('id')
-        answered = int(data.get('answered'))
+        answered = data.get('answered')
         comments = data.get("comments")
         is_test = request.args.get("test")
         restore = data.get("restore")
 
-        validate("body.answered", answered, lambda d: isinstance(d, int))
+        validate("body.answered", answered, lambda a: a.isnumeric() and int(a) > -1 and int(a) < 8)
         validate("body.comments", comments, lambda c: isinstance(c, str), optional = True)
 
         answered = int(answered)
@@ -105,6 +105,8 @@ def update_phone():
             phone_service.handle_postponed(id, comments, is_test, restore)
         if answered == PHONE_STATUS.ignored:
             phone_service.handle_ignored(id, comments, is_test, restore)
+        if answered == PHONE_STATUS.rushed:
+            phone_service.handle_rushed(id, comments, is_test)
 
         return ('', 200)
     except Exception as e:
@@ -310,12 +312,14 @@ def get_phones():
 
 @app.route("/phones/<phone_id>", methods=["DELETE"])
 @cross_origin()
-@jwt_required
+@admin_required
 def delete_phone(phone_id):
     try:
-
         is_test = request.args.get("test")
         Tel = Telefonica_test if is_test else Telefonica
+
+        if not phone_id.isnumeric():
+            return jsonify({"error": "Invalid phone id"}), 400
 
         phone = Tel().query.get(phone_id)
 
@@ -329,3 +333,84 @@ def delete_phone(phone_id):
 
     except Exception as e:
         return handle_error(e, "delete_phone")
+
+@app.route("/configurations", methods=["GET"])
+@cross_origin()
+@admin_required
+def get_configurations():
+    try:
+        is_test = request.args.get("test")
+        Configs = Configurations_test if is_test else Configurations
+        configs = Configs().query.get(1)
+
+        return jsonify(configs= configs.as_dict()), 200
+
+
+    except Exception as e:
+        return handle_error(e, "get_configurations")
+
+@app.route("/configurations", methods=["PUT"])
+@cross_origin()
+@admin_required
+def edit_configurations():
+    try:
+        is_test = request.args.get("test")
+        Configs = Configurations_test if is_test else Configurations
+
+        allowed_keys = [
+            'campaign_mode',
+            'unanswered_max_attemps',
+            'answering_machine_max_attemps',
+            'answering_machine_postponed_days',
+            'postponed_button_days',
+            'non_existent_postponed_days',
+            'hidden_buttons'
+        ]
+
+        data = request.get_json()
+        validate("body", data, lambda d: len(d) > 0)
+        invalid_key = validate_keys(data, allowed_keys)
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        campaign_mode = data.get('campaign_mode', 'nil')
+        unanswered_max_attemps = data.get('unanswered_max_attemps', 'nil')
+        answering_machine_max_attemps = data.get('answering_machine_max_attemps', 'nil')
+        answering_machine_postponed_days = data.get('answering_machine_postponed_days', 'nil')
+        postponed_button_days = data.get('postponed_button_days', 'nil')
+        non_existent_postponed_days = data.get('non_existent_postponed_days', 'nil')
+        hidden_buttons = data.get('hidden_buttons', 'nil')
+
+
+        if campaign_mode != 'nil':
+            validate("body.campaign_mode", campaign_mode, lambda val: type(val) == int and (val == 1 or val == 0))
+
+        if unanswered_max_attemps != 'nil':
+            validate("body.unanswered_max_attemps", unanswered_max_attemps, lambda val: type(val) == int and val >= 0)
+
+        if answering_machine_max_attemps != 'nil':
+            validate("body.answering_machine_max_attemps", answering_machine_max_attemps, lambda val: type(val) == int and val >= 0)
+
+        if answering_machine_postponed_days != 'nil':
+            validate("body.answering_machine_postponed_days", answering_machine_postponed_days, lambda val: type(val) == int and val >= 0)
+
+        if postponed_button_days != 'nil':
+            validate("body.postponed_button_days", postponed_button_days, lambda val: type(val) == int and val >= 0)
+
+        if non_existent_postponed_days != 'nil':
+            validate("body.non_existent_postponed_days", non_existent_postponed_days, lambda val: type(val) == int and val >= 0)
+
+        if hidden_buttons != 'nil':
+            validate("body.hidden_buttons", hidden_buttons, lambda val: type(val) == str and (True if len(val) == 0 else all(n.isnumeric() and int(n) > -1 and int(n) < 7 for n in val.split(','))))
+
+        configs = Configs().query.get(1)
+
+        for config, value in data.items():
+            setattr(configs, config, value)
+
+        db.session.commit()
+
+        return jsonify(configs= configs.as_dict()), 200
+
+    except Exception as e:
+        return handle_error(e, "edit_configurations")

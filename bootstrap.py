@@ -155,3 +155,38 @@ class History_backup(db.Model):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
        dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
        return dict
+
+class Configurations(db.Model):
+    __tablename__ = "configurations"
+    id = db.Column(db.Integer, primary_key=True)
+    campaign_mode = db.Column(db.Boolean, nullable=False)
+    unanswered_max_attemps = db.Column(db.Integer, nullable=False)
+    answering_machine_max_attemps = db.Column(db.Integer, nullable=False)
+    answering_machine_postponed_days = db.Column(db.Integer, nullable=False)
+    postponed_button_days = db.Column(db.Integer, nullable=False)
+    non_existent_postponed_days = db.Column(db.Integer, nullable=False)
+    hidden_buttons = db.Column(db.String(40), nullable=False)
+
+    def as_dict(self):
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       del dict['id']
+       return dict
+
+class Configurations_test(db.Model):
+    __tablename__ = "configurations_test"
+    id = db.Column(db.Integer, primary_key=True)
+    campaign_mode = db.Column(db.Boolean, nullable=False)
+    unanswered_max_attemps = db.Column(db.Integer, nullable=False)
+    answering_machine_max_attemps = db.Column(db.Integer, nullable=False)
+    answering_machine_postponed_days = db.Column(db.Integer, nullable=False)
+    postponed_button_days = db.Column(db.Integer, nullable=False)
+    non_existent_postponed_days = db.Column(db.Integer, nullable=False)
+    hidden_buttons = db.Column(db.String(40), nullable=False)
+
+    def as_dict(self):
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       del dict['id']
+       return dict
+

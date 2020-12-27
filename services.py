@@ -2,7 +2,7 @@ from bootstrap import db, Telefonica, Telefonica_test, History, History_test
 from utils import now, today, PHONE_STATUS
 
 class phone_service():
-    def get_phone(id, is_test, restore):
+    def get_phone(id, is_test, restore = None):
         table = Telefonica_test if is_test else Telefonica
         phone = table.query.get(id)
         if restore:
@@ -147,6 +147,15 @@ class phone_service():
         db.session.commit()
         if restore and restore["last_status"] is not None:
             history_service.restore_call(id=id, new_status=PHONE_STATUS.ignored, is_test=is_test, genuine=is_genuine, last_status=restore["last_status"])
+
+    def handle_rushed(id, comments, is_test):
+        # this handler does not support restoring, because it shouldn't
+        phone = phone_service.get_phone(id, is_test)
+        is_genuine = phone_service.is_genuine(phone)
+        phone_service.handle_comments(phone, comments)
+        phone_service.send_to_end_of_queue(phone)
+        db.session.commit()
+        history_service.register_call(id = id, status = PHONE_STATUS.rushed, is_test = is_test, genuine = is_genuine)
 
     def validate_new_phones(phones):
         if not isinstance(phones, list) or not len(phones) > 0: return False
