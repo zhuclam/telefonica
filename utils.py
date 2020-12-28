@@ -39,12 +39,11 @@ def validate(name, data, validator = None, **kwargs):
             raise Exception("'{}' is invalid".format(name))
 
 def validate_keys(dic, keys_list):
-    invalid_key = None
+    keys_list.append('test')
     for key in dic.keys():
         if not key in keys_list:
-            invalid_key = key
-            break
-    return invalid_key
+            return key
+    return None
 
 """
 

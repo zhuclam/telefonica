@@ -272,7 +272,9 @@ def get_phones():
 
         for i, k in enumerate(filters):
             value = filters.get(k)
-            value = value if type(value) != bool else int(value)
+            if value == "false": value = 0
+            if value == "true": value = 1
+
             if value is None:
                 query += "{} is null".format(k)
             else:

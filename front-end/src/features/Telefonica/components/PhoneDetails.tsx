@@ -2,9 +2,10 @@ import React from 'react'
 import { useConfig } from 'hooks'
 import styled from 'styled-components'
 import { Feedback, Phone } from 'types'
-import { ConfirmationModal, useConfirmationModal } from './ConfirmationModal'
+import { ConfirmationModal, useConfirmationModal } from 'components'
 import { PhoneLink } from './PhoneLink'
 import { PhoneOptions } from './PhoneOptions'
+import { colors, labels } from 'consts'
 
 interface PhoneDetailsProps {
   phone: Phone
@@ -25,11 +26,11 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
   const {
     isModalOpen,
-    feedbackToConfirm,
+    data: feedbackToConfirm,
     askEditConfirmation,
     toggleModal,
     reset,
-  } = useConfirmationModal()
+  } = useConfirmationModal<Feedback>()
 
   const handleGeneric = (feedback: Feedback) => () => {
     if (advancedModeEnabled) askEditConfirmation(feedback)
@@ -289,7 +290,9 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             isOpen={isModalOpen}
             toggleModal={toggleModal}
             onConfirm={doConfirm}
-            feedbackToConfirm={feedbackToConfirm}
+            title="¿Seguro?"
+            buttonColor={colors[feedbackToConfirm]}
+            confirmationLabel={labels[feedbackToConfirm]}
           />
         )}
       </div>
