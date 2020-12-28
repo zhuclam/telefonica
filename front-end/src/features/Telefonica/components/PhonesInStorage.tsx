@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import { usePhoneStorage } from 'hooks'
 import { Feedback, StoragePhone } from 'types'
 import { isToday } from 'utils'
-import { colors, labels } from '../constants'
-import { useConfirmationModal, ConfirmationModal } from './'
+import { colors, labels } from 'consts'
+import { useConfirmationModal, ConfirmationModal } from 'components'
 
 interface PhonesInStorageProps {
   currentPhoneId: number
@@ -21,23 +21,33 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
   const [collapsed, setCollapsed] = useState<number | null>(null)
   const {
     isModalOpen,
-    feedbackToConfirm,
-    data: storagePhoneToConfirm,
+    data,
     askEditConfirmation,
     toggleModal,
     reset,
-  } = useConfirmationModal()
+  } = useConfirmationModal<{
+    storagePhoneToConfirm: StoragePhone
+    feedbackToConfirm: Feedback
+  }>()
+
+  const feedbackToConfirm = data?.feedbackToConfirm || null
+  const storagePhoneToConfirm = data?.storagePhoneToConfirm || null
 
   const resetStates = () => {
     setCollapsed(null)
     reset()
   }
 
+  const onAskEditConfirmation = (
+    feedbackToConfirm: Feedback,
+    storagePhoneToConfirm: StoragePhone
+  ) => askEditConfirmation({ storagePhoneToConfirm, feedbackToConfirm })
+
   const handleCollapsed = (i: number) =>
     collapsed !== i ? setCollapsed(i) : setCollapsed(null)
 
   const doConfirm = () => {
-    if (!storagePhoneToConfirm || feedbackToConfirm === null) return
+    if (!storagePhoneToConfirm || typeof feedbackToConfirm !== 'number') return
     onEditRequest(storagePhoneToConfirm, feedbackToConfirm)
     resetStates()
   }
@@ -78,7 +88,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
             {p.status !== Feedback.ANSWERED && (
               <button
                 className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => askEditConfirmation(Feedback.ANSWERED, p)}
+                onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
               >
                 Atendió
               </button>
@@ -86,7 +96,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
             {p.status !== Feedback.UNANSWERED && (
               <button
                 className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => askEditConfirmation(Feedback.UNANSWERED, p)}
+                onClick={() => onAskEditConfirmation(Feedback.UNANSWERED, p)}
               >
                 No en casa
               </button>
@@ -95,7 +105,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
               <button
                 className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
                 onClick={() =>
-                  askEditConfirmation(Feedback.ANSWERING_MACHINE, p)
+                  onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
                 }
               >
                 Contestador
@@ -104,7 +114,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
             {p.status !== Feedback.POSTPONE && (
               <button
                 className="btn btn-info btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => askEditConfirmation(Feedback.POSTPONE, p)}
+                onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
               >
                 Aplazar
               </button>
@@ -112,7 +122,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
             {p.status !== Feedback.IGNORE && (
               <button
                 className="btn btn-secondary btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => askEditConfirmation(Feedback.IGNORE, p)}
+                onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
               >
                 Ignorar
               </button>
@@ -120,7 +130,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
             {p.status !== Feedback.NO_CALL && (
               <button
                 className="btn btn-warning btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => askEditConfirmation(Feedback.NO_CALL, p)}
+                onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
               >
                 No visitar
               </button>
@@ -128,7 +138,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
             {p.status !== Feedback.NON_EXISTENT && (
               <button
                 className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => askEditConfirmation(Feedback.NON_EXISTENT, p)}
+                onClick={() => onAskEditConfirmation(Feedback.NON_EXISTENT, p)}
               >
                 No existe
               </button>
@@ -165,7 +175,9 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
           isOpen={isModalOpen}
           toggleModal={toggleModal}
           onConfirm={doConfirm}
-          feedbackToConfirm={feedbackToConfirm}
+          title="¿Seguro?"
+          buttonColor={colors[feedbackToConfirm]}
+          confirmationLabel={labels[feedbackToConfirm]}
         />
       )}
     </>

@@ -10,7 +10,7 @@ const Layout: React.FC = ({ children }) => {
 
   return (
     <>
-      {darkModeEnabled && <Helmet>{backgroundGlobalStyles}</Helmet>}
+      {darkModeEnabled && <Helmet>{darkStyles}</Helmet>}
       {testModeEnabled && <TestingLabel />}
       <Navbar />
       {children}
@@ -21,7 +21,7 @@ const Layout: React.FC = ({ children }) => {
   )
 }
 
-const backgroundGlobalStyles = (
+const darkStyles = (
   <style>{`
     body {
       background: #222 !important;
@@ -30,6 +30,14 @@ const backgroundGlobalStyles = (
 
     table {
       color: white !important;
+    }
+
+    .table-striped thead tr {
+      background-color: rgba(0,0,0,.95)
+    }
+
+    .table-striped tbody tr:nth-of-type(even) {
+      background-color: rgba(0,0,0,.5)
     }
 
     .text-secondary {
