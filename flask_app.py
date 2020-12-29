@@ -398,7 +398,7 @@ def delete_phone(phone_id):
 
 @app.route("/configurations", methods=["GET"])
 @cross_origin()
-@admin_required
+@jwt_required
 def get_configurations():
     try:
         is_test = request.args.get("test")
