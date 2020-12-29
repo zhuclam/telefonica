@@ -29,6 +29,12 @@ def job():
     db.engine.execute("INSERT INTO history_backup SELECT * FROM history;")
     print("re-created history_backup")
 
+    print("gonna drop configurations_test")
+    db.engine.execute("DROP table configurations_test;")
+    db.engine.execute("CREATE TABLE configurations_test LIKE configurations;")
+    db.engine.execute("INSERT INTO configurations_test SELECT * FROM configurations;")
+    print("re-created configurations_test")
+
 
 print ("init")
 job()
