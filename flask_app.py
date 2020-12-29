@@ -312,6 +312,62 @@ def get_phones():
     except Exception as e:
         return handle_error(e, "get_phones")
 
+@app.route("/phones/<phone_id>", methods=["PUT"])
+@cross_origin()
+@admin_required
+def edit_phone(phone_id):
+    try:
+        is_test = request.args.get("test")
+        Tel = Telefonica_test if is_test else Telefonica
+
+        allowed_keys = [
+            'phone',
+            'comments',
+            'info',
+            'noCall',
+            'nonExistent',
+            'postponedDays',
+            'noWeekends'
+        ]
+
+        data = request.get_json()
+        validate("body", data, lambda d: len(d) > 0)
+        invalid_key = validate_keys(data, allowed_keys)
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        number = data.get('phone')
+        comments = data.get('comments')
+        info = data.get('info')
+        noCall = data.get('noCall')
+        nonExistent = data.get('nonExistent')
+        postponedDays = data.get('postponedDays')
+        noWeekends = data.get('noWeekends')
+
+        validate("body.phone", number, lambda p: p != '', optional=True)
+        validate("body.noCall", number, lambda x: type(x) == bool, optional=True)
+        validate("body.nonExistent", number, lambda x: type(x) == bool, optional=True)
+        validate("body.noWeekends", number, lambda x: type(x) == bool, optional=True)
+        validate("body.postponedDays", postponedDays, lambda n: n.isnumeric() and int(n) >= 0, optional=True)
+
+        if not phone_id.isnumeric():
+            return jsonify({"error": "Invalid phone id"}), 400
+
+        phone = Tel().query.get(phone_id)
+
+        if phone is None:
+            return jsonify({"error": "Invalid phone id"}), 400
+
+        for k, v in data.items():
+            setattr(phone, k , v)
+        
+        db.session.commit()
+
+        return jsonify(phone=phone.as_dict()), 200
+
+    except Exception as e:
+        return handle_error(e, "edit_phone")
+
 @app.route("/phones/<phone_id>", methods=["DELETE"])
 @cross_origin()
 @admin_required
