@@ -47,7 +47,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
               {[
                 phone.noCall && 'No visitar',
                 phone.nonExistent && 'No existe',
-                phone.noWeekends && 'No llamar',
+                phone.noWeekends && 'No llamar los finde',
               ]
                 .filter(Boolean)
                 .join(', ')}
