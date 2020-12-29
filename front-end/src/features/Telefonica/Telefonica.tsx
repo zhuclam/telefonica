@@ -6,7 +6,12 @@ import { PhoneResponse } from './types'
 import { HelpSection, PhoneDetails, PhonesInStorage } from './components'
 import { Route, Switch, useHistory } from 'react-router'
 import { useConfig, usePhoneStorage, useFetch } from 'hooks'
-import { Feedback, StoragePhone } from 'types'
+import {
+  CampaignFeedback,
+  Feedback,
+  FeedbackExtended,
+  StoragePhone,
+} from 'types'
 import { useThrottle } from 'hooks/utils'
 
 const Telefonica: React.FC = () => {
@@ -58,7 +63,7 @@ const Telefonica: React.FC = () => {
     fetchPhone()
   }, [fetchPhone])
 
-  const onFeedback = async (feedback: Feedback) => {
+  const onFeedback = async (feedback: FeedbackExtended) => {
     if (!phone) return
 
     try {
@@ -72,7 +77,12 @@ const Telefonica: React.FC = () => {
       if (err) throw err
 
       fetchPhone()
-      PhoneStorage.update(phone.id, feedback)
+      // We store rushed phones on front end as though they answered
+      // It doesn't really matter because we don't allow editing those anyway
+      PhoneStorage.update(
+        phone.id,
+        feedback === CampaignFeedback.RUSHED ? Feedback.ANSWERED : feedback
+      )
     } catch {
       AlertManager.hideAll()
       AlertManager.show('feedback-failed')

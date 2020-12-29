@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Collapse } from 'reactstrap'
+import { Collapse, Table } from 'reactstrap'
 import styled from 'styled-components'
-import { usePhoneStorage } from 'hooks'
+import { useConfig, usePhoneStorage } from 'hooks'
 import { Feedback, StoragePhone } from 'types'
 import { isToday } from 'utils'
 import { colors, labels } from 'consts'
@@ -29,6 +29,10 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     storagePhoneToConfirm: StoragePhone
     feedbackToConfirm: Feedback
   }>()
+
+  const {
+    configurations: { campaignMode },
+  } = useConfig()
 
   const feedbackToConfirm = data?.feedbackToConfirm || null
   const storagePhoneToConfirm = data?.storagePhoneToConfirm || null
@@ -72,79 +76,85 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     return (
       <tr key={p.id} style={{ position: 'relative' }}>
         <td>{p.phone}</td>
-        <td>
-          <span className={`text-${color}`}>{statusLabel}</span>
-        </td>
-        <td>
-          {phoneIsFromToday && (
-            <button
-              className="btn btn-secondary"
-              onClick={() => handleCollapsed(i)}
-            >
-              Editar
-            </button>
-          )}
-          <CollapseButtons isOpen={isCollapsed}>
-            {p.status !== Feedback.ANSWERED && (
+        {!campaignMode && (
+          <td>
+            <span className={`text-${color}`}>{statusLabel}</span>
+          </td>
+        )}
+        {!campaignMode && (
+          <td>
+            {phoneIsFromToday && (
               <button
-                className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
+                className="btn btn-secondary"
+                onClick={() => handleCollapsed(i)}
               >
-                Atendió
+                Editar
               </button>
             )}
-            {p.status !== Feedback.UNANSWERED && (
-              <button
-                className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => onAskEditConfirmation(Feedback.UNANSWERED, p)}
-              >
-                No en casa
-              </button>
-            )}
-            {p.status !== Feedback.ANSWERING_MACHINE && (
-              <button
-                className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
-                onClick={() =>
-                  onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
-                }
-              >
-                Contestador
-              </button>
-            )}
-            {p.status !== Feedback.POSTPONE && (
-              <button
-                className="btn btn-info btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
-              >
-                Aplazar
-              </button>
-            )}
-            {p.status !== Feedback.IGNORE && (
-              <button
-                className="btn btn-secondary btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
-              >
-                Ignorar
-              </button>
-            )}
-            {p.status !== Feedback.NO_CALL && (
-              <button
-                className="btn btn-warning btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
-              >
-                No visitar
-              </button>
-            )}
-            {p.status !== Feedback.NON_EXISTENT && (
-              <button
-                className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
-                onClick={() => onAskEditConfirmation(Feedback.NON_EXISTENT, p)}
-              >
-                No existe
-              </button>
-            )}
-          </CollapseButtons>
-        </td>
+            <CollapseButtons isOpen={isCollapsed}>
+              {p.status !== Feedback.ANSWERED && (
+                <button
+                  className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
+                >
+                  Atendió
+                </button>
+              )}
+              {p.status !== Feedback.UNANSWERED && (
+                <button
+                  className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() => onAskEditConfirmation(Feedback.UNANSWERED, p)}
+                >
+                  No en casa
+                </button>
+              )}
+              {p.status !== Feedback.ANSWERING_MACHINE && (
+                <button
+                  className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() =>
+                    onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
+                  }
+                >
+                  Contestador
+                </button>
+              )}
+              {p.status !== Feedback.POSTPONE && (
+                <button
+                  className="btn btn-info btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
+                >
+                  Aplazar
+                </button>
+              )}
+              {p.status !== Feedback.IGNORE && (
+                <button
+                  className="btn btn-secondary btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
+                >
+                  Ignorar
+                </button>
+              )}
+              {p.status !== Feedback.NO_CALL && (
+                <button
+                  className="btn btn-warning btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
+                >
+                  No visitar
+                </button>
+              )}
+              {p.status !== Feedback.NON_EXISTENT && (
+                <button
+                  className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() =>
+                    onAskEditConfirmation(Feedback.NON_EXISTENT, p)
+                  }
+                >
+                  No existe
+                </button>
+              )}
+            </CollapseButtons>
+          </td>
+        )}
       </tr>
     )
   })
@@ -158,18 +168,16 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
       <h6 className="container mb-3">
         Números anteriores en este dispositivo:
       </h6>
-      <div className="table-responsive">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Teléfono</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </table>
-      </div>
+      <Table responsive className="text-center">
+        <thead>
+          <tr>
+            <th>Teléfono</th>
+            {!campaignMode && <th>Estado</th>}
+            {!campaignMode && <th>Acciones</th>}
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </Table>
       {feedbackToConfirm !== null && (
         <ConfirmationModal
           isOpen={isModalOpen}
