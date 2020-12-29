@@ -23,7 +23,7 @@ const AdminPanel: React.FC = () => (
       </Item>
       <Item>
         <RouterLink to="/admin-panel/search-and-edit" background="dark">
-          <span>🔎</span> Buscador inteligente
+          <span>🔎</span> Buscar y editar
         </RouterLink>
       </Item>
       <Item>
