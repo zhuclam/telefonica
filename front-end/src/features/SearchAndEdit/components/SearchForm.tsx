@@ -8,6 +8,9 @@ const Error: React.FC = ({ children }) => (
   <span className="text-danger">{children}</span>
 )
 
+const delocalizeDateString = (date: string): string =>
+  date.split('/').reverse().join('-')
+
 interface SearchFormProps {
   onSearch: (filters: Filters) => void
 }
@@ -43,11 +46,11 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     answeredOn &&
       (answeredOn === 'Nunca'
         ? (filters.answeredOn = 'never')
-        : (filters.answeredOn = answeredOn))
+        : (filters.answeredOn = delocalizeDateString(answeredOn)))
     calledOn &&
       (calledOn === 'Nunca'
         ? (filters.calledOn = 'never')
-        : (filters.calledOn = calledOn))
+        : (filters.calledOn = delocalizeDateString(calledOn)))
     noWeekends && (filters.noWeekends = noWeekends)
     noCall && (filters.noCall = noCall)
     nonExistent && (filters.nonExistent = nonExistent)
@@ -102,14 +105,14 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
                 id="answeredOn"
                 name="answeredOn"
                 innerRef={register({
-                  pattern: /^\d{2}\/\d{2}\/\d{4}$/,
+                  pattern: /^(\d{2}\/\d{2}\/\d{4}|Nunca)$/,
                 })}
                 placeholder="Ej.: 13/04/2020"
                 autoComplete="off"
               />
               {errors.answeredOn && (
                 <Error>
-                  Formato inválido, debe ser dia/mes/año o dejar vacío.
+                  Formato inválido, debe ser dia/mes/año, 'Nunca' o dejar vacío.
                 </Error>
               )}
             </FormGroup>

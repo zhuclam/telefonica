@@ -35,7 +35,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
       </Thead>
       <Tbody>
         {entries.map((phone) => (
-          <tr>
+          <tr key={phone.id}>
             <td>{phone.id}</td>
             <PhoneCell>{phone.phone}</PhoneCell>
             <td>{phone.info}</td>
@@ -44,13 +44,13 @@ const SearchResult: React.FC<SearchResultProps> = ({
             <td>{phone.comments}</td>
             <td>{phone.postponedDays}</td>
             <td>
-              {phone.noCall
-                ? 'No visitar'
-                : phone.nonExistent
-                ? 'No existe'
-                : phone.noWeekends
-                ? 'No llamar'
-                : '-'}
+              {[
+                phone.noCall && 'No visitar',
+                phone.nonExistent && 'No existe',
+                phone.noWeekends && 'No llamar',
+              ]
+                .filter(Boolean)
+                .join(', ')}
             </td>
             <ActionCell>
               <Button color="warning" onClick={() => onEditRequest(phone)}>

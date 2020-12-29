@@ -78,8 +78,20 @@ const SearchAndEdit: FunctionComponent = () => {
 
   const handleBack = () => setEditingPhone(null)
 
+  const handleUpdatedPhone = (updatedPhone: Phone) =>
+    searchResult &&
+    setSearchResult(
+      searchResult.map((p) => (p.id === updatedPhone.id ? updatedPhone : p))
+    )
+
   if (editingPhone !== null)
-    return <EditPhone phone={editingPhone} onBack={handleBack} />
+    return (
+      <EditPhone
+        phone={editingPhone}
+        onBack={handleBack}
+        onUpdated={handleUpdatedPhone}
+      />
+    )
 
   const phoneToDelete =
     idToDelete !== null && searchResult?.find((p) => p.id === idToDelete)!

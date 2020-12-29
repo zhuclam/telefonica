@@ -32,9 +32,10 @@ type EditableFields = {
 interface EditPhoneProps {
   phone: Phone
   onBack: () => void
+  onUpdated: (updatedPhone: Phone) => void
 }
 
-const EditPhone: React.FC<EditPhoneProps> = ({ phone, onBack }) => {
+const EditPhone: React.FC<EditPhoneProps> = ({ phone, onBack, onUpdated }) => {
   const {
     register,
     handleSubmit,
@@ -62,13 +63,14 @@ const EditPhone: React.FC<EditPhoneProps> = ({ phone, onBack }) => {
     try {
       setIsLoading(true)
 
-      const [err] = await Fetch().put<EditableFields, Phone>(
-        `phones/${phone.id}`,
-        formData
-      )
+      const [err, updatedPhone] = await Fetch().put<
+        EditableFields,
+        { phone: Phone }
+      >(`phones/${phone.id}`, formData)
 
       if (err) throw err
 
+      onUpdated(updatedPhone.phone)
       AlertManager.show('update-success')
     } catch {
       AlertManager.show('update-error')
