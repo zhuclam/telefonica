@@ -9,7 +9,7 @@ export enum Feedback {
 }
 
 export enum CampaignFeedback {
-  RUSHED = 8,
+  RUSHED = 7,
 }
 
 export type FeedbackExtended = Feedback | CampaignFeedback
