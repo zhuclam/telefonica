@@ -1,1 +1,1 @@
-export { StatisticsPanel } from './StatisticsPanel'
+export { StatisticsPanel as default } from './StatisticsPanel'

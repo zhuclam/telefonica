@@ -1,1 +1,1 @@
-export { AddPhones } from './AddPhones'
+export { AddPhones as default } from './AddPhones'
