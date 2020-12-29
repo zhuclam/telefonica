@@ -27,8 +27,8 @@ const AdminPanel: React.FC = () => (
         </RouterLink>
       </Item>
       <Item>
-        <RouterLink to="/admin-panel/settings" background="dark">
-          <span>🛠</span> Configuración de la App (Próximamente)
+        <RouterLink to="/admin-panel/configurations" background="dark">
+          <span>🛠</span> Configuración de la App
         </RouterLink>
       </Item>
     </Container>

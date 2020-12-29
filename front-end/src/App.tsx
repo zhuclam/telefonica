@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import {
   BrowserRouter as RouterProvider,
   Switch,
@@ -7,8 +7,8 @@ import {
 import { Redirect, RouteProps, useHistory, useLocation } from 'react-router'
 import { ThemeProvider } from 'theme'
 import { ContextProviders } from 'contexts'
-import { useAuth } from 'hooks'
-import { Layout } from './components'
+import { useAuth, useConfig, useFetch } from 'hooks'
+import { ErrorDisplay, Layout, Spinner } from './components'
 import {
   AdminPanel,
   Login,
@@ -16,6 +16,7 @@ import {
   StatisticsPanel,
   AddPhones,
   SearchAndEdit,
+  Configurations,
 } from './features'
 import './app.css'
 
@@ -35,14 +36,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
 const MainRouter: React.FC = () => {
   const { isAuth, isAdmin } = useAuth()
+  const { configsLoading, configsError, getConfigs } = useConfig()
   const location = useLocation()
   const history = useHistory()
+
+  const Fetch = useFetch()
 
   useLayoutEffect(() => {
     if (!isAuth && !location.pathname.includes('/login')) history.push('/login')
     if (isAuth && location.pathname.includes('/login'))
       isAdmin ? history.push('/admin-panel') : history.push('/telefonica')
   }, [isAuth, isAdmin, location.pathname, history])
+
+  useEffect(() => {
+    if (isAuth) getConfigs(Fetch)
+  }, [isAuth, Fetch, getConfigs])
+
+  if (configsLoading) return <Spinner container fulfill />
+
+  if (configsError) return <ErrorDisplay />
 
   return (
     <Switch>
@@ -79,6 +91,12 @@ const MainRouter: React.FC = () => {
         path="/admin-panel/search-and-edit"
         exact
         component={SearchAndEdit}
+        condition={isAdmin}
+      />
+      <ProtectedRoute
+        path="/admin-panel/configurations"
+        exact
+        component={Configurations}
         condition={isAdmin}
       />
 

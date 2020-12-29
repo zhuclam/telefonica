@@ -8,9 +8,20 @@ import {
   useAlerts,
   useConfirmationModal,
   ConfirmationModal,
+  Breadcrumb,
 } from 'components'
 import { EditPhone, SearchForm, SearchResult } from './components'
 import { Filters } from './types'
+
+const breadcrumbItems = [
+  {
+    title: 'Panel de Administración',
+    linkTo: '/admin-panel',
+  },
+  {
+    title: 'Buscar y editar',
+  },
+]
 
 const SearchAndEdit: FunctionComponent = () => {
   const [searchResult, setSearchResult] = useState<Phone[] | null>(null)
@@ -112,7 +123,7 @@ const SearchAndEdit: FunctionComponent = () => {
         No se pudo eliminar el número. Por favor, intente de nuevo.
       </Alert>
       <Container className="pt-4 mb-5">
-        <h1>Buscar números</h1>
+        <Breadcrumb items={breadcrumbItems} />
         <SearchForm onSearch={handleSearch} />
       </Container>
       <Container fluid>

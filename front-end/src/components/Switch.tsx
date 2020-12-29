@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-interface SwitchProps {
+export interface SwitchProps {
   label?: string
   onChange: (checked: boolean) => void
   checked: boolean

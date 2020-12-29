@@ -49,3 +49,13 @@ export interface StoragePhone {
 export interface PhoneOptionsType {
   callOnWeekends: boolean
 }
+
+export interface Configurations {
+  campaignMode: boolean
+  unansweredMaxAttemps: number
+  answeringMachineMaxAttemps: number
+  answeringMachinePostponedDays: number
+  postponedButtonDays: number
+  nonExistentPostponedDays: number
+  hiddenButtons: string
+}
