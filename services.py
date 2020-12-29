@@ -187,7 +187,7 @@ class phone_service():
                     failure_count = failure_count + 1
                     continue
 
-                phone = Tel(info=info, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0)
+                phone = Tel(info=info, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0, no_weekends=0)
                 db.session.add(phone)
                 success_count = success_count + 1
             except:

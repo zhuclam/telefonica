@@ -86,7 +86,7 @@ def update_phone():
         is_test = request.args.get("test")
         restore = data.get("restore")
 
-        validate("body.answered", answered, lambda a: a.isnumeric() and int(a) > -1 and int(a) < 8)
+        validate("body.answered", answered, lambda a: type(a) == int and a > -1 and a < 8)
         validate("body.comments", comments, lambda c: isinstance(c, str), optional = True)
 
         answered = int(answered)
