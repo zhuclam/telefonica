@@ -1,10 +1,15 @@
-from bootstrap import db, Telefonica, Telefonica_test, History, History_test
+from bootstrap import db, Telefonica, Telefonica_test, History, History_test, Configurations, Configurations_test
 from utils import now, today, PHONE_STATUS
+
+class config_service():
+    def get_config(is_test):
+        Table = Configurations_test if is_test else Configurations
+        return Table().query.get(1)
 
 class phone_service():
     def get_phone(id, is_test, restore = None):
-        table = Telefonica_test if is_test else Telefonica
-        phone = table.query.get(id)
+        Table = Telefonica_test if is_test else Telefonica
+        phone = Table().query.get(id)
         if restore:
             phone.answered_on = restore["answered_on"]
             phone.fulfilled_on = restore["fulfilled_on"]
@@ -35,11 +40,12 @@ class phone_service():
             phone.commented_on = today() if comments.strip() != '' else None
 
     def handle_unanswered(id, comments, is_test, restore):
+        config = config_service.get_config(is_test)
         phone = phone_service.get_phone(id, is_test, restore)
         is_genuine = phone_service.is_genuine(phone)
         if restore is None:
             phone_service.handle_comments(phone, comments)
-        if phone.unanswered_count >= 2:
+        if phone.unanswered_count >= config.unanswered_max_attemps - 1:
             phone.unanswered_count = 0
             phone.unanswered_date = None
             phone_service.send_to_end_of_queue(phone)
@@ -69,12 +75,13 @@ class phone_service():
             history_service.register_call(id = id, status = PHONE_STATUS.answered, is_test = is_test, genuine = is_genuine)
 
     def handle_non_existent(id, comments, is_test, restore):
+        config = config_service.get_config(is_test)
         phone = phone_service.get_phone(id, is_test, restore)
         is_genuine = phone_service.is_genuine(phone)
         if restore is None:
             phone_service.handle_comments(phone, comments)
         phone.non_existent = 1
-        phone_service.send_to_end_of_queue(phone, 180)
+        phone_service.send_to_end_of_queue(phone, config.non_existent_postponed_days)
         db.session.commit()
 
         if restore and restore["last_status"] is not None:
@@ -97,20 +104,21 @@ class phone_service():
             history_service.register_call(id = id, status = PHONE_STATUS.no_call, is_test = is_test, genuine = is_genuine)
 
     def handle_answering_machine(id, comments, is_test, restore):
+        config = config_service.get_config(is_test)
         phone = phone_service.get_phone(id, is_test, restore)
         is_genuine = phone_service.is_genuine(phone)
         if restore is None:
             phone_service.handle_comments(phone, comments)
-        if phone.unanswered_count >= 1:
+        if phone.unanswered_count >= config.answering_machine_max_attemps - 1:
             phone.unanswered_count = 0
             phone.unanswered_date = None
             phone.answering_machine_date = None
             phone_service.send_to_end_of_queue(phone)
         else:
-            phone.unanswered_count = 2
+            phone.unanswered_count = config.unanswered_max_attemps - 1
             phone.unanswered_date = now()
             phone.answering_machine_date = today()
-            phone.postponed_days = 10
+            phone.postponed_days = config.answering_machine_postponed_days
         db.session.commit()
 
         if restore and restore["last_status"] is not None:
@@ -119,18 +127,19 @@ class phone_service():
             history_service.register_call(id = id, status = PHONE_STATUS.answering_machine, is_test = is_test, genuine = is_genuine)
 
     def handle_postponed(id, comments, is_test, restore):
+        config = config_service.get_config(is_test)
         phone = phone_service.get_phone(id, is_test, restore)
         is_genuine = phone_service.is_genuine(phone)
         if restore is None:
             phone_service.handle_comments(phone, comments)
-        if phone.unanswered_count >= 2:
+        if phone.unanswered_count >= config.unanswered_max_attemps - 1:
             phone.unanswered_count = 0
             phone.unanswered_date = None
             phone_service.send_to_end_of_queue(phone)
         else:
             phone.unanswered_count = phone.unanswered_count + 1
             phone.unanswered_date = now()
-            phone.postponed_days = 3
+            phone.postponed_days = config.postponed_button_days
         db.session.commit()
 
         if restore and restore["last_status"] is not None:
