@@ -1,18 +1,19 @@
 import React from 'react'
 import { useConfig } from 'hooks'
 import styled from 'styled-components'
-import { Feedback, Phone } from 'types'
+import { CampaignFeedback, Feedback, FeedbackExtended, Phone } from 'types'
 import { ConfirmationModal, useConfirmationModal } from 'components'
 import { PhoneLink } from './PhoneLink'
 import { PhoneOptions } from './PhoneOptions'
 import { colors, labels } from 'consts'
+import { Button, Container, Jumbotron } from 'reactstrap'
 
 interface PhoneDetailsProps {
   phone: Phone
   comments: string
   handleComments: (comments: string) => void
   openHelpSection: () => void
-  handlePhoneFeedback: (n: Feedback) => void
+  handlePhoneFeedback: (n: FeedbackExtended) => void
 }
 
 const PhoneDetails: React.FC<PhoneDetailsProps> = ({
@@ -22,7 +23,11 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   openHelpSection,
   handlePhoneFeedback,
 }) => {
-  const { advancedModeEnabled } = useConfig()
+  const { advancedModeEnabled, configurations } = useConfig()
+  const { campaignMode } = configurations
+
+  const isAllowed = (f: Feedback) =>
+    !configurations.hiddenButtons.split(',').includes(f.toString())
 
   const {
     isModalOpen,
@@ -50,6 +55,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   const handleAnsweringMachine = handleGeneric(Feedback.ANSWERING_MACHINE)
   const handlePostpone = handleGeneric(Feedback.POSTPONE)
   const handleIgnore = handleGeneric(Feedback.IGNORE)
+  const handleRushed = () => handlePhoneFeedback(CampaignFeedback.RUSHED)
 
   const DesktopTable = (
     <div className="table-responsive d-none d-sm-block">
@@ -173,130 +179,166 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
     </div>
   )
 
-  const ButtonGroup = !advancedModeEnabled ? (
+  const ButtonGroup = campaignMode ? (
+    <div className="my-4">
+      <Button color="success" block onClick={handleRushed}>
+        Siguiente
+      </Button>
+    </div>
+  ) : !advancedModeEnabled ? (
     <div className="my-4 row d-flex justify-content-center">
-      <div className="col-6 mb-3 col-md-auto">
-        <button
-          className="btn btn-success btn-lg mx-auto mx-md-0 d-block w-100"
-          onClick={handleAnswered}
-        >
-          Atendió
-        </button>
-      </div>
-      <div className="col-6 mb-3 col-md-auto">
-        <button
-          className="btn btn-danger btn-lg mx-auto mx-md-0 d-block w-100"
-          onClick={handleUnanswered}
-        >
-          No en casa
-        </button>
-      </div>
-      <div className="col-6 col-md-auto">
-        <button
-          className="btn btn-warning btn-lg mx-auto mx-md-0 d-block w-100"
-          onClick={handleNoCall}
-        >
-          No visitar
-        </button>
-      </div>
-      <div className="col-6 col-md-auto">
-        <button
-          className="btn btn-dark btn-lg mx-auto mx-md-0 d-block w-100"
-          onClick={handleNonExistent}
-        >
-          No existe
-        </button>
-      </div>
+      {isAllowed(Feedback.ANSWERED) && (
+        <div className="col-6 mb-3 col-md-auto">
+          <button
+            className="btn btn-success btn-lg mx-auto mx-md-0 d-block w-100"
+            onClick={handleAnswered}
+          >
+            Atendió
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.UNANSWERED) && (
+        <div className="col-6 mb-3 col-md-auto">
+          <button
+            className="btn btn-danger btn-lg mx-auto mx-md-0 d-block w-100"
+            onClick={handleUnanswered}
+          >
+            No en casa
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.NO_CALL) && (
+        <div className="col-6 col-md-auto">
+          <button
+            className="btn btn-warning btn-lg mx-auto mx-md-0 d-block w-100"
+            onClick={handleNoCall}
+          >
+            No visitar
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.NON_EXISTENT) && (
+        <div className="col-6 col-md-auto">
+          <button
+            className="btn btn-dark btn-lg mx-auto mx-md-0 d-block w-100"
+            onClick={handleNonExistent}
+          >
+            No existe
+          </button>
+        </div>
+      )}
     </div>
   ) : (
     <div className="my-4 row d-flex justify-content-center">
-      <div className="col-6 mb-2 col-md-auto">
-        <button
-          className="btn btn-success btn-lg w-100 mx-auto mx-md-0 d-block"
-          onClick={handleAnswered}
-        >
-          Atendió
-        </button>
-      </div>
-      <div className="col-6 mb-2 col-md-auto">
-        <button
-          className="btn btn-danger btn-lg w-100 mx-auto mx-md-0 d-block"
-          onClick={handleUnanswered}
-        >
-          No en casa
-        </button>
-      </div>
-      <div className="col-6 mb-2 col-md-auto">
-        <button
-          className="btn btn-primary btn-lg w-100 mx-auto mx-md-0 d-block"
-          onClick={handleAnsweringMachine}
-        >
-          Contestador
-        </button>
-      </div>
-      <div className="col-6 mb-2 col-md-auto">
-        <button
-          className="btn btn-info btn-lg w-100 mx-auto mx-md-0 d-block"
-          onClick={handlePostpone}
-        >
-          Aplazar
-        </button>
-      </div>
-      <div className="col-6 mb-2 col-md-auto">
-        <button
-          className="btn btn-secondary btn-lg w-100 mx-auto mx-md-0 d-block"
-          onClick={handleIgnore}
-        >
-          Ignorar
-        </button>
-      </div>
-      <div className="col-6 mb-2 col-md-auto">
-        <button
-          className="btn btn-warning btn-lg w-100 mx-auto mx-md-0 d-block"
-          onClick={handleNoCall}
-        >
-          No visitar
-        </button>
-      </div>
-      <div className="col-6 col-md-auto">
-        <button
-          className="btn btn-dark btn-lg w-100 mx-auto mx-md-0 d-block"
-          onClick={handleNonExistent}
-        >
-          No existe
-        </button>
-      </div>
+      {isAllowed(Feedback.ANSWERED) && (
+        <div className="col-6 mb-2 col-md-auto">
+          <button
+            className="btn btn-success btn-lg w-100 mx-auto mx-md-0 d-block"
+            onClick={handleAnswered}
+          >
+            Atendió
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.UNANSWERED) && (
+        <div className="col-6 mb-2 col-md-auto">
+          <button
+            className="btn btn-danger btn-lg w-100 mx-auto mx-md-0 d-block"
+            onClick={handleUnanswered}
+          >
+            No en casa
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.ANSWERING_MACHINE) && (
+        <div className="col-6 mb-2 col-md-auto">
+          <button
+            className="btn btn-primary btn-lg w-100 mx-auto mx-md-0 d-block"
+            onClick={handleAnsweringMachine}
+          >
+            Contestador
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.POSTPONE) && (
+        <div className="col-6 mb-2 col-md-auto">
+          <button
+            className="btn btn-info btn-lg w-100 mx-auto mx-md-0 d-block"
+            onClick={handlePostpone}
+          >
+            Aplazar
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.IGNORE) && (
+        <div className="col-6 mb-2 col-md-auto">
+          <button
+            className="btn btn-secondary btn-lg w-100 mx-auto mx-md-0 d-block"
+            onClick={handleIgnore}
+          >
+            Ignorar
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.NO_CALL) && (
+        <div className="col-6 mb-2 col-md-auto">
+          <button
+            className="btn btn-warning btn-lg w-100 mx-auto mx-md-0 d-block"
+            onClick={handleNoCall}
+          >
+            No visitar
+          </button>
+        </div>
+      )}
+      {isAllowed(Feedback.NON_EXISTENT) && (
+        <div className="col-6 col-md-auto">
+          <button
+            className="btn btn-dark btn-lg w-100 mx-auto mx-md-0 d-block"
+            onClick={handleNonExistent}
+          >
+            No existe
+          </button>
+        </div>
+      )}
     </div>
   )
 
   return (
-    <main>
-      <div className="container py-4">
-        {DesktopTable}
-        {MobileTable}
-        {CommentsSection}
-        {advancedModeEnabled && (
-          <MiniSection>
-            <PhoneOptions
-              phoneId={phone.id}
-              initialNoCallOnWeekends={phone.noWeekends}
-            />
-          </MiniSection>
-        )}
-        {ButtonGroup}
-        {advancedModeEnabled && helpButton}
-        {feedbackToConfirm !== null && (
-          <ConfirmationModal
-            isOpen={isModalOpen}
-            toggleModal={toggleModal}
-            onConfirm={doConfirm}
-            title="¿Seguro?"
-            buttonColor={colors[feedbackToConfirm]}
-            confirmationLabel={labels[feedbackToConfirm]}
+    <Container className="py-4">
+      {DesktopTable}
+      {MobileTable}
+      {CommentsSection}
+      {campaignMode && (
+        <Jumbotron fluid className="my-2">
+          <Container>
+            <h6>¡Estamos en campaña!</h6>
+            <small>
+              Durante la campaña, solo habrá un botón de "siguiente".
+            </small>
+          </Container>
+        </Jumbotron>
+      )}
+      {advancedModeEnabled && !campaignMode && (
+        <MiniSection>
+          <PhoneOptions
+            phoneId={phone.id}
+            initialNoCallOnWeekends={phone.noWeekends}
           />
-        )}
-      </div>
-    </main>
+        </MiniSection>
+      )}
+      {ButtonGroup}
+      {advancedModeEnabled && !campaignMode && helpButton}
+      {feedbackToConfirm !== null && (
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          toggleModal={toggleModal}
+          onConfirm={doConfirm}
+          title="¿Seguro?"
+          buttonColor={colors[feedbackToConfirm]}
+          confirmationLabel={labels[feedbackToConfirm]}
+        />
+      )}
+    </Container>
   )
 }
 

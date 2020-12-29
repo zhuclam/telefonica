@@ -10,9 +10,9 @@ const useConfirmationModal = <Data extends {}>() => {
 
   const [data, setData] = useState<Data | null>(null)
 
-  const askEditConfirmation = (data?: Data) => {
+  const askEditConfirmation = (data: Data) => {
     toggleModal()
-    data && setData(data)
+    setData(data)
   }
 
   const reset = () => {

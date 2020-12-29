@@ -8,6 +8,12 @@ export enum Feedback {
   IGNORE = 6,
 }
 
+export enum CampaignFeedback {
+  RUSHED = 8,
+}
+
+export type FeedbackExtended = Feedback | CampaignFeedback
+
 export interface Phone {
   answeredOn: null | string
   answeringMachineDate: null | string
