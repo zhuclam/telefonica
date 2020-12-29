@@ -1,6 +1,6 @@
-import { useFetch } from 'hooks'
-import React, { FunctionComponent, useState } from 'react'
+import React, { FunctionComponent, useEffect, useState } from 'react'
 import { Container } from 'reactstrap'
+import { useConfig, useFetch } from 'hooks'
 import { Phone } from 'types'
 import {
   Alert,
@@ -20,6 +20,8 @@ const SearchAndEdit: FunctionComponent = () => {
 
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
+  const { testModeEnabled } = useConfig()
+
   const {
     isModalOpen,
     data: idToDelete,
@@ -27,6 +29,11 @@ const SearchAndEdit: FunctionComponent = () => {
     toggleModal,
     reset: resetConfirmationModal,
   } = useConfirmationModal<number>()
+
+  useEffect(() => {
+    setSearchResult(null)
+    setEditingPhone(null)
+  }, [testModeEnabled])
 
   const Fetch = useFetch()
   const { AlertManager } = useAlerts()
