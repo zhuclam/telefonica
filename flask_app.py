@@ -255,8 +255,7 @@ def get_phones():
             "id": request.args.get("id", "undefined"),
             "answered_on": request.args.get("answeredOn", "undefined"),
             # calledOn is the same value for both fulfilled_on and unanswered_date
-            "fulfilled_on": request.args.get("calledOn", "undefined"),
-            "unanswered_date": request.args.get("calledOn", "undefined"),
+            "calledOn": request.args.get("calledOn", "undefined"),
             # end comment
             "no_weekends": request.args.get("noWeekends", "undefined"),
             "no_call": request.args.get("noCall", "undefined"),
@@ -276,9 +275,16 @@ def get_phones():
             if value == "true": value = 1
 
             if value is None:
-                query += "{} is null".format(k)
+                if k == "calledOn":
+                    query += "fulfilled_on is null and unanswered_date is null".format(value, value)
+                else:
+                    query += "{} is null".format(k)
             else:
-                query += "{} like '%{}%'".format(k, value)
+                if k == "calledOn":
+                    query += "(fulfilled_on like '%{}%' or unanswered_date like '%{}%')".format(value, value)
+                else:
+                    query += "{} like '%{}%'".format(k, value)
+
             if i != len(filters) - 1:
                 query += " and "
 
@@ -324,10 +330,10 @@ def edit_phone(phone_id):
             'phone',
             'comments',
             'info',
-            'noCall',
-            'nonExistent',
-            'postponedDays',
-            'noWeekends'
+            'no_call',
+            'non_existent',
+            'postponed_days',
+            'no_weekends'
         ]
 
         data = request.get_json()
@@ -337,18 +343,16 @@ def edit_phone(phone_id):
             return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
 
         number = data.get('phone')
-        comments = data.get('comments')
-        info = data.get('info')
-        noCall = data.get('noCall')
-        nonExistent = data.get('nonExistent')
-        postponedDays = data.get('postponedDays')
-        noWeekends = data.get('noWeekends')
+        no_call = data.get('no_call')
+        non_existent = data.get('non_existent')
+        postponed_days = data.get('postponed_days')
+        no_weekends = data.get('no_weekends')
 
         validate("body.phone", number, lambda p: p != '', optional=True)
-        validate("body.noCall", number, lambda x: type(x) == bool, optional=True)
-        validate("body.nonExistent", number, lambda x: type(x) == bool, optional=True)
-        validate("body.noWeekends", number, lambda x: type(x) == bool, optional=True)
-        validate("body.postponedDays", postponedDays, lambda n: n.isnumeric() and int(n) >= 0, optional=True)
+        validate("body.no_call", no_call, lambda x: type(x) == bool, optional=True)
+        validate("body.non_existent", non_existent, lambda x: type(x) == bool, optional=True)
+        validate("body.no_weekends", no_weekends, lambda x: type(x) == bool, optional=True)
+        validate("body.postponed_days", postponed_days, lambda n: n.isnumeric() and int(n) >= 0, optional=True)
 
         if not phone_id.isnumeric():
             return jsonify({"error": "Invalid phone id"}), 400
@@ -360,7 +364,7 @@ def edit_phone(phone_id):
 
         for k, v in data.items():
             setattr(phone, k , v)
-        
+
         db.session.commit()
 
         return jsonify(phone=phone.as_dict()), 200
