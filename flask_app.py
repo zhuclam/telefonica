@@ -297,7 +297,7 @@ def get_phones():
                 phone["answered_on"] = to_locale_string(phone.get("answered_on"), True)
 
             if phone.get("fulfilled_on") is not None:
-                phone["fulfilled_on"] = to_locale_string(phone.get("fulfilled_on"))
+                phone["fulfilled_on"] = to_locale_string(phone.get("fulfilled_on"), True)
 
             if phone.get("unanswered_date") is not None:
                 phone["unanswered_date"] = to_locale_string(phone.get("unanswered_date"), True)
