@@ -445,22 +445,22 @@ def edit_configurations():
 
 
         if campaign_mode != 'nil':
-            validate("body.campaign_mode", campaign_mode, lambda val: type(val) == int and (val == 1 or val == 0))
+            validate("body.campaign_mode", campaign_mode, lambda val: type(val) == bool)
 
         if unanswered_max_attemps != 'nil':
-            validate("body.unanswered_max_attemps", unanswered_max_attemps, lambda val: type(val) == int and val >= 0)
+            validate("body.unanswered_max_attemps", unanswered_max_attemps, lambda val: type(val) == int and val >= 1)
 
         if answering_machine_max_attemps != 'nil':
-            validate("body.answering_machine_max_attemps", answering_machine_max_attemps, lambda val: type(val) == int and val >= 0)
+            validate("body.answering_machine_max_attemps", answering_machine_max_attemps, lambda val: type(val) == int and val >= 1)
 
         if answering_machine_postponed_days != 'nil':
-            validate("body.answering_machine_postponed_days", answering_machine_postponed_days, lambda val: type(val) == int and val >= 0)
+            validate("body.answering_machine_postponed_days", answering_machine_postponed_days, lambda val: type(val) == int and val >= 1)
 
         if postponed_button_days != 'nil':
-            validate("body.postponed_button_days", postponed_button_days, lambda val: type(val) == int and val >= 0)
+            validate("body.postponed_button_days", postponed_button_days, lambda val: type(val) == int and val >= 1)
 
         if non_existent_postponed_days != 'nil':
-            validate("body.non_existent_postponed_days", non_existent_postponed_days, lambda val: type(val) == int and val >= 0)
+            validate("body.non_existent_postponed_days", non_existent_postponed_days, lambda val: type(val) == int and val >= 1)
 
         if hidden_buttons != 'nil':
             validate("body.hidden_buttons", hidden_buttons, lambda val: type(val) == str and (True if len(val) == 0 else all(n.isnumeric() and int(n) > -1 and int(n) < 7 for n in val.split(','))))
