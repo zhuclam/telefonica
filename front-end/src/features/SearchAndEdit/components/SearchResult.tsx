@@ -28,7 +28,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
           <th>Última vez llamado</th>
           <th>Última vez que atendió</th>
           <th>Comentarios</th>
-          <th>Dias pospuesto</th>
+          <th>Días pospuesto</th>
           <th>Características</th>
           <th>Acciones</th>
         </tr>
