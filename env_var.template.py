@@ -3,6 +3,8 @@ short_name = username[:16]
 db_name = "default"
 db_password = ""
 
+sendgrid_token = ""
+
 ## only for initial setup (creating the users)
 admin_username = ""
 admin_password = ""

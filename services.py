@@ -1,5 +1,9 @@
-from bootstrap import db, Telefonica, Telefonica_test, History, History_test, Configurations, Configurations_test
-from utils import now, today, PHONE_STATUS
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from env_var import sendgrid_token, username
+
+from bootstrap import db, Telefonica, Telefonica_test, History, History_test, Configurations, Configurations_test, Watch_task
+from utils import now, today, PHONE_STATUS, handle_error
 
 class config_service():
     def get_config(is_test):
@@ -233,3 +237,36 @@ class history_service():
                 registry.status = new_status
                 registry.genuine = genuine
                 db.session.commit()
+
+class task_service():
+    def check_task_executed():
+        status = Watch_task().query.get(1)
+        if status.last_checked == today().date(): return
+
+        if status.last_executed != today().date():
+            mail_service.send_mail(
+                to='zhuclam@gmail.com',
+                subject='Problemas con la app de Telefonica ({})'.format(username),
+                html='Hay que reactivar la tarea puesto que su plazo de 1 mes ha vencido. Para ello vaya a pythonanywhere.com, ingrese con su usuario, vaya a "tasks" y toque el botón verde. Ya que está, es recomendable también ir a la pestaña "Web" y tocar el botón amarillo para renovar también el uso de la app entera.'
+            )
+
+        status.last_checked = today().date()
+        db.session.commit()
+
+class mail_service():
+    def send_mail(*, to, subject, html):
+        message = Mail(
+            from_email='zhuclam@gmail.com',
+            to_emails=to,
+            subject=subject,
+            html_content=html
+        )
+
+        try:
+            sg = SendGridAPIClient(sendgrid_token)
+            response = sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            handle_error('email seding', e)

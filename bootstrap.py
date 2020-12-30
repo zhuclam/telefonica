@@ -190,3 +190,8 @@ class Configurations_test(db.Model):
        del dict['id']
        return dict
 
+class Watch_task(db.Model):
+    __tablename__ = "watch_task"
+    id = db.Column(db.Integer, primary_key=True)
+    last_executed = db.Column(db.Date())
+    last_checked = db.Column(db.Date())

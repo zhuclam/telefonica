@@ -51,6 +51,7 @@ Date utils here
 
 """
 def today():
+    # this is a date object, not a string
     return datetime.combine(datetime.today() - timedelta(hours=3), datetime.min.time())
 
 def now():

@@ -7,7 +7,7 @@ from flask_cors import cross_origin
 from bootstrap import app, db, Telefonica, Telefonica_test, Configurations, Configurations_test
 from auth import authenticate, admin_required
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
-from services import phone_service
+from services import phone_service, task_service
 
 @app.route('/', defaults={'path': ''}, methods=["GET"])
 @app.route('/<path:path>')
@@ -404,6 +404,8 @@ def get_configurations():
         is_test = request.args.get("test")
         Configs = Configurations_test if is_test else Configurations
         configs = Configs().query.get(1)
+
+        task_service.check_task_executed()
 
         return jsonify(configs= configs.as_dict()), 200
 
