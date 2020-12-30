@@ -1,1 +1,1 @@
-export { Telefonica } from './Telefonica'
+export { Telefonica as default } from './Telefonica'
