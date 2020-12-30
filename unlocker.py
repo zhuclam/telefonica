@@ -35,6 +35,10 @@ def job():
     db.engine.execute("INSERT INTO configurations_test SELECT * FROM configurations;")
     print("re-created configurations_test")
 
+    print("gonna save execution date")
+    db.engine.execute("update watch_task set last_executed = NOW() where id = 1;")
+    print("saved execution date")
+
 
 print ("init")
 job()
