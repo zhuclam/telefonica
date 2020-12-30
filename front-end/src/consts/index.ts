@@ -3,7 +3,7 @@ import { Feedback } from 'types'
 export const backendURL =
   process.env.NODE_ENV === 'development'
     ? 'https://telefonicatesting.pythonanywhere.com/'
-    : '/'
+    : window.location.origin + '/'
 
 export const LOCAL_STORAGE = {
   TOKEN: 'token',

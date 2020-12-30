@@ -47,7 +47,7 @@ export const useConfig = (): ConfigType => {
   const [configurations, setConfigurations] = useState<
     Configurations | undefined
   >()
-  const [configsLoading, setConfigsLoading] = useState<boolean>(true)
+  const [configsLoading, setConfigsLoading] = useState<boolean>(false)
   const [configsError, setConfigsError] = useState<boolean>(false)
 
   const getConfigs = useCallback(async (Fetch: ReturnType<typeof useFetch>) => {
