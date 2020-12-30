@@ -1,1 +1,1 @@
-export { SearchAndEdit } from './SearchAndEdit'
+export { SearchAndEdit as default } from './SearchAndEdit'

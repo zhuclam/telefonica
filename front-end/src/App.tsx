@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { lazy, Suspense, useEffect, useLayoutEffect } from 'react'
 import {
   BrowserRouter as RouterProvider,
   Switch,
@@ -9,16 +9,15 @@ import { ThemeProvider } from 'theme'
 import { ContextProviders } from 'contexts'
 import { useAuth, useConfig, useFetch } from 'hooks'
 import { ErrorDisplay, Layout, Spinner } from './components'
-import {
-  AdminPanel,
-  Login,
-  Telefonica,
-  StatisticsPanel,
-  AddPhones,
-  SearchAndEdit,
-  Configurations,
-} from './features'
 import './app.css'
+
+const AdminPanel = lazy(() => import('./features/AdminPanel'))
+const Login = lazy(() => import('./features/Login'))
+const Telefonica = lazy(() => import('./features/Telefonica'))
+const StatisticsPanel = lazy(() => import('./features/StatisticsPanel'))
+const AddPhones = lazy(() => import('./features/AddPhones'))
+const SearchAndEdit = lazy(() => import('./features/SearchAndEdit'))
+const Configurations = lazy(() => import('./features/Configurations'))
 
 interface ProtectedRouteProps extends RouteProps {
   condition: boolean
@@ -57,52 +56,54 @@ const MainRouter: React.FC = () => {
   if (configsError) return <ErrorDisplay />
 
   return (
-    <Switch>
-      {/* Common */}
-      <Route path="/login" exact component={Login} />
+    <Suspense fallback={<Spinner container fulfill />}>
+      <Switch>
+        {/* Common */}
+        <Route path="/login" exact component={Login} />
 
-      {/* User */}
-      <ProtectedRoute
-        path="/telefonica"
-        component={Telefonica}
-        condition={isAuth}
-      />
+        {/* User */}
+        <ProtectedRoute
+          path="/telefonica"
+          component={Telefonica}
+          condition={isAuth}
+        />
 
-      {/* Admin */}
-      <ProtectedRoute
-        path="/admin-panel"
-        exact
-        component={AdminPanel}
-        condition={isAdmin}
-      />
-      <ProtectedRoute
-        path="/admin-panel/statistics"
-        exact
-        component={StatisticsPanel}
-        condition={isAdmin}
-      />
-      <ProtectedRoute
-        path="/admin-panel/add-phones"
-        exact
-        component={AddPhones}
-        condition={isAdmin}
-      />
-      <ProtectedRoute
-        path="/admin-panel/search-and-edit"
-        exact
-        component={SearchAndEdit}
-        condition={isAdmin}
-      />
-      <ProtectedRoute
-        path="/admin-panel/configurations"
-        exact
-        component={Configurations}
-        condition={isAdmin}
-      />
+        {/* Admin */}
+        <ProtectedRoute
+          path="/admin-panel"
+          exact
+          component={AdminPanel}
+          condition={isAdmin}
+        />
+        <ProtectedRoute
+          path="/admin-panel/statistics"
+          exact
+          component={StatisticsPanel}
+          condition={isAdmin}
+        />
+        <ProtectedRoute
+          path="/admin-panel/add-phones"
+          exact
+          component={AddPhones}
+          condition={isAdmin}
+        />
+        <ProtectedRoute
+          path="/admin-panel/search-and-edit"
+          exact
+          component={SearchAndEdit}
+          condition={isAdmin}
+        />
+        <ProtectedRoute
+          path="/admin-panel/configurations"
+          exact
+          component={Configurations}
+          condition={isAdmin}
+        />
 
-      {/* Misc */}
-      <Redirect to="/login" />
-    </Switch>
+        {/* Misc */}
+        <Redirect to="/login" />
+      </Switch>
+    </Suspense>
   )
 }
 

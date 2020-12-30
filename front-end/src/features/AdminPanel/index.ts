@@ -1,1 +1,1 @@
-export { AdminPanel } from './AdminPanel'
+export { AdminPanel as default } from './AdminPanel'
