@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   Collapse,
   Navbar as BNavbar,
@@ -8,6 +8,7 @@ import {
   NavItem,
   NavLink,
   Container,
+  Button,
 } from 'reactstrap'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
@@ -18,6 +19,9 @@ import { Alert, useAlerts, Switch } from '.'
 const Navbar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(true)
   const mobileNavRef = useRef<HTMLDivElement | null>(null)
+
+  const [showInstallButton, setShowInstallButton] = useState<boolean>(true)
+  const installEventRef = useRef<any>(null)
 
   useOnClickOutside(mobileNavRef, () => !collapsed && setCollapsed(true))
 
@@ -48,6 +52,26 @@ const Navbar: React.FC = () => {
       ? AlertManager.show('test-mode-alert')
       : AlertManager.hide('test-mode-alert')
     toggleTestMode(checked)
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault()
+      installEventRef.current = e
+    })
+    // @ts-ignore
+    const isInWebAppiOS = window.navigator.standalone === true
+    const isInWebAppChrome = window.matchMedia('(display-mode: standalone)')
+      .matches
+
+    if (isInWebAppiOS || isInWebAppChrome) setShowInstallButton(false)
+  }, [])
+
+  const installApp = () => {
+    installEventRef.current?.prompt()
+    installEventRef.current?.userChoice.then((choiceResult: any) => {
+      choiceResult.outcome === 'accepted' && setShowInstallButton(false)
+    })
   }
 
   return (
@@ -91,7 +115,7 @@ const Navbar: React.FC = () => {
                   </NavItem>
                 )}
                 {isAdmin && (
-                  <LinkSection>
+                  <Separator>
                     <NavItem onClick={onLinkClicked}>
                       <RouterLink to="/admin-panel" background="dark">
                         Ir al Panel de administración
@@ -102,14 +126,26 @@ const Navbar: React.FC = () => {
                         Ir a Telefónica
                       </RouterLink>
                     </NavItem>
-                  </LinkSection>
+                  </Separator>
                 )}
                 {isAuth && (
                   <NavItem>
                     <ButtonContainer>
-                      <Button onClick={onLogout}>Cerrar sesión</Button>
+                      <NavLink onClick={onLogout}>Cerrar sesión</NavLink>
                     </ButtonContainer>
                   </NavItem>
+                )}
+                {showInstallButton && (
+                  <Separator>
+                    <Button
+                      block
+                      className="my-2"
+                      color="info"
+                      onClick={installApp}
+                    >
+                      Instalar App
+                    </Button>
+                  </Separator>
                 )}
               </MobileNav>
             </Collapse>
@@ -132,11 +168,11 @@ const MobileNav = styled(Nav)`
 
 const ButtonContainer = styled.div`
   border-top: 1px solid gray;
-`
 
-const Button = styled(NavLink)`
-  cursor: pointer;
-  display: inline-block;
+  > a {
+    cursor: pointer;
+    display: inline-block;
+  }
 `
 
 const RouterLink = styled(Link)<{ noPadding?: boolean; background?: 'dark' }>`
@@ -148,7 +184,7 @@ const RouterLink = styled(Link)<{ noPadding?: boolean; background?: 'dark' }>`
   padding: ${({ noPadding }) => (noPadding ? 0 : 0.5)}rem 0rem;
 `
 
-const LinkSection = styled.div`
+const Separator = styled.div`
   border-top: 1px solid gray;
 `
 
