@@ -6,6 +6,7 @@ import React, {
 } from 'react'
 import { useFetch } from 'hooks'
 import { Configurations } from 'types'
+import { LOCAL_STORAGE } from 'consts'
 
 interface ConfigType {
   darkModeEnabled: boolean
@@ -35,13 +36,13 @@ export const ConfigProvider: FunctionComponent = ({ children }) => {
 
 export const useConfig = (): ConfigType => {
   const [darkModeEnabled, setDarkModeEnabled] = useState<boolean>(
-    !!localStorage.getItem('dark-mode')
+    !!localStorage.getItem(LOCAL_STORAGE.DARK_MODE)
   )
   const [advancedModeEnabled, setAdvancedModeEnabled] = useState<boolean>(
-    !!localStorage.getItem('advanced-mode')
+    !!localStorage.getItem(LOCAL_STORAGE.ADVANCED_MODE)
   )
   const [testModeEnabled, setTestModeEnabled] = useState<boolean>(
-    !!localStorage.getItem('test-mode')
+    !!localStorage.getItem(LOCAL_STORAGE.TEST_MODE)
   )
 
   const [configurations, setConfigurations] = useState<
@@ -72,22 +73,22 @@ export const useConfig = (): ConfigType => {
 
   const toggleDarkMode = (checked: boolean) => {
     checked
-      ? localStorage.setItem('dark-mode', '1')
-      : localStorage.removeItem('dark-mode')
+      ? localStorage.setItem(LOCAL_STORAGE.DARK_MODE, '1')
+      : localStorage.removeItem(LOCAL_STORAGE.DARK_MODE)
     setDarkModeEnabled(checked)
   }
 
   const toggleAdvancedMode = (checked: boolean) => {
     checked
-      ? localStorage.setItem('advanced-mode', '1')
-      : localStorage.removeItem('advanced-mode')
+      ? localStorage.setItem(LOCAL_STORAGE.ADVANCED_MODE, '1')
+      : localStorage.removeItem(LOCAL_STORAGE.ADVANCED_MODE)
     setAdvancedModeEnabled(checked)
   }
 
   const toggleTestMode = (checked: boolean) => {
     checked
-      ? localStorage.setItem('test-mode', '1')
-      : localStorage.removeItem('test-mode')
+      ? localStorage.setItem(LOCAL_STORAGE.TEST_MODE, '1')
+      : localStorage.removeItem(LOCAL_STORAGE.TEST_MODE)
     setTestModeEnabled(checked)
   }
 

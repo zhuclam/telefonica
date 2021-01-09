@@ -75,6 +75,7 @@ export const useAuth = (): AuthType => {
   const doLogout = () => {
     localStorage.removeItem(LOCAL_STORAGE.TOKEN)
     localStorage.removeItem(LOCAL_STORAGE.IS_ADMIN)
+    localStorage.removeItem(LOCAL_STORAGE.TEST_MODE)
     setIsAuth(false)
     setIsAdmin(false)
   }

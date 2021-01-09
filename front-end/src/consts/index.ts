@@ -8,6 +8,9 @@ export const backendURL =
 export const LOCAL_STORAGE = {
   TOKEN: 'token',
   IS_ADMIN: 'is_admin',
+  TEST_MODE: 'test-mode',
+  DARK_MODE: 'dark-mode',
+  ADVANCED_MODE: 'advanced-mode',
 }
 
 export const colors = {

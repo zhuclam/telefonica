@@ -31,11 +31,14 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
   }>()
 
   const {
-    configurations: { campaignMode },
+    configurations: { campaignMode, hiddenButtons },
   } = useConfig()
 
-  const feedbackToConfirm = data?.feedbackToConfirm || null
-  const storagePhoneToConfirm = data?.storagePhoneToConfirm || null
+  const isAllowed = (f: Feedback) =>
+    !hiddenButtons.split(',').includes(f.toString())
+
+  const feedbackToConfirm = data?.feedbackToConfirm ?? null
+  const storagePhoneToConfirm = data?.storagePhoneToConfirm ?? null
 
   const resetStates = () => {
     setCollapsed(null)
@@ -92,7 +95,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
               </button>
             )}
             <CollapseButtons isOpen={isCollapsed}>
-              {p.status !== Feedback.ANSWERED && (
+              {p.status !== Feedback.ANSWERED && isAllowed(Feedback.ANSWERED) && (
                 <button
                   className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
                   onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
@@ -100,25 +103,29 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                   Atendió
                 </button>
               )}
-              {p.status !== Feedback.UNANSWERED && (
-                <button
-                  className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
-                  onClick={() => onAskEditConfirmation(Feedback.UNANSWERED, p)}
-                >
-                  No en casa
-                </button>
-              )}
-              {p.status !== Feedback.ANSWERING_MACHINE && (
-                <button
-                  className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
-                  onClick={() =>
-                    onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
-                  }
-                >
-                  Contestador
-                </button>
-              )}
-              {p.status !== Feedback.POSTPONE && (
+              {p.status !== Feedback.UNANSWERED &&
+                isAllowed(Feedback.UNANSWERED) && (
+                  <button
+                    className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
+                    onClick={() =>
+                      onAskEditConfirmation(Feedback.UNANSWERED, p)
+                    }
+                  >
+                    No en casa
+                  </button>
+                )}
+              {p.status !== Feedback.ANSWERING_MACHINE &&
+                isAllowed(Feedback.ANSWERING_MACHINE) && (
+                  <button
+                    className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
+                    onClick={() =>
+                      onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
+                    }
+                  >
+                    Contestador
+                  </button>
+                )}
+              {p.status !== Feedback.POSTPONE && isAllowed(Feedback.POSTPONE) && (
                 <button
                   className="btn btn-info btn-sm d-inline-block mr-1 mb-2"
                   onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
@@ -126,7 +133,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                   Aplazar
                 </button>
               )}
-              {p.status !== Feedback.IGNORE && (
+              {p.status !== Feedback.IGNORE && isAllowed(Feedback.IGNORE) && (
                 <button
                   className="btn btn-secondary btn-sm d-inline-block mr-1 mb-2"
                   onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
@@ -134,7 +141,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                   Ignorar
                 </button>
               )}
-              {p.status !== Feedback.NO_CALL && (
+              {p.status !== Feedback.NO_CALL && isAllowed(Feedback.NO_CALL) && (
                 <button
                   className="btn btn-warning btn-sm d-inline-block mr-1 mb-2"
                   onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
@@ -142,16 +149,17 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                   No visitar
                 </button>
               )}
-              {p.status !== Feedback.NON_EXISTENT && (
-                <button
-                  className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
-                  onClick={() =>
-                    onAskEditConfirmation(Feedback.NON_EXISTENT, p)
-                  }
-                >
-                  No existe
-                </button>
-              )}
+              {p.status !== Feedback.NON_EXISTENT &&
+                isAllowed(Feedback.NON_EXISTENT) && (
+                  <button
+                    className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
+                    onClick={() =>
+                      onAskEditConfirmation(Feedback.NON_EXISTENT, p)
+                    }
+                  >
+                    No existe
+                  </button>
+                )}
             </CollapseButtons>
           </td>
         )}
