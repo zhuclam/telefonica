@@ -290,7 +290,10 @@ def get_phones():
 
         filters = {k: filters.get(k) if filters.get(k) != 'never' else None for k in filters if filters.get(k) != "undefined"}
 
-        query = "select * from {} where ".format(Telefonica_table)
+        retrieve_query = "select * from {} where ".format(Telefonica_table)
+        count_query = "select count(*) as count from {} where ".format(Telefonica_table)
+
+        where_clause = ""
 
         for i, k in enumerate(filters):
             value = filters.get(k)
@@ -299,21 +302,23 @@ def get_phones():
 
             if value is None:
                 if k == "calledOn":
-                    query += "fulfilled_on is null and unanswered_date is null".format(value, value)
+                    where_clause += "fulfilled_on is null and unanswered_date is null".format(value, value)
                 else:
-                    query += "{} is null".format(k)
+                    where_clause += "{} is null".format(k)
             else:
                 if k == "calledOn":
-                    query += "(fulfilled_on like '%{}%' or unanswered_date like '%{}%')".format(value, value)
+                    where_clause += "(fulfilled_on like '%{}%' or unanswered_date like '%{}%')".format(value, value)
                 else:
-                    query += "{} like '%{}%'".format(k, value)
+                    where_clause += "{} like '%{}%'".format(k, value)
 
             if i != len(filters) - 1:
-                query += " and "
+                where_clause += " and "
 
-        query += " limit 100"
+        retrieve_query += where_clause + " limit 100"
+        count_query += where_clause
 
-        found_phones = db.engine.execute(query)
+        found_phones = db.engine.execute(retrieve_query)
+        count = db.engine.execute(count_query)
 
         def phone_date_to_locale(phone):
             if phone.get("answered_on") is not None:
@@ -334,10 +339,9 @@ def get_phones():
             return phone
 
         found_phones = list(map(lambda p: phone_date_to_locale(p), db_result_to_dict(found_phones)))
+        count = list(count)[0]["count"]
 
-        return jsonify(found_phones)
-
-
+        return jsonify(phones= found_phones, count= count)
     except Exception as e:
         return handle_error(e, "get_phones")
 
