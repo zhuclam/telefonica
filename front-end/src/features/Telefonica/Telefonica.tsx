@@ -121,7 +121,10 @@ const Telefonica: React.FC = () => {
 
   const handleComments = (c: string) => setComments(c)
 
-  if (error) return <ErrorDisplay />
+  if (error)
+    return (
+      <ErrorDisplay message="No hay más números disponibles por el día de hoy" />
+    )
 
   if (isLoading || !phone) return <Spinner fulfill container />
 
