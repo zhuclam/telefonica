@@ -5,17 +5,21 @@ import { Phone } from 'types'
 
 interface SearchResultProps {
   entries: Phone[]
+  count: number
   onEditRequest: (phone: Phone) => void
   onDeleteRequest: (id: number) => void
 }
 
 const SearchResult: React.FC<SearchResultProps> = ({
   entries,
+  count,
   onEditRequest,
   onDeleteRequest,
 }) => (
   <>
-    <h3>Resultados: {entries.length}</h3>
+    <h3>
+      Mostrando {entries.length}(*) de {count} resultados.
+    </h3>
     <span className="text-secondary">
       * Se muestra un máximo de 100 números por búsqueda.
     </span>

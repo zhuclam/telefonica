@@ -1,3 +1,5 @@
+import { Phone } from 'types'
+
 export interface Filters {
   info?: string
   number?: string
@@ -8,4 +10,9 @@ export interface Filters {
   noCall?: boolean
   nonExistent?: boolean
   comments?: string
+}
+
+export interface SearchResponse {
+  phones: Phone[]
+  count: number
 }
