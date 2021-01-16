@@ -240,6 +240,9 @@ class history_service():
 
 class task_service():
     def check_task_executed():
+        # task is run at 2am (ARG time) so don't check this until then
+        if now().hour in (0, 1, 2): return
+
         status = Watch_task().query.get(1)
         if status.last_checked == today().date(): return
 
