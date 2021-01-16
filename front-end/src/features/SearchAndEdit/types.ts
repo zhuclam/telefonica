@@ -7,4 +7,5 @@ export interface Filters {
   noWeekends?: boolean
   noCall?: boolean
   nonExistent?: boolean
+  comments?: string
 }
