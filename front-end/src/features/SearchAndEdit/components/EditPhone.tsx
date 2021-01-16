@@ -43,6 +43,7 @@ const EditPhone: React.FC<EditPhoneProps> = ({ phone, onBack, onUpdated }) => {
     formState: { isDirty, isValid },
   } = useForm<EditableFields>({
     mode: 'all',
+    reValidateMode: 'onChange',
     defaultValues: {
       phone: phone.phone,
       comments: phone.comments,
