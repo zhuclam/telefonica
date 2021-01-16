@@ -38,7 +38,7 @@ def authenticate():
 def update_passwords(*, admin_p = None, user_p = None):
     if admin_p:
         password_hash = generate_password_hash(admin_p)
-        db.engine.execute(f"UPDATE users set password_hash = "{password_hash}" where is_admin = 1")
+        db.engine.execute(f"UPDATE users set password_hash = '{password_hash}' where is_admin = 1")
     if user_p:
         password_hash = generate_password_hash(user_p)
-        db.engine.execute(f"UPDATE users set password_hash = "{password_hash}" where is_admin = 0")
+        db.engine.execute(f"UPDATE users set password_hash = '{password_hash}' where is_admin = 0")
