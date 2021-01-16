@@ -38,12 +38,14 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     noWeekends,
     noCall,
     nonExistent,
+    comments,
   }: Required<Filters>) => {
     const filters: Filters = {}
 
     info && (filters.info = info)
     number && (filters.number = number)
     id && (filters.id = id)
+    comments && (filters.comments = comments)
     answeredOn &&
       (answeredOn === 'Nunca'
         ? (filters.answeredOn = 'never')
@@ -99,7 +101,18 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
         </Row>
         <hr />
         <Row>
-          <Col md="6">
+          <Col md="4">
+            <FormGroup>
+              <Label for="comentarios">Comentarios</Label>
+              <Input
+                id="comentarios"
+                name="comentarios"
+                innerRef={register}
+                autoComplete="off"
+              />
+            </FormGroup>
+          </Col>
+          <Col md="4">
             <FormGroup>
               <Label for="answeredOn">Última vez atendido el</Label>
               <Input
@@ -131,7 +144,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
               </Label>
             </FormGroup>
           </Col>
-          <Col md="6">
+          <Col md="4">
             <FormGroup>
               <Label for="calledOn">Última vez llamado el</Label>
               <Input
