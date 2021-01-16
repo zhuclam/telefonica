@@ -31,15 +31,15 @@ def change_passwords():
     try:
         data = request.get_json()
         validate("body", data)
-        
+
         admin_password = data.get("admin", None)
         user_password = data.get("user", None)
 
-        if not admin_password or not user_password:
+        if not admin_password and not user_password:
             return jsonify(error="At least 1 key is required."), 400
 
-        validate("body.admin", admin_password, lambda a: type(a) == str and a != "")
-        validate("body.user", user_password, lambda u: type(u) == str and u != "")
+        validate("body.admin", admin_password, lambda a: type(a) == str and a != "", optional=True)
+        validate("body.user", user_password, lambda u: type(u) == str and u != "", optional=True)
 
         update_passwords(admin_p = admin_password, user_p = user_password)
 
