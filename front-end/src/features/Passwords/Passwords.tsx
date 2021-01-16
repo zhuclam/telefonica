@@ -1,9 +1,19 @@
 import React, { useState } from 'react'
 import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap'
 import styled, { css } from 'styled-components'
-import { Alert, Spinner, useAlerts } from 'components'
+import { Alert, Breadcrumb, Spinner, useAlerts } from 'components'
 import { useFetch } from 'hooks'
 import { PasswordsPayload } from './types'
+
+const breadcrumbItems = [
+  {
+    title: 'Panel de Administración',
+    linkTo: '/admin-panel',
+  },
+  {
+    title: 'Cambiar contraseñas',
+  },
+]
 
 const Passwords: React.FC = () => {
   const [adminPassword, setAdminPassword] = useState<string>('')
@@ -56,7 +66,7 @@ const Passwords: React.FC = () => {
         No se pudo actualizar las contraseñas. Por favor, intente de nuevo.
       </Alert>
       <Container className="mt-3">
-        <h1 className="mb-4">Cambiar contraseñas</h1>
+        <Breadcrumb items={breadcrumbItems} />
         <Form onSubmit={onSubmit}>
           <InputContainer>
             <FormGroup>
