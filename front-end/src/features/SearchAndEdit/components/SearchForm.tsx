@@ -103,10 +103,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
         <Row>
           <Col md="4">
             <FormGroup>
-              <Label for="comentarios">Comentarios</Label>
+              <Label for="comments">Comentarios</Label>
               <Input
-                id="comentarios"
-                name="comentarios"
+                id="comments"
+                name="comments"
                 innerRef={register}
                 autoComplete="off"
               />
