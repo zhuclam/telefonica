@@ -76,6 +76,7 @@ const Configurations: React.FC = () => {
     formState: { isDirty, isValid },
   } = useForm<EditableConfigurations>({
     mode: 'all',
+    reValidateMode: 'onChange',
     defaultValues: {
       campaignMode: configurations.campaignMode,
       unansweredMaxAttemps: configurations.unansweredMaxAttemps.toString(),

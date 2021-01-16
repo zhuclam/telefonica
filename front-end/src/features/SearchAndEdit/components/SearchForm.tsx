@@ -26,6 +26,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     formState: { isDirty, isSubmitting, isValid },
   } = useForm<Required<Filters>>({
     mode: 'all',
+    reValidateMode: 'onChange',
   })
 
   const onApplyFilters = ({
