@@ -78,7 +78,10 @@ const Passwords: React.FC = () => {
                   <Input
                     type="checkbox"
                     checked={noAdminChange}
-                    onChange={(e) => setNoAdminChange(e.target.checked)}
+                    onChange={(e) => {
+                      setNoAdminChange(e.target.checked)
+                      setAdminPassword('')
+                    }}
                   />
                   No cambiar
                 </Label>
@@ -106,7 +109,10 @@ const Passwords: React.FC = () => {
                   <Input
                     type="checkbox"
                     checked={noUserChange}
-                    onChange={(e) => setNoUserChange(e.target.checked)}
+                    onChange={(e) => {
+                      setNoUserChange(e.target.checked)
+                      setUserPassword('')
+                    }}
                   />
                   No cambiar
                 </Label>
