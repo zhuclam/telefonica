@@ -245,7 +245,7 @@ def get_phones():
         is_test = request.args.get("test")
         Telefonica_table = 'telefonica_test' if is_test else 'telefonica'
 
-        invalid_key = validate_keys(request.args, ['info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent'])
+        invalid_key = validate_keys(request.args, ['info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent', 'comments'])
         if invalid_key is not None:
             return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
 
@@ -259,13 +259,14 @@ def get_phones():
             # end comment
             "no_weekends": request.args.get("noWeekends", "undefined"),
             "no_call": request.args.get("noCall", "undefined"),
-            "non_existent": request.args.get("nonExistent", "undefined")
+            "non_existent": request.args.get("nonExistent", "undefined"),
+            "comments": request.args.get("comments", "undefined"),
         }
 
         if all(x == 'undefined' for x in filters.values()):
             return jsonify(error= "At least 1 filter is required"), 400
 
-        filters = {k: filters.get(k) if filters.get(k) != 'never' else None for k in filters if filters.get(k) is not "undefined"}
+        filters = {k: filters.get(k) if filters.get(k) != 'never' else None for k in filters if filters.get(k) != "undefined"}
 
         query = "select * from {} where ".format(Telefonica_table)
 
