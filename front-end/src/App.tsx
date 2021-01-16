@@ -18,6 +18,7 @@ const StatisticsPanel = lazy(() => import('./features/StatisticsPanel'))
 const AddPhones = lazy(() => import('./features/AddPhones'))
 const SearchAndEdit = lazy(() => import('./features/SearchAndEdit'))
 const Configurations = lazy(() => import('./features/Configurations'))
+const Passwords = lazy(() => import('./features/Passwords'))
 
 interface ProtectedRouteProps extends RouteProps {
   condition: boolean
@@ -97,6 +98,12 @@ const MainRouter: React.FC = () => {
           path="/admin-panel/configurations"
           exact
           component={Configurations}
+          condition={isAdmin}
+        />
+        <ProtectedRoute
+          path="/admin-panel/passwords"
+          exact
+          component={Passwords}
           condition={isAdmin}
         />
 

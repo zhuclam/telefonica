@@ -5,7 +5,7 @@ from flask_cors import cross_origin
 
 # mine
 from bootstrap import app, db, Telefonica, Telefonica_test, Configurations, Configurations_test
-from auth import authenticate, admin_required
+from auth import authenticate, admin_required, update_passwords
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
 from services import phone_service, task_service
 
@@ -24,6 +24,28 @@ def login():
         return authenticate()
     except Exception as e:
         return handle_error(e, 'login')
+
+@app.route('/auth/passwords', methods=['PUT'])
+@cross_origin()
+def change_passwords():
+    try:
+        data = request.get_json()
+        validate("body", data)
+        
+        admin_password = data.get("admin", None)
+        user_password = data.get("user", None)
+
+        if not admin_password or not user_password:
+            return jsonify(error="At least 1 key is required."), 400
+
+        validate("body.admin", admin_password, lambda a: type(a) == str and a != "")
+        validate("body.user", user_password, lambda u: type(u) == str and u != "")
+
+        update_passwords(admin_p = admin_password, user_p = user_password)
+
+        return jsonify({}), 200
+    except Exception as e:
+        return handle_error(e, 'change_passwords')
 
 @app.route("/next", methods=["GET"])
 @cross_origin()
