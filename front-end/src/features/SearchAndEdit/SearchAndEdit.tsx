@@ -11,7 +11,7 @@ import {
   Breadcrumb,
 } from 'components'
 import { EditPhone, SearchForm, SearchResult } from './components'
-import { Filters } from './types'
+import { Filters, SearchResponse } from './types'
 
 const breadcrumbItems = [
   {
@@ -24,7 +24,10 @@ const breadcrumbItems = [
 ]
 
 const SearchAndEdit: FunctionComponent = () => {
-  const [searchResult, setSearchResult] = useState<Phone[] | null>(null)
+  const [foundPhones, setFoundPhones] = useState<
+    SearchResponse['phones'] | null
+  >(null)
+  const [foundCount, setFoundCount] = useState<SearchResponse['count']>(0)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [editingPhone, setEditingPhone] = useState<Phone | null>(null)
@@ -42,7 +45,8 @@ const SearchAndEdit: FunctionComponent = () => {
   } = useConfirmationModal<number>()
 
   useEffect(() => {
-    setSearchResult(null)
+    setFoundPhones(null)
+    setFoundCount(0)
     setEditingPhone(null)
   }, [testModeEnabled])
 
@@ -53,7 +57,7 @@ const SearchAndEdit: FunctionComponent = () => {
     try {
       setIsLoading(true)
 
-      const [err, phones] = await Fetch().get<Phone[]>({
+      const [err, result] = await Fetch().get<SearchResponse>({
         path: 'phones',
         params: Object.entries(filters)
           .map(([k, v]) => [k, typeof v !== 'boolean' ? v : v ? 1 : 0])
@@ -65,7 +69,8 @@ const SearchAndEdit: FunctionComponent = () => {
 
       if (err) throw err
 
-      setSearchResult(phones)
+      setFoundPhones(result.phones)
+      setFoundCount(result.count)
     } catch {
       AlertManager.show('search-error')
     } finally {
@@ -86,7 +91,8 @@ const SearchAndEdit: FunctionComponent = () => {
       if (err) throw err
 
       resetConfirmationModal()
-      setSearchResult(searchResult!.filter((p) => p.id !== idToDelete))
+      setFoundPhones(foundPhones!.filter((p) => p.id !== idToDelete))
+      setFoundCount(foundCount - 1)
     } catch {
       AlertManager.show('deletion-error')
     } finally {
@@ -97,9 +103,9 @@ const SearchAndEdit: FunctionComponent = () => {
   const handleBack = () => setEditingPhone(null)
 
   const handleUpdatedPhone = (updatedPhone: Phone) =>
-    searchResult &&
-    setSearchResult(
-      searchResult.map((p) => (p.id === updatedPhone.id ? updatedPhone : p))
+    foundPhones &&
+    setFoundPhones(
+      foundPhones.map((p) => (p.id === updatedPhone.id ? updatedPhone : p))
     )
 
   if (editingPhone !== null)
@@ -112,7 +118,7 @@ const SearchAndEdit: FunctionComponent = () => {
     )
 
   const phoneToDelete =
-    idToDelete !== null && searchResult?.find((p) => p.id === idToDelete)!
+    idToDelete !== null && foundPhones?.find((p) => p.id === idToDelete)!
 
   return (
     <>
@@ -130,9 +136,10 @@ const SearchAndEdit: FunctionComponent = () => {
         {isLoading ? (
           <Spinner />
         ) : (
-          searchResult && (
+          foundPhones && (
             <SearchResult
-              entries={searchResult}
+              entries={foundPhones}
+              count={foundCount}
               onEditRequest={handleEditRequest}
               onDeleteRequest={handleDeleteRequest}
             />
