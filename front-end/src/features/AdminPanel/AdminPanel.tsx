@@ -31,6 +31,11 @@ const AdminPanel: React.FC = () => (
           <span>🛠</span> Configuración de la App
         </RouterLink>
       </Item>
+      <Item>
+        <RouterLink to="/admin-panel/passwords" background="dark">
+          <span>🔑</span> Cambiar contraseñas
+        </RouterLink>
+      </Item>
     </Container>
   </>
 )
