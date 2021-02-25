@@ -153,7 +153,6 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           type="text"
           value={comments}
           onChange={(e) => handleComments(e.target.value)}
-          readOnly={!advancedModeEnabled}
         />
 
         {phone.commentedOn && (
