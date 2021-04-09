@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFetch } from 'hooks'
 import { Breadcrumb, ErrorDisplay, Spinner } from 'components'
 import { Statistics } from './types'
@@ -15,6 +15,7 @@ const breadcrumbItems = [
 
 const StatisticsPanel: React.FC = () => {
   const [data, setData] = useState<Statistics | null>(null)
+  const [noData, setNoData] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<boolean>(false)
 
@@ -24,11 +25,12 @@ const StatisticsPanel: React.FC = () => {
     try {
       setIsLoading(true)
       setError(false)
-      const [err, statistics] = await Fetch().get<Statistics>('statistics')
+      const [err, statistics] = await Fetch().get<Statistics | ''>('statistics')
 
       if (err) throw err
 
-      setData(statistics)
+      if (statistics === '') setNoData(true)
+      else setData(statistics)
     } catch (e) {
       console.log({ e })
       setError(true)
@@ -41,8 +43,23 @@ const StatisticsPanel: React.FC = () => {
     fetchData()
   }, [fetchData])
 
-  if (error) return <ErrorDisplay />
+  useMemo(() => {
+    data?.perMonthData.months.sort((a, b) => {
+      const [am, ay] = a.date.split('/')
+      const [bm, by] = b.date.split('/')
 
+      const ydiff = Number(by) - Number(ay)
+
+      if (ydiff !== 0) return ydiff
+      return Number(bm) - Number(am)
+    })
+  }, [data?.perMonthData.months])
+
+  if (error) return <ErrorDisplay />
+  if (noData)
+    return (
+      <ErrorDisplay message="Sin estadísticas. Aún no hay números cargados." />
+    )
   if (isLoading || !data) return <Spinner fulfill container />
 
   const { generalData, perMonthData, perDayData } = data

@@ -37,12 +37,20 @@ const SearchAndEdit: FunctionComponent = () => {
   const { testModeEnabled } = useConfig()
 
   const {
-    isModalOpen,
+    isModalOpen: isDeleteModalOpen,
     data: idToDelete,
-    askEditConfirmation,
-    toggleModal,
-    reset: resetConfirmationModal,
+    askEditConfirmation: askDeleteOneConfirmation,
+    toggleModal: toggleDeleteOneModal,
+    reset: resetDeleteConfirmationModal,
   } = useConfirmationModal<number>()
+
+  const {
+    isModalOpen: isDeleteManyModalOpen,
+    data: idListToDelete,
+    askEditConfirmation: askDeleteManyConfirmation,
+    toggleModal: toggleDeleteManyModal,
+    reset: resetDeleteManyConfirmationModal,
+  } = useConfirmationModal<number[]>()
 
   useEffect(() => {
     setFoundPhones(null)
@@ -80,7 +88,10 @@ const SearchAndEdit: FunctionComponent = () => {
 
   const handleEditRequest = (phone: Phone) => setEditingPhone(phone)
 
-  const handleDeleteRequest = (id: number) => askEditConfirmation(id)
+  const handleDeleteRequest = (id: number) => askDeleteOneConfirmation(id)
+
+  const handleDeleteManyRequest = (ids: number[]) =>
+    askDeleteManyConfirmation(ids)
 
   const confirmDeletion = async () => {
     try {
@@ -90,9 +101,33 @@ const SearchAndEdit: FunctionComponent = () => {
 
       if (err) throw err
 
-      resetConfirmationModal()
+      resetDeleteConfirmationModal()
       setFoundPhones(foundPhones!.filter((p) => p.id !== idToDelete))
       setFoundCount(foundCount - 1)
+    } catch {
+      AlertManager.show('deletion-error')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const confirmManyDeletion = async () => {
+    if (!idListToDelete) return
+    try {
+      setIsDeleting(true)
+
+      const [err] = await Fetch().delete<{ ids: number[] }>('phones/bulk', {
+        ids: idListToDelete,
+      })
+
+      if (err) throw err
+
+      const newPhones = foundPhones!.filter(
+        (p) => !idListToDelete.includes(p.id)
+      )
+      setFoundPhones(newPhones)
+      setFoundCount(foundCount - idListToDelete.length)
+      resetDeleteManyConfirmationModal()
     } catch {
       AlertManager.show('deletion-error')
     } finally {
@@ -126,7 +161,7 @@ const SearchAndEdit: FunctionComponent = () => {
         No se pudo buscar. Por favor, intente de nuevo.
       </Alert>
       <Alert name="deletion-error" position="top" variant="failure">
-        No se pudo eliminar el número. Por favor, intente de nuevo.
+        No se pudo eliminar. Por favor, intente de nuevo.
       </Alert>
       <Container className="pt-4 mb-5">
         <Breadcrumb items={breadcrumbItems} />
@@ -142,14 +177,15 @@ const SearchAndEdit: FunctionComponent = () => {
               count={foundCount}
               onEditRequest={handleEditRequest}
               onDeleteRequest={handleDeleteRequest}
+              onDeleteManyRequest={handleDeleteManyRequest}
             />
           )
         )}
       </Container>
       {idToDelete !== null && phoneToDelete && (
         <ConfirmationModal
-          isOpen={isModalOpen}
-          toggleModal={toggleModal}
+          isOpen={isDeleteModalOpen}
+          toggleModal={toggleDeleteOneModal}
           onConfirm={confirmDeletion}
           title="¿Seguro que desea eliminar el siguiente número?"
           body={
@@ -163,6 +199,17 @@ const SearchAndEdit: FunctionComponent = () => {
               </div>
             )
           }
+          buttonColor="danger"
+          confirmationLabel="Eliminar para siempre"
+        />
+      )}
+      {idListToDelete !== null && (
+        <ConfirmationModal
+          isOpen={isDeleteManyModalOpen}
+          toggleModal={toggleDeleteManyModal}
+          onConfirm={confirmManyDeletion}
+          title={`¿Seguro que desea eliminar ${idListToDelete.length} números?`}
+          body={isDeleting && <Spinner fulfill />}
           buttonColor="danger"
           confirmationLabel="Eliminar para siempre"
         />

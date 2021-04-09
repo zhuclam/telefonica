@@ -1,6 +1,7 @@
 import { Phone } from 'types'
 
 export interface Filters {
+  count?: number
   info?: string
   number?: string
   id?: string

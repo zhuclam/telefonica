@@ -27,6 +27,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
   } = useForm<Required<Filters>>({
     mode: 'all',
     reValidateMode: 'onChange',
+    defaultValues: {
+      count: 100,
+    },
   })
 
   const onApplyFilters = ({
@@ -39,8 +42,11 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     noCall,
     nonExistent,
     comments,
+    count,
   }: Required<Filters>) => {
     const filters: Filters = {}
+
+    filters.count = count
 
     info && (filters.info = info)
     number && (filters.number = number)
@@ -69,6 +75,19 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
         Todos los campos son opcionales.
       </span>
       <Form onSubmit={handleSubmit(onApplyFilters)}>
+        <Row>
+          <Col>
+            <FormGroup>
+              <Label>Cantidad a mostrar</Label>
+              <Input
+                type="number"
+                name="count"
+                innerRef={register({ validate: (d) => d >= 1 })}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+        <hr />
         <Row>
           <Col md="2">
             <FormGroup>
@@ -110,6 +129,19 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
                 innerRef={register}
                 autoComplete="off"
               />
+            </FormGroup>
+            <FormGroup check>
+              <Label check>
+                <Input
+                  type="checkbox"
+                  checked={getValues('comments') === '*'}
+                  onChange={(e) => {
+                    setValue('comments', e.target.checked ? '*' : '')
+                    forceUpdate()
+                  }}
+                />
+                Comentario no vacío
+              </Label>
             </FormGroup>
           </Col>
           <Col md="4">
@@ -215,7 +247,15 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
           <Col md="6">
             <Button
               type="submit"
-              disabled={!isDirty || !isValid || isSubmitting}
+              disabled={
+                (!isDirty &&
+                  // fix because using setValue still won't change isDirty...
+                  !getValues('answeredOn') &&
+                  !getValues('calledOn') &&
+                  !getValues('comments')) ||
+                !isValid ||
+                isSubmitting
+              }
               color="primary"
               block
             >

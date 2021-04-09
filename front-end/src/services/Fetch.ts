@@ -97,8 +97,13 @@ class Fetch {
     return this.doRequest(fetch(...this.generateFetchParams(url, 'PUT', body)))
   }
 
-  async delete<T = void>(url: URLObject): Promise<ReturnStatement<T>> {
-    return this.doRequest(fetch(...this.generateFetchParams(url, 'DELETE')))
+  async delete<Payload extends object, Response = void>(
+    url: URLObject,
+    body?: Payload
+  ): Promise<ReturnStatement<Response>> {
+    return this.doRequest(
+      fetch(...this.generateFetchParams(url, 'DELETE', body))
+    )
   }
 }
 
