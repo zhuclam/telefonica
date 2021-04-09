@@ -432,6 +432,45 @@ def delete_phone(phone_id):
     except Exception as e:
         return handle_error(e, "delete_phone")
 
+@app.route("/phones/bulk", methods=["DELETE"])
+@cross_origin()
+@admin_required
+def delete_phones():
+    try:
+        is_test = request.args.get("test")
+        table = "telefonica_test" if is_test else "telefonica"
+
+        data = request.get_json()
+        validate("body", data, lambda d: len(d) > 0)
+
+        allowed_keys = ["ids"]
+        invalid_key = validate_keys(data, allowed_keys)
+
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        ids = data.get('ids')
+        validate("body.ids", ids, lambda l: isinstance(l, list) and len(l) > 0 and all(isinstance(x, int) for x in l))
+
+        id_list = "("
+
+        for index, id in enumerate(ids):
+            id_list += str(id)
+            if len(ids) -1 != index:
+                id_list += ","
+
+        id_list += ")"
+        
+        result = db.engine.execute("DELETE from {} where id in {}".format(table, id_list))
+
+        if result.rowcount > 0:
+            return "", 204
+        else:
+            return "No phones where deleted", 400
+
+    except Exception as e:
+        return handle_error(e, "delete_phones")
+
 @app.route("/configurations", methods=["GET"])
 @cross_origin()
 @jwt_required
