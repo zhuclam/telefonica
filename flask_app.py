@@ -267,9 +267,11 @@ def get_phones():
         is_test = request.args.get("test")
         Telefonica_table = 'telefonica_test' if is_test else 'telefonica'
 
-        invalid_key = validate_keys(request.args, ['info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent', 'comments'])
+        invalid_key = validate_keys(request.args, ['count', 'info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent', 'comments'])
         if invalid_key is not None:
             return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        limit = request.args.get("count", 100)
 
         filters = {
             "info" : request.args.get("info", "undefined"),
@@ -314,7 +316,7 @@ def get_phones():
             if i != len(filters) - 1:
                 where_clause += " and "
 
-        retrieve_query += where_clause + " limit 100"
+        retrieve_query += where_clause + " limit " + limit
         count_query += where_clause
 
         found_phones = db.engine.execute(retrieve_query)
