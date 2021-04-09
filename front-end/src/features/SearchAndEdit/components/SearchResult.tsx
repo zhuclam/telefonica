@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Button, Table, Input } from 'reactstrap'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Phone } from 'types'
 
 interface SearchResultProps {
@@ -55,12 +55,21 @@ const SearchResult: React.FC<SearchResultProps> = ({
         .map(([id]) => parseInt(id))
     )
 
+  const onSelfAssign = (id: number) => {
+    const a = document.createElement('a')
+    a.href = `/telefonica?id=${id}`
+    a.target = '_blank'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
+
   return (
     <>
       <h3>
         Mostrando {entries.length} de {count} resultados.
       </h3>
-      <hr />
+      <Hr />
       <ActionPanel>
         ({selectedCount} seleccionados)
         <span style={{ margin: '0 1rem' }}>|</span>
@@ -118,6 +127,9 @@ const SearchResult: React.FC<SearchResultProps> = ({
                   .join(', ')}
               </td>
               <ActionCell>
+                <Button color="success" onClick={() => onSelfAssign(phone.id)}>
+                  Autoasignar
+                </Button>
                 <Button color="warning" onClick={() => onEditRequest(phone)}>
                   Editar
                 </Button>
@@ -165,8 +177,15 @@ const ActionPanel = styled.div`
   margin-bottom: 1rem;
   position: sticky;
   top: 0;
-  background: white;
+  background: ${({ theme }) => theme.text.colors.white};
   z-index: 1;
+
+  ${({ theme }) =>
+    theme.darkMode &&
+    css`
+      background: ${theme.text.colors.black};
+      color: ${theme.text.colors.white};
+    `}
 
   button:not(:first-of-type) {
     margin-left: 1em;
@@ -175,6 +194,11 @@ const ActionPanel = styled.div`
 
 const Centered = styled.div`
   padding-left: 1.5rem;
+`
+
+const Hr = styled.hr`
+  border-top: ${({ theme }) =>
+    theme.darkMode && '1px solid rgba(255,255,255,.1)'};
 `
 
 export { SearchResult }

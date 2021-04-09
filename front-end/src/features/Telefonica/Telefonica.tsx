@@ -28,11 +28,20 @@ const Telefonica: React.FC = () => {
 
   const Fetch = useFetch()
 
+  const paramId = new URLSearchParams(window.location.search).get('id')
+
   const fetchPhone = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(false)
-      const [err, newPhone] = await Fetch().get<PhoneResponse>('next')
+      const [err, newPhone] = await Fetch().get<PhoneResponse>(
+        paramId
+          ? {
+              path: 'next',
+              params: { id: paramId },
+            }
+          : 'next'
+      )
 
       if (err) throw err
 
@@ -57,7 +66,7 @@ const Telefonica: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [AlertManager, PhoneStorage, Fetch])
+  }, [AlertManager, PhoneStorage, Fetch, paramId])
 
   useEffect(() => {
     fetchPhone()
@@ -148,6 +157,7 @@ const Telefonica: React.FC = () => {
         handleComments={handleComments}
         openHelpSection={openHelpSection}
         handlePhoneFeedback={sendFeedback}
+        selfAssigned={!!paramId}
       />
       {advancedModeEnabled && (
         <PhonesInStorage

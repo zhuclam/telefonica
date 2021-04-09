@@ -6,7 +6,12 @@ import { ConfirmationModal, useConfirmationModal } from 'components'
 import { PhoneLink } from './PhoneLink'
 import { PhoneOptions } from './PhoneOptions'
 import { colors, labels } from 'consts'
-import { Button, Container, Jumbotron } from 'reactstrap'
+import {
+  Button,
+  Container,
+  Jumbotron,
+  Alert as ReactstrapAlert,
+} from 'reactstrap'
 
 interface PhoneDetailsProps {
   phone: Phone
@@ -14,6 +19,7 @@ interface PhoneDetailsProps {
   handleComments: (comments: string) => void
   openHelpSection: () => void
   handlePhoneFeedback: (n: FeedbackExtended) => void
+  selfAssigned: boolean
 }
 
 const PhoneDetails: React.FC<PhoneDetailsProps> = ({
@@ -22,6 +28,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   handleComments,
   openHelpSection,
   handlePhoneFeedback,
+  selfAssigned,
 }) => {
   const { advancedModeEnabled, configurations } = useConfig()
   const { campaignMode } = configurations
@@ -304,6 +311,11 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
   return (
     <Container className="py-4">
+      {selfAssigned && (
+        <ReactstrapAlert color="warning">
+          Usando número autoasignado
+        </ReactstrapAlert>
+      )}
       {DesktopTable}
       {MobileTable}
       {CommentsSection}
