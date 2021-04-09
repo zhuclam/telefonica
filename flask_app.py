@@ -143,6 +143,11 @@ def admin_dashboard():
         history_table = "history_test" if is_test else "history"
         telefonica_table = "telefonica_test" if is_test else "telefonica"
 
+        row_count = db.session.execute('select count(id) as c from {}'.format(telefonica_table)).scalar()
+
+        if row_count == 0:
+            return ('', 204)
+
         result = db.engine.execute("""
             select r1.called_on as date, total_calls, different, answered, no_call, non_existent from (
                 select
