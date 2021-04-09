@@ -307,6 +307,8 @@ def get_phones():
                     where_clause += "fulfilled_on is null and unanswered_date is null".format(value, value)
                 else:
                     where_clause += "{} is null".format(k)
+            elif value == "*":
+                where_clause += "({} is not null and {} != '')".format(k, k)
             else:
                 if k == "calledOn":
                     where_clause += "(fulfilled_on like '%{}%' or unanswered_date like '%{}%')".format(value, value)
