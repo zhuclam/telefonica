@@ -33,6 +33,7 @@ const Navbar: React.FC = () => {
     darkModeEnabled,
     advancedModeEnabled,
     testModeEnabled,
+    currentTerritory,
     toggleAdvancedMode,
     toggleDarkMode,
     toggleTestMode,
@@ -117,12 +118,18 @@ const Navbar: React.FC = () => {
                 {isAdmin && (
                   <Separator>
                     <NavItem onClick={onLinkClicked}>
-                      <RouterLink to="/admin-panel" background="dark">
+                      <RouterLink
+                        to={`/${currentTerritory?.name}/admin-panel`}
+                        background="dark"
+                      >
                         Ir al Panel de administración
                       </RouterLink>
                     </NavItem>
                     <NavItem onClick={onLinkClicked}>
-                      <RouterLink to="/telefonica" background="dark">
+                      <RouterLink
+                        to={`/${currentTerritory?.name}/telefonica`}
+                        background="dark"
+                      >
                         Ir a Telefónica
                       </RouterLink>
                     </NavItem>

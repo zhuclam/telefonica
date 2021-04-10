@@ -1,6 +1,7 @@
 import React from 'react'
 import { Breadcrumb as BBreadcrumb, BreadcrumbItem } from 'reactstrap'
 import { RouterLink } from '.'
+import { useConfig } from 'hooks'
 
 interface BreadcrumbProps {
   items: Array<{
@@ -10,24 +11,28 @@ interface BreadcrumbProps {
   }>
 }
 
-const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => (
-  <BBreadcrumb>
-    {items.map(({ title, linkTo, onClick }, index) => (
-      <BreadcrumbItem
-        key={title}
-        onClick={onClick}
-        active={index === items.length - 1}
-      >
-        {linkTo ? (
-          <RouterLink to={linkTo} noPadding>
-            {title}
-          </RouterLink>
-        ) : (
-          title
-        )}
-      </BreadcrumbItem>
-    ))}
-  </BBreadcrumb>
-)
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
+  const { currentTerritory } = useConfig()
+
+  return (
+    <BBreadcrumb>
+      {items.map(({ title, linkTo, onClick }, index) => (
+        <BreadcrumbItem
+          key={title}
+          onClick={onClick}
+          active={index === items.length - 1}
+        >
+          {linkTo ? (
+            <RouterLink to={`/${currentTerritory.name}${linkTo}`} noPadding>
+              {title}
+            </RouterLink>
+          ) : (
+            title
+          )}
+        </BreadcrumbItem>
+      ))}
+    </BBreadcrumb>
+  )
+}
 
 export { Breadcrumb }

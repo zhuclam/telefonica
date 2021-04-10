@@ -1,10 +1,10 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { ThemeProvider } from 'styled-components'
-import { ConfigContext } from 'contexts'
+import { useConfig } from 'hooks'
 import { theme } from './theme'
 
 const Provider: React.FC = ({ children }) => {
-  const { darkModeEnabled } = useContext(ConfigContext)
+  const { darkModeEnabled } = useConfig()
 
   return (
     <ThemeProvider theme={theme(darkModeEnabled)}>{children}</ThemeProvider>

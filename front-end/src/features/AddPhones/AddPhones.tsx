@@ -3,7 +3,7 @@ import { Container } from 'reactstrap'
 import { Alert, Breadcrumb, Spinner, useAlerts } from 'components'
 import { AddPhonePayload, AddPhoneResponse, NewPhone } from './types'
 import { EntryData, Result, Review } from './components'
-import { useFetch } from 'hooks'
+import { useConfig, useFetch } from 'hooks'
 import { css } from 'styled-components'
 import { useHistory } from 'react-router'
 
@@ -24,6 +24,7 @@ const AddPhones: React.FC = () => {
   const [serverResponse, setServerResponse] = useState<AddPhoneResponse | null>(
     null
   )
+  const { currentTerritory } = useConfig()
 
   const Fetch = useFetch()
 
@@ -63,7 +64,7 @@ const AddPhones: React.FC = () => {
   }
 
   const handleBackToAdmin = () => {
-    history.push('/admin-panel')
+    history.push(`/${currentTerritory.name}/admin-panel`)
   }
 
   if (isLoading) return <Spinner container fulfill />

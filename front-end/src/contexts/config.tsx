@@ -5,7 +5,7 @@ import React, {
   useCallback,
 } from 'react'
 import { useFetch } from 'hooks'
-import { Configurations } from 'types'
+import { Configurations, Territory } from 'types'
 import { LOCAL_STORAGE } from 'consts'
 
 interface ConfigType {
@@ -13,13 +13,16 @@ interface ConfigType {
   advancedModeEnabled: boolean
   testModeEnabled: boolean
   configurations: Configurations
+  territories: Territory[]
   configsLoading: boolean
   configsError: boolean
+  currentTerritory: Territory
   toggleDarkMode: (checked: boolean) => void
   toggleAdvancedMode: (checked: boolean) => void
   toggleTestMode: (checked: boolean) => void
   getConfigs: (Fetch: ReturnType<typeof useFetch>) => Promise<void>
   updateConfigs: (configs: Configurations) => void
+  setCurrentTerritory: (territory: Territory) => void
 }
 
 export const ConfigContext = createContext<ConfigType>({} as ConfigType)
@@ -48,19 +51,25 @@ export const useConfig = (): ConfigType => {
   const [configurations, setConfigurations] = useState<
     Configurations | undefined
   >()
-  const [configsLoading, setConfigsLoading] = useState<boolean>(false)
+  const [territories, setTerritories] = useState<Territory[]>([])
+  const [currentTerritory, setCurrentTerritory] = useState<
+    Territory | undefined
+  >()
+  const [configsLoading, setConfigsLoading] = useState<boolean>(true)
   const [configsError, setConfigsError] = useState<boolean>(false)
 
   const getConfigs = useCallback(async (Fetch: ReturnType<typeof useFetch>) => {
     try {
       setConfigsLoading(true)
-      const [err, configs] = await Fetch().get<{ configs: Configurations }>(
-        '/configurations'
-      )
+      const [err, response] = await Fetch().get<{
+        configs: Configurations
+        territories: Territory[]
+      }>('/configurations')
 
       if (err) throw err
 
-      setConfigurations(configs.configs)
+      setConfigurations(response.configs)
+      setTerritories(response.territories)
       setConfigsError(false)
     } catch {
       setConfigsError(true)
@@ -97,12 +106,15 @@ export const useConfig = (): ConfigType => {
     advancedModeEnabled,
     testModeEnabled,
     configurations: configurations!,
+    territories,
     configsLoading,
     configsError,
+    currentTerritory: currentTerritory!,
     toggleDarkMode,
     toggleAdvancedMode,
     toggleTestMode,
     getConfigs,
     updateConfigs,
+    setCurrentTerritory,
   }
 }

@@ -65,3 +65,9 @@ export interface Configurations {
   nonExistentPostponedDays: number
   hiddenButtons: string
 }
+
+export interface Territory {
+  id: number
+  name: string
+  active: boolean
+}

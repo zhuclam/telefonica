@@ -29,8 +29,13 @@ const StatisticsPanel: React.FC = () => {
 
       if (err) throw err
 
-      if (statistics === '') setNoData(true)
-      else setData(statistics)
+      if (statistics === '') {
+        setNoData(true)
+        setData(null)
+      } else {
+        setData(statistics)
+        setNoData(false)
+      }
     } catch (e) {
       console.log({ e })
       setError(true)

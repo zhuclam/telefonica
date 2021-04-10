@@ -8,7 +8,7 @@ import { Redirect, RouteProps, useHistory, useLocation } from 'react-router'
 import { ThemeProvider } from 'theme'
 import { ContextProviders } from 'contexts'
 import { useAuth, useConfig, useFetch } from 'hooks'
-import { ErrorDisplay, Layout, Spinner } from './components'
+import { ErrorDisplay, Layout, Spinner, TerritoryVerifier } from './components'
 import './app.css'
 
 const AdminPanel = lazy(() => import('./features/AdminPanel'))
@@ -34,9 +34,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   <Route {...restProps} component={condition ? component : DummyComponent} />
 )
 
+const WithTerritoryVerifier: React.FC = ({ children }) => (
+  <Route
+    path="/:territory"
+    render={({ match }) => (
+      <TerritoryVerifier territory={match.params.territory}>
+        {children}
+      </TerritoryVerifier>
+    )}
+  />
+)
+
 const MainRouter: React.FC = () => {
   const { isAuth, isAdmin } = useAuth()
-  const { configsLoading, configsError, getConfigs } = useConfig()
+  const {
+    configsLoading,
+    configsError,
+    getConfigs,
+    configurations,
+  } = useConfig()
   const location = useLocation()
   const history = useHistory()
 
@@ -44,13 +60,18 @@ const MainRouter: React.FC = () => {
 
   useLayoutEffect(() => {
     if (!isAuth && !location.pathname.includes('/login')) history.push('/login')
-    if (isAuth && location.pathname.includes('/login'))
-      isAdmin ? history.push('/admin-panel') : history.push('/telefonica')
+    if (
+      isAuth &&
+      (location.pathname.includes('/login') || location.pathname === '/')
+    )
+      isAdmin
+        ? history.push('/base/admin-panel')
+        : history.push('/base/telefonica')
   }, [isAuth, isAdmin, location.pathname, history])
 
   useEffect(() => {
-    if (isAuth) getConfigs(Fetch)
-  }, [isAuth, Fetch, getConfigs])
+    if (isAuth && !configurations) getConfigs(Fetch)
+  }, [isAuth, Fetch, getConfigs, configurations])
 
   if (configsLoading) return <Spinner container fulfill />
 
@@ -62,50 +83,55 @@ const MainRouter: React.FC = () => {
         {/* Common */}
         <Route path="/login" exact component={Login} />
 
-        {/* User */}
-        <ProtectedRoute
-          path="/telefonica"
-          component={Telefonica}
-          condition={isAuth}
-        />
+        <WithTerritoryVerifier>
+          <Switch>
+            {/* User */}
+            <ProtectedRoute
+              path="/:territory/telefonica"
+              component={Telefonica}
+              condition={isAuth}
+            />
 
-        {/* Admin */}
-        <ProtectedRoute
-          path="/admin-panel"
-          exact
-          component={AdminPanel}
-          condition={isAdmin}
-        />
-        <ProtectedRoute
-          path="/admin-panel/statistics"
-          exact
-          component={StatisticsPanel}
-          condition={isAdmin}
-        />
-        <ProtectedRoute
-          path="/admin-panel/add-phones"
-          exact
-          component={AddPhones}
-          condition={isAdmin}
-        />
-        <ProtectedRoute
-          path="/admin-panel/search-and-edit"
-          exact
-          component={SearchAndEdit}
-          condition={isAdmin}
-        />
-        <ProtectedRoute
-          path="/admin-panel/configurations"
-          exact
-          component={Configurations}
-          condition={isAdmin}
-        />
-        <ProtectedRoute
-          path="/admin-panel/passwords"
-          exact
-          component={Passwords}
-          condition={isAdmin}
-        />
+            {/* Admin */}
+            <ProtectedRoute
+              path="/:territory/admin-panel"
+              exact
+              component={AdminPanel}
+              condition={isAdmin}
+            />
+            <ProtectedRoute
+              path="/:territory/admin-panel/statistics"
+              exact
+              component={StatisticsPanel}
+              condition={isAdmin}
+            />
+            <ProtectedRoute
+              path="/:territory/admin-panel/add-phones"
+              exact
+              component={AddPhones}
+              condition={isAdmin}
+            />
+            <ProtectedRoute
+              path="/:territory/admin-panel/search-and-edit"
+              exact
+              component={SearchAndEdit}
+              condition={isAdmin}
+            />
+            <ProtectedRoute
+              path="/:territory/admin-panel/configurations"
+              exact
+              component={Configurations}
+              condition={isAdmin}
+            />
+            <ProtectedRoute
+              path="/:territory/admin-panel/passwords"
+              exact
+              component={Passwords}
+              condition={isAdmin}
+            />
+            <Redirect to="/login" />
+          </Switch>
+        </WithTerritoryVerifier>
 
         {/* Misc */}
         <Redirect to="/login" />

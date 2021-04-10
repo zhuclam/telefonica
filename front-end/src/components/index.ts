@@ -1,4 +1,5 @@
 export { Layout } from './Layout'
+export { TerritoryVerifier } from './TerritoryVerifier'
 export { Spinner } from './Spinner'
 export { ErrorDisplay } from './ErrorDisplay'
 export { Alert, useAlerts } from './Alert'

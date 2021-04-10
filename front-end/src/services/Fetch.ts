@@ -1,5 +1,6 @@
 import { backendURL, LOCAL_STORAGE } from 'consts'
 import { camelizeKeys, decamelizeKeys } from 'humps'
+import { Territory } from 'types'
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 
@@ -16,8 +17,13 @@ class Fetch {
   private token: string
   private useToken: boolean
   private isTest: boolean
+  private currentTerritory: Territory | undefined
 
-  constructor(isTest: boolean, useToken: boolean) {
+  constructor(
+    isTest: boolean,
+    useToken: boolean,
+    currentTerritory: Territory | undefined
+  ) {
     const token = localStorage.getItem(LOCAL_STORAGE.TOKEN) ?? ''
     if (useToken && !token)
       console.warn(
@@ -27,6 +33,7 @@ class Fetch {
     this.token = token
     this.useToken = useToken
     this.isTest = isTest
+    this.currentTerritory = currentTerritory
   }
 
   private generateFetchParams(
@@ -39,6 +46,9 @@ class Fetch {
     const params: string = `${this.composeQueryParams({
       ...(typeof url !== 'string' ? url.params : {}),
       ...(this.isTest ? { test: '1' } : {}),
+      ...(this.currentTerritory
+        ? { territory: this.currentTerritory.id.toString() }
+        : {}),
     })}`
 
     const URI = `${backendURL}${URL}${params}`

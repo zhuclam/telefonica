@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Button, Table, Input } from 'reactstrap'
 import styled, { css } from 'styled-components'
 import { Phone } from 'types'
+import { useConfig } from 'hooks'
 
 interface SearchResultProps {
   entries: Phone[]
@@ -20,6 +21,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   onDeleteRequest,
   onDeleteManyRequest,
 }) => {
+  const { currentTerritory } = useConfig()
   const buildCheckedInputs = useCallback(
     (checked: boolean) =>
       entries.reduce((acc, curr) => {
@@ -57,7 +59,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
 
   const onSelfAssign = (id: number) => {
     const a = document.createElement('a')
-    a.href = `/telefonica?id=${id}`
+    a.href = `/${currentTerritory.name}/telefonica?id=${id}`
     a.target = '_blank'
     document.body.appendChild(a)
     a.click()

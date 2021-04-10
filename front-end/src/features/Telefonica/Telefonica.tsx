@@ -22,7 +22,7 @@ const Telefonica: React.FC = () => {
 
   const PhoneStorage = usePhoneStorage()
 
-  const { advancedModeEnabled } = useConfig()
+  const { advancedModeEnabled, currentTerritory } = useConfig()
 
   const { AlertManager } = useAlerts()
 
@@ -125,7 +125,8 @@ const Telefonica: React.FC = () => {
 
   const history = useHistory()
 
-  const openHelpSection = () => history.push('/telefonica/help')
+  const openHelpSection = () =>
+    history.push(`/${currentTerritory.name}/telefonica/help`)
   const closeHelpSection = () => history.goBack()
 
   const handleComments = (c: string) => setComments(c)
@@ -181,8 +182,8 @@ const Telefonica: React.FC = () => {
   return (
     <Container>
       <Switch>
-        <Route path="/telefonica" exact render={Main} />
-        <Route path="/telefonica/help" exact component={Help} />
+        <Route path="/:territory/telefonica" exact render={Main} />
+        <Route path="/:territory/telefonica/help" exact component={Help} />
       </Switch>
     </Container>
   )
