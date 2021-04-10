@@ -66,7 +66,7 @@ class Telefonica(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
-    territory_id = db.Column(Integer, db.ForeignKey('territories.id'))
+    territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, server_default="1")
     territory = db.relationship("Territories")
 
     def as_dict(self):
@@ -90,7 +90,7 @@ class Telefonica_test(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
-    territory_id = db.Column(Integer, db.ForeignKey('territories_test.id'))
+    territory_id = db.Column(db.Integer, db.ForeignKey('territories_test.id'), nullable=False, server_default="1")
     territory = db.relationship("Territories_test")
 
     def as_dict(self):
@@ -114,7 +114,7 @@ class Telefonica_backup(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
-    territory_id = db.Column(Integer, db.ForeignKey('territories.id'))
+    territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, server_default="1")
     territory = db.relationship("Territories")
 
     def as_dict(self):
@@ -200,7 +200,7 @@ class Territories(db.Model):
     __tablename__ = "territories"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False, unique=True)
-    active = db.Column(db.Boolean, nullable=False, server_default=False)
+    active = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -212,7 +212,7 @@ class Territories_test(db.Model):
     __tablename__ = "territories_test"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False, unique=True)
-    active = db.Column(db.Boolean, nullable=False, server_default=False)
+    active = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
