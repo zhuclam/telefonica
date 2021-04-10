@@ -4,7 +4,16 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
 
 # mine
-from bootstrap import app, db, Telefonica, Telefonica_test, Configurations, Configurations_test
+from bootstrap import (
+    app,
+    db,
+    Telefonica,
+    Telefonica_test,
+    Configurations,
+    Configurations_test,
+    Territories,
+    Territories_test
+)
 from auth import authenticate, admin_required, update_passwords
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
 from services import phone_service, task_service
@@ -480,9 +489,14 @@ def get_configurations():
         Configs = Configurations_test if is_test else Configurations
         configs = Configs().query.get(1)
 
+        Terr = Territories_test if is_test else Territories
+        territories = Terr().query.all()
+
+        territories = list(map(lambda t: t.as_dict(),territories))
+
         task_service.check_task_executed()
 
-        return jsonify(configs= configs.as_dict()), 200
+        return jsonify(configs= configs.as_dict(), territories=territories), 200
 
 
     except Exception as e:

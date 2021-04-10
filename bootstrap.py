@@ -205,7 +205,6 @@ class Territories(db.Model):
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
        dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       del dict['id']
        return dict
 
 class Territories_test(db.Model):
@@ -217,7 +216,6 @@ class Territories_test(db.Model):
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
        dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       del dict['id']
        return dict
 
 class Watch_task(db.Model):
