@@ -589,14 +589,20 @@ def edit_configurations():
         validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
         territory_id = int(territory_id)
 
-        configs = Configs().query.filter(Configs.territory_id == territory_id).first()
+        baseConfig = Configs().query.get(1)
+        currentConfig = baseConfig if territory_id == 1 else Configs().query.filter(Configs.territory_id == territory_id).first()
 
         for config, value in data.items():
-            setattr(configs, config, value)
+            if config == "campaign_mode":
+                setattr(currentConfig, config, value)
+            else:
+                setattr(baseConfig, config, value)
 
         db.session.commit()
 
-        return jsonify(configs= configs.as_dict()), 200
+        allConfigs = list(map(lambda c: c.as_dict(), Configs().query.all()))
+
+        return jsonify(configurations=allConfigs), 200
 
     except Exception as e:
         return handle_error(e, "edit_configurations")
