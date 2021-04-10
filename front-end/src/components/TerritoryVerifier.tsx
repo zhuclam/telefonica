@@ -26,7 +26,9 @@ const TerritoryVerifier: React.FC<TerritoryVerifierProps> = ({
   return isValid ? (
     <>{children}</>
   ) : (
-    <Redirect to={`/base/${stripTerritory(location.pathname)}`} />
+    <Redirect
+      to={`/base/${stripTerritory(location.pathname)}${location.search}`}
+    />
   )
 }
 

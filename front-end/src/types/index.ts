@@ -29,6 +29,7 @@ export interface Phone {
   unansweredCount: number
   unansweredDate: null | string
   noWeekends: boolean
+  territoryId: number
 }
 
 export type OriginalData = Pick<

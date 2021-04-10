@@ -20,6 +20,7 @@ interface PhoneDetailsProps {
   openHelpSection: () => void
   handlePhoneFeedback: (n: FeedbackExtended) => void
   selfAssigned: boolean
+  isFromAnotherTerritory: boolean
 }
 
 const PhoneDetails: React.FC<PhoneDetailsProps> = ({
@@ -29,11 +30,12 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   openHelpSection,
   handlePhoneFeedback,
   selfAssigned,
+  isFromAnotherTerritory,
 }) => {
   const { advancedModeEnabled, configurations } = useConfig()
   const { campaignMode } = configurations
 
-  const isAllowed = (f: Feedback) =>
+  const isButtonAllowed = (f: Feedback) =>
     !configurations.hiddenButtons.split(',').includes(f.toString())
 
   const {
@@ -193,7 +195,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
     </div>
   ) : !advancedModeEnabled ? (
     <div className="my-4 row d-flex justify-content-center">
-      {isAllowed(Feedback.ANSWERED) && (
+      {isButtonAllowed(Feedback.ANSWERED) && (
         <div className="col-6 mb-3 col-md-auto">
           <button
             className="btn btn-success btn-lg mx-auto mx-md-0 d-block w-100"
@@ -203,7 +205,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.UNANSWERED) && (
+      {isButtonAllowed(Feedback.UNANSWERED) && (
         <div className="col-6 mb-3 col-md-auto">
           <button
             className="btn btn-danger btn-lg mx-auto mx-md-0 d-block w-100"
@@ -213,7 +215,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.NO_CALL) && (
+      {isButtonAllowed(Feedback.NO_CALL) && (
         <div className="col-6 col-md-auto">
           <button
             className="btn btn-warning btn-lg mx-auto mx-md-0 d-block w-100"
@@ -223,7 +225,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.NON_EXISTENT) && (
+      {isButtonAllowed(Feedback.NON_EXISTENT) && (
         <div className="col-6 col-md-auto">
           <button
             className="btn btn-dark btn-lg mx-auto mx-md-0 d-block w-100"
@@ -236,7 +238,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
     </div>
   ) : (
     <div className="my-4 row d-flex justify-content-center">
-      {isAllowed(Feedback.ANSWERED) && (
+      {isButtonAllowed(Feedback.ANSWERED) && (
         <div className="col-6 mb-2 col-md-auto">
           <button
             className="btn btn-success btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -246,7 +248,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.UNANSWERED) && (
+      {isButtonAllowed(Feedback.UNANSWERED) && (
         <div className="col-6 mb-2 col-md-auto">
           <button
             className="btn btn-danger btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -256,7 +258,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.ANSWERING_MACHINE) && (
+      {isButtonAllowed(Feedback.ANSWERING_MACHINE) && (
         <div className="col-6 mb-2 col-md-auto">
           <button
             className="btn btn-primary btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -266,7 +268,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.POSTPONE) && (
+      {isButtonAllowed(Feedback.POSTPONE) && (
         <div className="col-6 mb-2 col-md-auto">
           <button
             className="btn btn-info btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -276,7 +278,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.IGNORE) && (
+      {isButtonAllowed(Feedback.IGNORE) && (
         <div className="col-6 mb-2 col-md-auto">
           <button
             className="btn btn-secondary btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -286,7 +288,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.NO_CALL) && (
+      {isButtonAllowed(Feedback.NO_CALL) && (
         <div className="col-6 mb-2 col-md-auto">
           <button
             className="btn btn-warning btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -296,7 +298,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           </button>
         </div>
       )}
-      {isAllowed(Feedback.NON_EXISTENT) && (
+      {isButtonAllowed(Feedback.NON_EXISTENT) && (
         <div className="col-6 col-md-auto">
           <button
             className="btn btn-dark btn-lg w-100 mx-auto mx-md-0 d-block"
@@ -314,6 +316,11 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
       {selfAssigned && (
         <ReactstrapAlert color="warning">
           Usando número autoasignado
+        </ReactstrapAlert>
+      )}
+      {isFromAnotherTerritory && (
+        <ReactstrapAlert color="danger">
+          ¡El número es de otro territorio!
         </ReactstrapAlert>
       )}
       {DesktopTable}

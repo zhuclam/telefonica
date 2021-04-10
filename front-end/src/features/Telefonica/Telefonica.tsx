@@ -159,6 +159,7 @@ const Telefonica: React.FC = () => {
         openHelpSection={openHelpSection}
         handlePhoneFeedback={sendFeedback}
         selfAssigned={!!paramId}
+        isFromAnotherTerritory={phone.territoryId !== currentTerritory.id}
       />
       {advancedModeEnabled && (
         <PhonesInStorage
