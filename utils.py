@@ -40,6 +40,7 @@ def validate(name, data, validator = None, **kwargs):
 
 def validate_keys(dic, keys_list):
     keys_list.append('test')
+    keys_list.append('territory')
     for key in dic.keys():
         if not key in keys_list:
             return key

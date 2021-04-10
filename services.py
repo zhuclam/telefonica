@@ -180,7 +180,7 @@ class phone_service():
             if info is not None and not isinstance(info, str): return False
         return True
 
-    def add_numbers(phones, is_test = False):
+    def add_numbers(phones, territory_id, is_test = False):
         Tel = Telefonica_test if is_test else Telefonica
 
         success_count = 0
@@ -200,7 +200,7 @@ class phone_service():
                     failure_count = failure_count + 1
                     continue
 
-                phone = Tel(info=info, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0, no_weekends=0)
+                phone = Tel(info=info, phone=number, non_existent=0, unanswered_count=0, postponed_days=0, comments="", no_call=0, no_weekends=0, territory_id=territory_id)
                 db.session.add(phone)
                 success_count = success_count + 1
             except:

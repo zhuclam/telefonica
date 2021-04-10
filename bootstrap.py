@@ -172,6 +172,8 @@ class Configurations(db.Model):
     postponed_button_days = db.Column(db.Integer, nullable=False)
     non_existent_postponed_days = db.Column(db.Integer, nullable=False)
     hidden_buttons = db.Column(db.String(40), nullable=False)
+    territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, unique=True, server_default="1")
+    territory = db.relationship("Territories"),
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -189,6 +191,8 @@ class Configurations_test(db.Model):
     postponed_button_days = db.Column(db.Integer, nullable=False)
     non_existent_postponed_days = db.Column(db.Integer, nullable=False)
     hidden_buttons = db.Column(db.String(40), nullable=False)
+    territory_id = db.Column(db.Integer, db.ForeignKey('territories_test.id'), nullable=False, unique=True, server_default="1")
+    territory = db.relationship("Territories_test"),
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}

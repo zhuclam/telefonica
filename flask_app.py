@@ -62,14 +62,15 @@ def change_passwords():
 def next():
     try:
         Tel = Telefonica_test if request.args.get("test") else Telefonica
+        territory_id = request.args.get("territory")
         if request.args.get("id"):
             phone = Tel().query.get(request.args.get("id"))
         else:
             is_weekend = days_utils.check_today_is_weekend()
             if is_weekend:
-                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.no_weekends == False).order_by(Tel.fulfilled_on.asc()).first()
+                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.territory_id == territory_id, Tel.no_weekends == False).order_by(Tel.fulfilled_on.asc()).first()
             else:
-                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0).order_by(Tel.fulfilled_on.asc()).first()
+                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.territory_id == territory_id).order_by(Tel.fulfilled_on.asc()).first()
             phone.postponed_days = 1
             phone.non_existent = 0
             db.session.commit()
@@ -149,10 +150,11 @@ def update_phone():
 def admin_dashboard():
     try:
         is_test = request.args.get("test")
+        territory_id = request.args.get("territory")
         history_table = "history_test" if is_test else "history"
         telefonica_table = "telefonica_test" if is_test else "telefonica"
 
-        row_count = db.session.execute('select count(id) as c from {}'.format(telefonica_table)).scalar()
+        row_count = db.session.execute('select count(id) as c from {} where territory_id = {}'.format(telefonica_table, territory_id)).scalar()
 
         if row_count == 0:
             return ('', 204)
@@ -164,8 +166,10 @@ def admin_dashboard():
                 count(phone_id) as different,
                 sum(if(status = 2, 1, 0)) as non_existent,
                 sum(if(status = 3, 1, 0)) as no_call
-                from {}
-                where genuine = 1
+                from {} h
+                inner join {} t
+                on h.phone_id = t.id
+                where genuine = 1 and territory_id = {}
                 group by date(called_on)
             ) r1
             inner join (
@@ -185,7 +189,7 @@ def admin_dashboard():
             ) r3
             on date(r3.called_on) = date(r1.called_on)
             order by date desc
-            """.format(history_table, history_table, history_table)
+            """.format(history_table, telefonica_table, territory_id, history_table, history_table)
         )
 
         def row_str_to_date(row):
@@ -197,7 +201,12 @@ def admin_dashboard():
 
         per_day_data = list(map(row_str_to_date, result))
 
-        general_result = db.engine.execute("select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent from {};".format(telefonica_table))
+        general_result = db.engine.execute("""
+            select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent
+            from {}
+            where territory_id = {}
+        """.format(telefonica_table, territory_id))
+
         general_result = list(general_result)
 
         general_data = {
@@ -206,12 +215,23 @@ def admin_dashboard():
             "non_existent": general_result[0]["non_existent"],
         }
 
-        per_month_result = db.engine.execute("select count(*) total, count(distinct phone_id) different, date_format(called_on, '%m/%Y') date, sum(if(status = 2, 1, 0)) inexistent, sum(if(status = 1, 1, 0)) answered from {} group by date_format(called_on, '%Y-%m') order by date desc;".format(history_table))
+        per_month_result = db.engine.execute("""
+            select
+                count(*) total,
+                count(distinct phone_id) different,
+                date_format(called_on, '%m/%Y') date,
+                sum(if(status = 2, 1, 0)) inexistent,
+                sum(if(status = 1, 1, 0)) answered
+            from {} h
+            inner join {} t
+            on h.phone_id = t.id
+            where territory_id = {}
+            group by date_format(called_on, '%Y-%m')
+            order by date desc;""".format(history_table, telefonica_table, territory_id))
 
         per_month_result = db_result_to_dict(per_month_result)
 
         per_month_data = {
-            #"months": days_utils.by_months(per_day_data),
             "months": per_month_result,
             "total_valid_numbers": general_result[0]["total_numbers"] - general_result[0]["non_existent"]
         }
@@ -231,8 +251,13 @@ def add_numbers():
         validate('body.phones', phones, lambda p: phone_service.validate_new_phones(p))
 
         is_test = request.args.get("test")
+        territory_id = request.args.get("territory")
 
-        success_count, failure_count = phone_service.add_numbers(phones, is_test)
+        validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
+
+        territory_id = int(territory_id)
+
+        success_count, failure_count = phone_service.add_numbers(phones, territory_id, is_test)
 
         return jsonify({"success_count": success_count, "failure_count": failure_count}), 201
 
@@ -285,6 +310,10 @@ def get_phones():
         if invalid_key is not None:
             return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
 
+        territory_id = request.args.get("territory")
+        validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
+        territory_id = int(territory_id)
+
         limit = request.args.get("count", 100)
 
         filters = {
@@ -306,8 +335,8 @@ def get_phones():
 
         filters = {k: filters.get(k) if filters.get(k) != 'never' else None for k in filters if filters.get(k) != "undefined"}
 
-        retrieve_query = "select * from {} where ".format(Telefonica_table)
-        count_query = "select count(*) as count from {} where ".format(Telefonica_table)
+        retrieve_query = "select * from {} where territory_id = {} and ".format(Telefonica_table, territory_id)
+        count_query = "select count(*) as count from {} where territory_id = {} and ".format(Telefonica_table, territory_id)
 
         where_clause = ""
 
@@ -469,7 +498,7 @@ def delete_phones():
                 id_list += ","
 
         id_list += ")"
-        
+
         result = db.engine.execute("DELETE from {} where id in {}".format(table, id_list))
 
         if result.rowcount > 0:
@@ -486,18 +515,18 @@ def delete_phones():
 def get_configurations():
     try:
         is_test = request.args.get("test")
+
         Configs = Configurations_test if is_test else Configurations
-        configs = Configs().query.get(1)
+        configs = Configs().query.all()
+        configs = list(map(lambda c: c.as_dict(), configs))
 
         Terr = Territories_test if is_test else Territories
         territories = Terr().query.all()
-
-        territories = list(map(lambda t: t.as_dict(),territories))
+        territories = list(map(lambda t: t.as_dict(), territories))
 
         task_service.check_task_executed()
 
-        return jsonify(configs= configs.as_dict(), territories=territories), 200
-
+        return jsonify(configs=configs, territories=territories), 200
 
     except Exception as e:
         return handle_error(e, "get_configurations")
@@ -556,7 +585,11 @@ def edit_configurations():
         if hidden_buttons != 'nil':
             validate("body.hidden_buttons", hidden_buttons, lambda val: type(val) == str and (True if len(val) == 0 else all(n.isnumeric() and int(n) > -1 and int(n) < 7 for n in val.split(','))))
 
-        configs = Configs().query.get(1)
+        territory_id = request.args.get("territory")
+        validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
+        territory_id = int(territory_id)
+
+        configs = Configs().query.filter(Configs.territory_id == territory_id).first()
 
         for config, value in data.items():
             setattr(configs, config, value)
