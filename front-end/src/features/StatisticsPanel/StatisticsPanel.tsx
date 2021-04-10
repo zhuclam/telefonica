@@ -63,7 +63,7 @@ const StatisticsPanel: React.FC = () => {
   if (error) return <ErrorDisplay />
   if (noData)
     return (
-      <ErrorDisplay message="Sin estadísticas. Aún no hay números cargados." />
+      <ErrorDisplay message="Sin estadísticas. Aún no hay números cargados para este territorio." />
     )
   if (isLoading || !data) return <Spinner fulfill container />
 

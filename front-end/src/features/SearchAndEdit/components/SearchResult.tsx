@@ -89,6 +89,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
       <Table striped responsive>
         <Thead>
           <tr>
+            <th />
             <th>ID</th>
             <th>Número</th>
             <th>Info</th>
@@ -196,6 +197,7 @@ const ActionPanel = styled.div`
 
 const Centered = styled.div`
   padding-left: 1.5rem;
+  position: relative;
 `
 
 const Hr = styled.hr`
