@@ -66,6 +66,8 @@ class Telefonica(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
+    territory_id = db.Column(Integer, db.ForeignKey('territories.id'))
+    territory = db.relationship("Territories")
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -88,6 +90,8 @@ class Telefonica_test(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
+    territory_id = db.Column(Integer, db.ForeignKey('territories_test.id'))
+    territory = db.relationship("Territories_test")
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -110,6 +114,8 @@ class Telefonica_backup(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
+    territory_id = db.Column(Integer, db.ForeignKey('territories.id'))
+    territory = db.relationship("Territories")
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -183,6 +189,30 @@ class Configurations_test(db.Model):
     postponed_button_days = db.Column(db.Integer, nullable=False)
     non_existent_postponed_days = db.Column(db.Integer, nullable=False)
     hidden_buttons = db.Column(db.String(40), nullable=False)
+
+    def as_dict(self):
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       del dict['id']
+       return dict
+
+class Territories(db.Model):
+    __tablename__ = "territories"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(40), nullable=False, unique=True)
+    active = db.Column(db.Boolean, nullable=False, server_default=False)
+
+    def as_dict(self):
+       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
+       del dict['id']
+       return dict
+
+class Territories_test(db.Model):
+    __tablename__ = "territories_test"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(40), nullable=False, unique=True)
+    active = db.Column(db.Boolean, nullable=False, server_default=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
