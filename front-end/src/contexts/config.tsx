@@ -12,16 +12,18 @@ interface ConfigType {
   darkModeEnabled: boolean
   advancedModeEnabled: boolean
   testModeEnabled: boolean
-  configurations: Configurations
+  configurations: Configurations[]
   territories: Territory[]
   configsLoading: boolean
   configsError: boolean
   currentTerritory: Territory
+  baseConfiguration: Configurations
+  currentConfiguration: Configurations
   toggleDarkMode: (checked: boolean) => void
   toggleAdvancedMode: (checked: boolean) => void
   toggleTestMode: (checked: boolean) => void
   getConfigs: (Fetch: ReturnType<typeof useFetch>) => Promise<void>
-  updateConfigs: (configs: Configurations) => void
+  updateConfigs: (configs: Configurations[]) => void
   setCurrentTerritory: (territory: Territory) => void
 }
 
@@ -48,9 +50,7 @@ export const useConfig = (): ConfigType => {
     !!localStorage.getItem(LOCAL_STORAGE.TEST_MODE)
   )
 
-  const [configurations, setConfigurations] = useState<
-    Configurations | undefined
-  >()
+  const [configurations, setConfigurations] = useState<Configurations[]>([])
   const [territories, setTerritories] = useState<Territory[]>([])
   const [currentTerritory, setCurrentTerritory] = useState<
     Territory | undefined
@@ -62,7 +62,7 @@ export const useConfig = (): ConfigType => {
     try {
       setConfigsLoading(true)
       const [err, response] = await Fetch().get<{
-        configs: Configurations
+        configs: Configurations[]
         territories: Territory[]
       }>('/configurations')
 
@@ -78,7 +78,8 @@ export const useConfig = (): ConfigType => {
     }
   }, [])
 
-  const updateConfigs = (configs: Configurations) => setConfigurations(configs)
+  const updateConfigs = (configs: Configurations[]) =>
+    setConfigurations(configs)
 
   const toggleDarkMode = (checked: boolean) => {
     checked
@@ -101,15 +102,22 @@ export const useConfig = (): ConfigType => {
     setTestModeEnabled(checked)
   }
 
+  const baseConfiguration = configurations.find((c) => c.territoryId === 1)
+  const currentConfiguration = configurations.find(
+    (c) => c.territoryId === currentTerritory?.id
+  )
+
   return {
     darkModeEnabled,
     advancedModeEnabled,
     testModeEnabled,
-    configurations: configurations!,
+    configurations,
     territories,
     configsLoading,
     configsError,
     currentTerritory: currentTerritory!,
+    baseConfiguration: baseConfiguration!,
+    currentConfiguration: currentConfiguration!,
     toggleDarkMode,
     toggleAdvancedMode,
     toggleTestMode,

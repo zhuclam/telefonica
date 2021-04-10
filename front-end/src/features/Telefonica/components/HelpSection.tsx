@@ -8,10 +8,10 @@ interface HelpSectionProps {
 }
 
 const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
-  const { advancedModeEnabled, configurations } = useConfig()
+  const { advancedModeEnabled, baseConfiguration } = useConfig()
 
   const isAllowed = (f: Feedback) =>
-    !configurations.hiddenButtons.split(',').includes(f.toString())
+    !baseConfiguration.hiddenButtons.split(',').includes(f.toString())
 
   return (
     <Container>
@@ -34,7 +34,7 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
           </h6>
           <p>
             Guarda el número para llamarlo de vuelta mañana, hasta un máximo de{' '}
-            {configurations.unansweredMaxAttemps} intentos. Luego, si no
+            {baseConfiguration.unansweredMaxAttemps} intentos. Luego, si no
             atendió, se lo manda al final de la cola.
           </p>
         </div>
@@ -50,14 +50,15 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
               <p>
                 Registra la última vez que se le dejó un mensaje en el
                 contestador al amo de casa.&nbsp;
-                {configurations.answeringMachineMaxAttemps > 1 && (
+                {baseConfiguration.answeringMachineMaxAttemps > 1 && (
                   <span>
                     Además, congela el número durante{' '}
-                    {configurations.answeringMachinePostponedDays} días para
+                    {baseConfiguration.answeringMachinePostponedDays} días para
                     darle un máximo de{' '}
-                    {configurations.answeringMachineMaxAttemps} oportunidades.
-                    Estas oportunidades se computan junto a las que ya se le dio
-                    con el botón "no en casa" si ha sido el caso.
+                    {baseConfiguration.answeringMachineMaxAttemps}{' '}
+                    oportunidades. Estas oportunidades se computan junto a las
+                    que ya se le dio con el botón "no en casa" si ha sido el
+                    caso.
                   </span>
                 )}
               </p>
@@ -71,8 +72,8 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
               </h6>
               <p>
                 Congela el número para que se lo llame dentro de{' '}
-                {configurations.postponedButtonDays}{' '}
-                {configurations.postponedButtonDays > 1 ? 'días' : 'día'}.
+                {baseConfiguration.postponedButtonDays}{' '}
+                {baseConfiguration.postponedButtonDays > 1 ? 'días' : 'día'}.
               </p>
             </div>
           )}
@@ -106,9 +107,9 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
             <span className="text-secondary">no existe</span>?
           </h6>
           <p>
-            Suspende el número durante {configurations.nonExistentPostponedDays}{' '}
-            días. Luego vuelve a la cola porque existe la posibilidad de que se
-            haya reactivado.
+            Suspende el número durante{' '}
+            {baseConfiguration.nonExistentPostponedDays} días. Luego vuelve a la
+            cola porque existe la posibilidad de que se haya reactivado.
           </p>
         </div>
       )}

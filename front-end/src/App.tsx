@@ -70,7 +70,7 @@ const MainRouter: React.FC = () => {
   }, [isAuth, isAdmin, location.pathname, history])
 
   useEffect(() => {
-    if (isAuth && !configurations) getConfigs(Fetch)
+    if (isAuth && !configurations.length) getConfigs(Fetch)
   }, [isAuth, Fetch, getConfigs, configurations])
 
   if (configsLoading) return <Spinner container fulfill />

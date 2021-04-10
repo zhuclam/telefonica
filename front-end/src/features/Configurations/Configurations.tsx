@@ -27,7 +27,7 @@ const breadcrumbItems = [
 ]
 
 const translations: Record<
-  Exclude<keyof TConfigurations, 'hiddenButtons'>,
+  keyof Omit<TConfigurations, 'hiddenButtons' | 'territoryId'>,
   string
 > = {
   campaignMode: 'Modo de campaña',
@@ -61,7 +61,7 @@ const FeedbackValues = Object.values(Feedback).filter(
 ) as number[]
 
 const Configurations: React.FC = () => {
-  const { configurations, updateConfigs } = useConfig()
+  const { baseConfiguration, currentConfiguration, updateConfigs } = useConfig()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -78,16 +78,16 @@ const Configurations: React.FC = () => {
     mode: 'all',
     reValidateMode: 'onChange',
     defaultValues: {
-      campaignMode: configurations.campaignMode,
-      unansweredMaxAttemps: configurations.unansweredMaxAttemps.toString(),
-      answeringMachineMaxAttemps: configurations.answeringMachineMaxAttemps.toString(),
-      answeringMachinePostponedDays: configurations.answeringMachinePostponedDays.toString(),
-      postponedButtonDays: configurations.postponedButtonDays.toString(),
-      nonExistentPostponedDays: configurations.nonExistentPostponedDays.toString(),
+      campaignMode: currentConfiguration.campaignMode,
+      unansweredMaxAttemps: baseConfiguration.unansweredMaxAttemps.toString(),
+      answeringMachineMaxAttemps: baseConfiguration.answeringMachineMaxAttemps.toString(),
+      answeringMachinePostponedDays: baseConfiguration.answeringMachinePostponedDays.toString(),
+      postponedButtonDays: baseConfiguration.postponedButtonDays.toString(),
+      nonExistentPostponedDays: baseConfiguration.nonExistentPostponedDays.toString(),
       ...FeedbackValues.reduce(
         (acc, curr) => ({
           ...acc,
-          [`button${curr}shown`]: !configurations.hiddenButtons
+          [`button${curr}shown`]: !baseConfiguration.hiddenButtons
             .split(',')
             .includes(curr.toString()),
         }),
@@ -125,12 +125,12 @@ const Configurations: React.FC = () => {
 
       const [err, configs] = await Fetch().put<
         TConfigurations,
-        { configs: TConfigurations }
+        { configurations: TConfigurations[] }
       >('/configurations', payload)
 
       if (err) throw err
 
-      updateConfigs(configs.configs)
+      updateConfigs(configs.configurations)
       AlertManager.show('update-success')
     } catch {
       AlertManager.show('update-error')
@@ -140,7 +140,7 @@ const Configurations: React.FC = () => {
   }
 
   const campaignModeActive =
-    getValues('campaignMode') ?? configurations.campaignMode
+    getValues('campaignMode') ?? currentConfiguration.campaignMode
 
   return (
     <>
