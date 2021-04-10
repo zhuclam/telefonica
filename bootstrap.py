@@ -166,12 +166,12 @@ class Configurations(db.Model):
     __tablename__ = "configurations"
     id = db.Column(db.Integer, primary_key=True)
     campaign_mode = db.Column(db.Boolean, nullable=False)
-    unanswered_max_attemps = db.Column(db.Integer, nullable=False)
-    answering_machine_max_attemps = db.Column(db.Integer, nullable=False)
-    answering_machine_postponed_days = db.Column(db.Integer, nullable=False)
-    postponed_button_days = db.Column(db.Integer, nullable=False)
-    non_existent_postponed_days = db.Column(db.Integer, nullable=False)
-    hidden_buttons = db.Column(db.String(40), nullable=False)
+    unanswered_max_attemps = db.Column(db.Integer, nullable=True)
+    answering_machine_max_attemps = db.Column(db.Integer, nullable=True)
+    answering_machine_postponed_days = db.Column(db.Integer, nullable=True)
+    postponed_button_days = db.Column(db.Integer, nullable=True)
+    non_existent_postponed_days = db.Column(db.Integer, nullable=True)
+    hidden_buttons = db.Column(db.String(40), nullable=True)
     territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, unique=True, server_default="1")
     territory = db.relationship("Territories"),
 
@@ -185,12 +185,12 @@ class Configurations_test(db.Model):
     __tablename__ = "configurations_test"
     id = db.Column(db.Integer, primary_key=True)
     campaign_mode = db.Column(db.Boolean, nullable=False)
-    unanswered_max_attemps = db.Column(db.Integer, nullable=False)
-    answering_machine_max_attemps = db.Column(db.Integer, nullable=False)
-    answering_machine_postponed_days = db.Column(db.Integer, nullable=False)
-    postponed_button_days = db.Column(db.Integer, nullable=False)
-    non_existent_postponed_days = db.Column(db.Integer, nullable=False)
-    hidden_buttons = db.Column(db.String(40), nullable=False)
+    unanswered_max_attemps = db.Column(db.Integer, nullable=True)
+    answering_machine_max_attemps = db.Column(db.Integer, nullable=True)
+    answering_machine_postponed_days = db.Column(db.Integer, nullable=True)
+    postponed_button_days = db.Column(db.Integer, nullable=True)
+    non_existent_postponed_days = db.Column(db.Integer, nullable=True)
+    hidden_buttons = db.Column(db.String(40), nullable=True)
     territory_id = db.Column(db.Integer, db.ForeignKey('territories_test.id'), nullable=False, unique=True, server_default="1")
     territory = db.relationship("Territories_test"),
 
