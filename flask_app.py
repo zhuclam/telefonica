@@ -2,6 +2,7 @@ import os
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
+import re
 
 # mine
 from bootstrap import (
@@ -540,7 +541,6 @@ def edit_configurations():
         Configs = Configurations_test if is_test else Configurations
 
         allowed_keys = [
-            'campaign_mode',
             'unanswered_max_attemps',
             'answering_machine_max_attemps',
             'answering_machine_postponed_days',
@@ -555,7 +555,6 @@ def edit_configurations():
         if invalid_key is not None:
             return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
 
-        campaign_mode = data.get('campaign_mode', 'nil')
         unanswered_max_attemps = data.get('unanswered_max_attemps', 'nil')
         answering_machine_max_attemps = data.get('answering_machine_max_attemps', 'nil')
         answering_machine_postponed_days = data.get('answering_machine_postponed_days', 'nil')
@@ -563,9 +562,6 @@ def edit_configurations():
         non_existent_postponed_days = data.get('non_existent_postponed_days', 'nil')
         hidden_buttons = data.get('hidden_buttons', 'nil')
 
-
-        if campaign_mode != 'nil':
-            validate("body.campaign_mode", campaign_mode, lambda val: type(val) == bool)
 
         if unanswered_max_attemps != 'nil':
             validate("body.unanswered_max_attemps", unanswered_max_attemps, lambda val: type(val) == int and val >= 1)
@@ -585,18 +581,10 @@ def edit_configurations():
         if hidden_buttons != 'nil':
             validate("body.hidden_buttons", hidden_buttons, lambda val: type(val) == str and (True if len(val) == 0 else all(n.isnumeric() and int(n) > -1 and int(n) < 7 for n in val.split(','))))
 
-        territory_id = request.args.get("territory")
-        validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
-        territory_id = int(territory_id)
-
         baseConfig = Configs().query.get(1)
-        currentConfig = baseConfig if territory_id == 1 else Configs().query.filter(Configs.territory_id == territory_id).first()
 
         for config, value in data.items():
-            if config == "campaign_mode":
-                setattr(currentConfig, config, value)
-            else:
-                setattr(baseConfig, config, value)
+            setattr(baseConfig, config, value)
 
         db.session.commit()
 
@@ -606,3 +594,124 @@ def edit_configurations():
 
     except Exception as e:
         return handle_error(e, "edit_configurations")
+
+@app.route("/territories", methods=["POST"])
+@cross_origin()
+@admin_required
+def create_territory():
+    try:
+        is_test = request.args.get("test")
+        data = request.get_json()
+
+        validate("body", data, lambda d: len(d) > 0)
+        invalid_key = validate_keys(data, ["name"])
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        Terr = Territories_test if is_test else Territories
+
+        name = data.get("name")
+        is_valid_name = re.search("[^\w\-\d]", name) is None and Terr().query.filter(Terr.name == name).first() is None
+
+        if not is_valid_name:
+            return jsonify(error="invalid or duplicated name"), 400
+
+        new_territory = Terr(name=name, active=1)
+        db.session.add(new_territory)
+        db.session.commit()
+
+        Config = Configurations_test if is_test else Configurations
+        new_config = Config( \
+        campaign_mode = False, \
+        unanswered_max_attemps = None, \
+        answering_machine_max_attemps = None, \
+        answering_machine_postponed_days = None, \
+        postponed_button_days = None, \
+        non_existent_postponed_days = None, \
+        hidden_buttons = None, \
+        territory_id = new_territory.id \
+        )
+        db.session.add(new_config)
+        db.session.commit()
+
+        return "", 201
+    except Exception as e:
+        return handle_error(e, "create_territory")
+
+@app.route("/territories/<territory_id>", methods=["PUT"])
+@cross_origin()
+@admin_required
+def modify_territory(territory_id):
+    try:
+        is_test = request.args.get("test")
+        data = request.get_json()
+
+        validate("body", data, lambda d: len(d) > 0)
+        invalid_key = validate_keys(data, ["name", "active", "campaign_mode"])
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        name = data.get("name")
+        active = data.get("active")
+        campaign_mode = data.get("campaign_mode")
+
+        validate("body.name", name, lambda name: re.search("[^\w\-\d]", name) is None, optional=True)
+        validate("body.active", active, lambda a: a in (0, 1, True, False), optional=True)
+        validate("body.campaign_mode", campaign_mode, lambda a: a in (0, 1, True, False), optional=True)
+
+        Terr = Territories_test if is_test else Territories
+        territory = Terr().query.get(territory_id)
+
+        validate("territory_id", territory_id, lambda t: territory is not None)
+
+        if campaign_mode is not None:
+            Configs = Configurations_test if is_test else Configurations
+            config = Configs().query.filter(Configs.territory_id == territory_id).first()
+            setattr(config, "campaign_mode", campaign_mode)
+            del data["campaign_mode"]
+
+        for key, value in data.items():
+            setattr(territory, key, value)
+
+        db.session.commit()
+
+        return jsonify(territory=territory.as_dict(), config=config.as_dict()), 200
+    except Exception as e:
+        return handle_error(e, "modify_territory")
+
+@app.route("/territories/<territory_id>", methods=["DELETE"])
+@cross_origin()
+@admin_required
+def delete_territory(territory_id):
+    try:
+        if territory_id == "1":
+            return jsonify({"error": "Base territory may not be deleted"}), 400
+
+        is_test = request.args.get("test")
+        Tel = Telefonica_test if is_test else Telefonica
+        Terr = Territories_test if is_test else Territories
+        Configs = Configurations_test if is_test else Configurations
+
+        if not territory_id.isnumeric():
+            return jsonify({"error": "Invalid territory id"}), 400
+
+        territory = Terr().query.get(territory_id)
+
+        if territory is None:
+            return jsonify({"error": "Invalid territory id"}), 400
+
+        config = Configs().query.filter(Configs.territory_id == territory_id).first()
+
+        phones = Tel().query.filter(Tel.territory_id == territory_id)
+
+        for phone in phones:
+            phone.territory_id = 1
+
+        db.session.delete(config)
+        db.session.delete(territory)
+        db.session.commit()
+
+        return "", 200
+
+    except Exception as e:
+        return handle_error(e, "delete_territory")
