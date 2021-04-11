@@ -10,13 +10,13 @@ import {
   Container,
   Button,
 } from 'reactstrap'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { useAuth, useConfig } from 'hooks'
 import { useOnClickOutside } from 'hooks/utils'
 import { Alert, useAlerts, Switch } from '.'
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
   const [collapsed, setCollapsed] = useState(true)
   const mobileNavRef = useRef<HTMLDivElement | null>(null)
 
@@ -84,8 +84,12 @@ const Navbar: React.FC = () => {
         <BNavbar color="dark" dark>
           <Container>
             <NavbarBrand className="mr-auto">
-              {process.env.REACT_APP_CONG_INITIALS} Telefónica{' '}
-              <Version>v{process.env.REACT_APP_VERSION}</Version>
+              {process.env.REACT_APP_CONG_INITIALS} Telefónica
+              {territory && (
+                <Version ml>
+                  <span>Territorio actual: </span>({territory})
+                </Version>
+              )}
             </NavbarBrand>
             <NavbarToggler onClick={toggleNavbar} className="mr-2" />
             <Collapse isOpen={!collapsed} navbar>
@@ -154,6 +158,7 @@ const Navbar: React.FC = () => {
                     </Button>
                   </Separator>
                 )}
+                <Version>v{process.env.REACT_APP_VERSION}</Version>
               </MobileNav>
             </Collapse>
           </Container>
@@ -163,8 +168,20 @@ const Navbar: React.FC = () => {
   )
 }
 
-const Version = styled.small`
+const Version = styled.small<{ ml?: boolean }>`
   color: ${({ theme }) => theme.text.colors.secondary};
+
+  > span {
+    ${({ theme }) => theme.breakpoints.down('sm')} {
+      display: none;
+    }
+  }
+
+  ${({ ml }) =>
+    ml &&
+    css`
+      margin-left: 0.3em;
+    `}
 `
 
 const MobileNav = styled(Nav)`

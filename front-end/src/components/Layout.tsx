@@ -6,13 +6,13 @@ import { TestingLabel } from './TestingLabel'
 import { Helmet } from 'react-helmet'
 
 const Layout: React.FC = ({ children }) => {
-  const { testModeEnabled, darkModeEnabled } = useConfig()
+  const { testModeEnabled, darkModeEnabled, currentTerritory } = useConfig()
 
   return (
     <>
       {darkModeEnabled && <Helmet>{darkStyles}</Helmet>}
       {testModeEnabled && <TestingLabel />}
-      <Navbar />
+      <Navbar territory={currentTerritory?.name} />
       {children}
       <Alert name="not-so-fast" position="bottom" variant="failure">
         ¡No tan rápido! No es recomendable tocar un botón tan seguido.

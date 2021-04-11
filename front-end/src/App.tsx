@@ -10,6 +10,7 @@ import { ContextProviders } from 'contexts'
 import { useAuth, useConfig, useFetch } from 'hooks'
 import { ErrorDisplay, Layout, Spinner, TerritoryVerifier } from './components'
 import './app.css'
+import { usePreviousValue } from 'hooks/utils'
 
 const AdminPanel = lazy(() => import('./features/AdminPanel'))
 const Login = lazy(() => import('./features/Login'))
@@ -19,27 +20,33 @@ const AddPhones = lazy(() => import('./features/AddPhones'))
 const SearchAndEdit = lazy(() => import('./features/SearchAndEdit'))
 const Configurations = lazy(() => import('./features/Configurations'))
 const Passwords = lazy(() => import('./features/Passwords'))
+const ManageTerritories = lazy(() => import('./features/ManageTerritories'))
 
 interface ProtectedRouteProps extends RouteProps {
   condition: boolean
+  fallbackURL: string
 }
-
-const DummyComponent = () => null
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   component,
   condition,
+  fallbackURL,
   ...restProps
-}) => (
-  <Route {...restProps} component={condition ? component : DummyComponent} />
-)
+}) =>
+  condition ? (
+    <Route {...restProps} component={component} />
+  ) : (
+    <Redirect to={fallbackURL} />
+  )
 
-const WithTerritoryVerifier: React.FC = ({ children }) => (
+const WithTerritoryVerifier: React.FC<{
+  children: (t: string) => React.ReactNode
+}> = ({ children }) => (
   <Route
     path="/:territory"
     render={({ match }) => (
       <TerritoryVerifier territory={match.params.territory}>
-        {children}
+        {children(match.params.territory)}
       </TerritoryVerifier>
     )}
   />
@@ -52,6 +59,7 @@ const MainRouter: React.FC = () => {
     configsError,
     getConfigs,
     configurations,
+    testModeEnabled,
   } = useConfig()
   const location = useLocation()
   const history = useHistory()
@@ -69,9 +77,22 @@ const MainRouter: React.FC = () => {
         : history.push('/base/telefonica')
   }, [isAuth, isAdmin, location.pathname, history])
 
+  const prevTestModeEnabled = usePreviousValue(testModeEnabled)
+
   useEffect(() => {
-    if (isAuth && !configurations.length) getConfigs(Fetch)
-  }, [isAuth, Fetch, getConfigs, configurations])
+    if (
+      isAuth &&
+      (!configurations.length || testModeEnabled !== prevTestModeEnabled)
+    )
+      getConfigs(Fetch)
+  }, [
+    isAuth,
+    Fetch,
+    getConfigs,
+    configurations,
+    testModeEnabled,
+    prevTestModeEnabled,
+  ])
 
   if (configsLoading) return <Spinner container fulfill />
 
@@ -84,53 +105,69 @@ const MainRouter: React.FC = () => {
         <Route path="/login" exact component={Login} />
 
         <WithTerritoryVerifier>
-          <Switch>
-            {/* User */}
-            <ProtectedRoute
-              path="/:territory/telefonica"
-              component={Telefonica}
-              condition={isAuth}
-            />
+          {(territory) => (
+            <Switch>
+              {/* User */}
+              <ProtectedRoute
+                path="/:territory/telefonica"
+                component={Telefonica}
+                condition={isAuth}
+                fallbackURL={`/${territory}/login`}
+              />
 
-            {/* Admin */}
-            <ProtectedRoute
-              path="/:territory/admin-panel"
-              exact
-              component={AdminPanel}
-              condition={isAdmin}
-            />
-            <ProtectedRoute
-              path="/:territory/admin-panel/statistics"
-              exact
-              component={StatisticsPanel}
-              condition={isAdmin}
-            />
-            <ProtectedRoute
-              path="/:territory/admin-panel/add-phones"
-              exact
-              component={AddPhones}
-              condition={isAdmin}
-            />
-            <ProtectedRoute
-              path="/:territory/admin-panel/search-and-edit"
-              exact
-              component={SearchAndEdit}
-              condition={isAdmin}
-            />
-            <ProtectedRoute
-              path="/:territory/admin-panel/configurations"
-              exact
-              component={Configurations}
-              condition={isAdmin}
-            />
-            <ProtectedRoute
-              path="/:territory/admin-panel/passwords"
-              exact
-              component={Passwords}
-              condition={isAdmin}
-            />
-            <Redirect to="/login" />
-          </Switch>
+              {/* Admin */}
+              <ProtectedRoute
+                path="/:territory/admin-panel"
+                exact
+                component={AdminPanel}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/statistics"
+                exact
+                component={StatisticsPanel}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/add-phones"
+                exact
+                component={AddPhones}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/search-and-edit"
+                exact
+                component={SearchAndEdit}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/configurations"
+                exact
+                component={Configurations}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/passwords"
+                exact
+                component={Passwords}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/territories"
+                exact
+                component={ManageTerritories}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <Redirect to={`/${territory}/admin-panel`} />
+            </Switch>
+          )}
         </WithTerritoryVerifier>
 
         {/* Misc */}

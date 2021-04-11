@@ -9,7 +9,6 @@ import {
   Row,
   Col,
 } from 'reactstrap'
-import styled from 'styled-components'
 import { useForm } from 'react-hook-form'
 import { useConfig, useFetch } from 'hooks'
 import { Configurations as TConfigurations, Feedback } from 'types'
@@ -72,7 +71,6 @@ const Configurations: React.FC = () => {
     register,
     handleSubmit,
     errors,
-    getValues,
     formState: { isDirty, isValid },
   } = useForm<EditableConfigurations>({
     mode: 'all',
@@ -139,9 +137,6 @@ const Configurations: React.FC = () => {
     }
   }
 
-  const campaignModeActive =
-    getValues('campaignMode') ?? currentConfiguration.campaignMode
-
   return (
     <>
       <Alert name="update-success" position="top" variant="success">
@@ -156,22 +151,6 @@ const Configurations: React.FC = () => {
         <hr />
 
         <Form onSubmit={handleSubmit(saveConfig)}>
-          <FormGroup check>
-            <Label check>
-              <Input type="checkbox" name="campaignMode" innerRef={register} />
-              <CampaignLabel active={campaignModeActive}>
-                {translations.campaignMode}{' '}
-                {campaignModeActive ? 'activado' : 'desactivado'}.
-              </CampaignLabel>
-            </Label>
-          </FormGroup>
-          <div>
-            Cuando el modo campaña está activado, los publicadores verán un solo
-            botón de "siguiente" en vez de los {FeedbackValues.length} que
-            normalemente se usan. Esto sirve para agilizar las llamadas en caso
-            de campaña.
-          </div>
-          <hr />
           <FormGroup>
             <Label>{translations.unansweredMaxAttemps}</Label>
             <Input
@@ -259,10 +238,5 @@ const Configurations: React.FC = () => {
     </>
   )
 }
-
-const CampaignLabel = styled.span<{ active: boolean }>`
-  color: ${({ active, theme }) =>
-    active ? theme.text.colors.green : theme.text.colors.red};
-`
 
 export { Configurations }

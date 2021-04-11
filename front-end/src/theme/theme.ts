@@ -2,7 +2,7 @@ type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 const sizes: Record<Size, string> = {
   xs: '0px',
-  sm: '600px',
+  sm: '500px',
   md: '960px',
   lg: '1150px',
   xl: '1920px',
