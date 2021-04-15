@@ -80,10 +80,7 @@ const MainRouter: React.FC = () => {
   const prevTestModeEnabled = usePreviousValue(testModeEnabled)
 
   useEffect(() => {
-    if (
-      isAuth &&
-      (!configurations.length || testModeEnabled !== prevTestModeEnabled)
-    )
+    if (isAuth && (!configurations || testModeEnabled !== prevTestModeEnabled))
       getConfigs(Fetch)
   }, [
     isAuth,

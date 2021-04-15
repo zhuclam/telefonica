@@ -32,14 +32,9 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   selfAssigned,
   isFromAnotherTerritory,
 }) => {
-  const {
-    advancedModeEnabled,
-    baseConfiguration,
-    currentConfiguration,
-  } = useConfig()
-
-  const { hiddenButtons } = baseConfiguration
-  const { campaignMode } = currentConfiguration
+  const { advancedModeEnabled, configurations, currentTerritory } = useConfig()
+  const { hiddenButtons } = configurations
+  const { campaignMode } = currentTerritory
 
   const isButtonAllowed = (f: Feedback) =>
     !hiddenButtons.split(',').includes(f.toString())

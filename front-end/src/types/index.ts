@@ -72,4 +72,5 @@ export interface Territory {
   id: number
   name: string
   active: boolean
+  campaignMode: boolean
 }

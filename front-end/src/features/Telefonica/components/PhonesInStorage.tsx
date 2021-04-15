@@ -31,8 +31,8 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
   }>()
 
   const {
-    baseConfiguration: { hiddenButtons },
-    currentConfiguration: { campaignMode },
+    configurations: { hiddenButtons },
+    currentTerritory: { campaignMode },
   } = useConfig()
 
   const isAllowed = (f: Feedback) =>

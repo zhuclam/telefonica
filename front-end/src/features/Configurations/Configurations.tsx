@@ -60,7 +60,7 @@ const FeedbackValues = Object.values(Feedback).filter(
 ) as number[]
 
 const Configurations: React.FC = () => {
-  const { baseConfiguration, currentConfiguration, updateConfigs } = useConfig()
+  const { configurations, updateConfigs } = useConfig()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -76,16 +76,16 @@ const Configurations: React.FC = () => {
     mode: 'all',
     reValidateMode: 'onChange',
     defaultValues: {
-      campaignMode: currentConfiguration.campaignMode,
-      unansweredMaxAttemps: baseConfiguration.unansweredMaxAttemps.toString(),
-      answeringMachineMaxAttemps: baseConfiguration.answeringMachineMaxAttemps.toString(),
-      answeringMachinePostponedDays: baseConfiguration.answeringMachinePostponedDays.toString(),
-      postponedButtonDays: baseConfiguration.postponedButtonDays.toString(),
-      nonExistentPostponedDays: baseConfiguration.nonExistentPostponedDays.toString(),
+      campaignMode: configurations.campaignMode,
+      unansweredMaxAttemps: configurations.unansweredMaxAttemps.toString(),
+      answeringMachineMaxAttemps: configurations.answeringMachineMaxAttemps.toString(),
+      answeringMachinePostponedDays: configurations.answeringMachinePostponedDays.toString(),
+      postponedButtonDays: configurations.postponedButtonDays.toString(),
+      nonExistentPostponedDays: configurations.nonExistentPostponedDays.toString(),
       ...FeedbackValues.reduce(
         (acc, curr) => ({
           ...acc,
-          [`button${curr}shown`]: !baseConfiguration.hiddenButtons
+          [`button${curr}shown`]: !configurations.hiddenButtons
             .split(',')
             .includes(curr.toString()),
         }),
@@ -123,7 +123,7 @@ const Configurations: React.FC = () => {
 
       const [err, configs] = await Fetch().put<
         TConfigurations,
-        { configurations: TConfigurations[] }
+        { configurations: TConfigurations }
       >('/configurations', payload)
 
       if (err) throw err
