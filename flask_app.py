@@ -518,8 +518,7 @@ def get_configurations():
         is_test = request.args.get("test")
 
         Configs = Configurations_test if is_test else Configurations
-        configs = Configs().query.all()
-        configs = list(map(lambda c: c.as_dict(), configs))
+        configs = Configs().query.get(1).as_dict()
 
         Terr = Territories_test if is_test else Territories
         territories = Terr().query.all()
@@ -581,16 +580,14 @@ def edit_configurations():
         if hidden_buttons != 'nil':
             validate("body.hidden_buttons", hidden_buttons, lambda val: type(val) == str and (True if len(val) == 0 else all(n.isnumeric() and int(n) > -1 and int(n) < 7 for n in val.split(','))))
 
-        baseConfig = Configs().query.get(1)
+        configurations = Configs().query.get(1)
 
         for config, value in data.items():
-            setattr(baseConfig, config, value)
+            setattr(configurations, config, value)
 
         db.session.commit()
 
-        allConfigs = list(map(lambda c: c.as_dict(), Configs().query.all()))
-
-        return jsonify(configurations=allConfigs), 200
+        return jsonify(configurations=configurations.as_dict()), 200
 
     except Exception as e:
         return handle_error(e, "edit_configurations")
@@ -616,25 +613,11 @@ def create_territory():
         if not is_valid_name:
             return jsonify(error="invalid or duplicated name"), 400
 
-        new_territory = Terr(name=name, active=1)
+        new_territory = Terr(name=name, active=1, campaign_mode=0)
         db.session.add(new_territory)
         db.session.commit()
 
-        Config = Configurations_test if is_test else Configurations
-        new_config = Config( \
-        campaign_mode = False, \
-        unanswered_max_attemps = None, \
-        answering_machine_max_attemps = None, \
-        answering_machine_postponed_days = None, \
-        postponed_button_days = None, \
-        non_existent_postponed_days = None, \
-        hidden_buttons = None, \
-        territory_id = new_territory.id \
-        )
-        db.session.add(new_config)
-        db.session.commit()
-
-        return "", 201
+        return jsonify(territory=new_territory.as_dict()), 201
     except Exception as e:
         return handle_error(e, "create_territory")
 
@@ -664,18 +647,12 @@ def modify_territory(territory_id):
 
         validate("territory_id", territory_id, lambda t: territory is not None)
 
-        if campaign_mode is not None:
-            Configs = Configurations_test if is_test else Configurations
-            config = Configs().query.filter(Configs.territory_id == territory_id).first()
-            setattr(config, "campaign_mode", campaign_mode)
-            del data["campaign_mode"]
-
         for key, value in data.items():
             setattr(territory, key, value)
 
         db.session.commit()
 
-        return jsonify(territory=territory.as_dict(), config=config.as_dict()), 200
+        return jsonify(territory=territory.as_dict()), 200
     except Exception as e:
         return handle_error(e, "modify_territory")
 
@@ -690,7 +667,6 @@ def delete_territory(territory_id):
         is_test = request.args.get("test")
         Tel = Telefonica_test if is_test else Telefonica
         Terr = Territories_test if is_test else Territories
-        Configs = Configurations_test if is_test else Configurations
 
         if not territory_id.isnumeric():
             return jsonify({"error": "Invalid territory id"}), 400
@@ -700,14 +676,11 @@ def delete_territory(territory_id):
         if territory is None:
             return jsonify({"error": "Invalid territory id"}), 400
 
-        config = Configs().query.filter(Configs.territory_id == territory_id).first()
-
         phones = Tel().query.filter(Tel.territory_id == territory_id)
 
         for phone in phones:
             phone.territory_id = 1
 
-        db.session.delete(config)
         db.session.delete(territory)
         db.session.commit()
 

@@ -165,15 +165,12 @@ class History_backup(db.Model):
 class Configurations(db.Model):
     __tablename__ = "configurations"
     id = db.Column(db.Integer, primary_key=True)
-    campaign_mode = db.Column(db.Boolean, nullable=False)
     unanswered_max_attemps = db.Column(db.Integer, nullable=True)
     answering_machine_max_attemps = db.Column(db.Integer, nullable=True)
     answering_machine_postponed_days = db.Column(db.Integer, nullable=True)
     postponed_button_days = db.Column(db.Integer, nullable=True)
     non_existent_postponed_days = db.Column(db.Integer, nullable=True)
     hidden_buttons = db.Column(db.String(40), nullable=True)
-    territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, unique=True, server_default="1")
-    territory = db.relationship("Territories"),
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -184,15 +181,12 @@ class Configurations(db.Model):
 class Configurations_test(db.Model):
     __tablename__ = "configurations_test"
     id = db.Column(db.Integer, primary_key=True)
-    campaign_mode = db.Column(db.Boolean, nullable=False)
     unanswered_max_attemps = db.Column(db.Integer, nullable=True)
     answering_machine_max_attemps = db.Column(db.Integer, nullable=True)
     answering_machine_postponed_days = db.Column(db.Integer, nullable=True)
     postponed_button_days = db.Column(db.Integer, nullable=True)
     non_existent_postponed_days = db.Column(db.Integer, nullable=True)
     hidden_buttons = db.Column(db.String(40), nullable=True)
-    territory_id = db.Column(db.Integer, db.ForeignKey('territories_test.id'), nullable=False, unique=True, server_default="1")
-    territory = db.relationship("Territories_test"),
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -205,6 +199,7 @@ class Territories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=False)
+    campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -216,6 +211,7 @@ class Territories_test(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=False)
+    campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
