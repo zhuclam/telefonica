@@ -161,14 +161,17 @@ class phone_service():
         if restore and restore["last_status"] is not None:
             history_service.restore_call(id=id, new_status=PHONE_STATUS.ignored, is_test=is_test, genuine=is_genuine, last_status=restore["last_status"])
 
-    def handle_rushed(id, comments, is_test):
-        # this handler does not support restoring, because it shouldn't
-        phone = phone_service.get_phone(id, is_test)
+    def handle_rushed(id, comments, is_test, restore):
+        phone = phone_service.get_phone(id, is_test, restore)
         is_genuine = phone_service.is_genuine(phone)
-        phone_service.handle_comments(phone, comments)
+        if restore is None:
+            phone_service.handle_comments(phone, comments)
         phone_service.send_to_end_of_queue(phone)
         db.session.commit()
-        history_service.register_call(id = id, status = PHONE_STATUS.rushed, is_test = is_test, genuine = is_genuine)
+        if restore and restore["last_status"] is not None:
+            history_service.restore_call(id=id, new_status=PHONE_STATUS.rushed, is_test=is_test, genuine=is_genuine, last_status=restore["last_status"])
+        else:
+            history_service.register_call(id = id, status = PHONE_STATUS.rushed, is_test = is_test, genuine = is_genuine)
 
     def validate_new_phones(phones):
         if not isinstance(phones, list) or not len(phones) > 0: return False

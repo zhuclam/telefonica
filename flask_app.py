@@ -19,6 +19,20 @@ from auth import authenticate, admin_required, update_passwords
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
 from services import phone_service, task_service
 
+def validate_territory_param():
+    is_test = request.args.get("test")
+    territory_id = request.args.get("territory")
+
+    validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
+
+    territory_id = int(territory_id)
+
+    territories = Territories_test if is_test else Territories
+    territory = territories().query.get(territory_id)
+    validate("territory_id", territory, lambda t: t is not None)
+
+    db.session.commit()
+
 @app.route('/', defaults={'path': ''}, methods=["GET"])
 @app.route('/<path:path>')
 def serve(path):
@@ -139,7 +153,7 @@ def update_phone():
         if answered == PHONE_STATUS.ignored:
             phone_service.handle_ignored(id, comments, is_test, restore)
         if answered == PHONE_STATUS.rushed:
-            phone_service.handle_rushed(id, comments, is_test)
+            phone_service.handle_rushed(id, comments, is_test, restore)
 
         return ('', 200)
     except Exception as e:
@@ -246,6 +260,7 @@ def admin_dashboard():
 @admin_required
 def add_numbers():
     try:
+        validate_territory_param()
         data = request.get_json()
         validate("body", data)
         phones = data.get('phones')
@@ -253,8 +268,6 @@ def add_numbers():
 
         is_test = request.args.get("test")
         territory_id = request.args.get("territory")
-
-        validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
 
         territory_id = int(territory_id)
 
@@ -307,15 +320,43 @@ def get_phones():
         is_test = request.args.get("test")
         Telefonica_table = 'telefonica_test' if is_test else 'telefonica'
 
-        invalid_key = validate_keys(request.args, ['count', 'info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent', 'comments'])
+        invalid_key = validate_keys(request.args, ['count', 'info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent', 'comments', 'territory_id', 'any'])
         if invalid_key is not None:
             return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
 
         territory_id = request.args.get("territory")
-        validate('query.territory', territory_id, lambda id: id.isnumeric() and int(id) > 0)
         territory_id = int(territory_id)
 
+        validate_territory_param()
+
+        def phone_date_to_locale(phone):
+            if phone.get("answered_on") is not None:
+                phone["answered_on"] = to_locale_string(phone.get("answered_on"), True)
+
+            if phone.get("fulfilled_on") is not None:
+                phone["fulfilled_on"] = to_locale_string(phone.get("fulfilled_on"), True)
+
+            if phone.get("unanswered_date") is not None:
+                phone["unanswered_date"] = to_locale_string(phone.get("unanswered_date"), True)
+
+            if phone.get("answering_machine_date") is not None:
+                phone["answering_machine_date"] = to_locale_string(phone.get("answering_machine_date"))
+
+            if phone.get("commented_on") is not None:
+                phone["commented_on"] = to_locale_string(phone.get("commented_on"))
+
+            return phone
+
         limit = request.args.get("count", 100)
+
+        if request.args.get("any"):
+            found_phones = db.engine.execute("select * from {} where territory_id = {} limit {}".format(Telefonica_table, territory_id, limit))
+            count = db.engine.execute("select count(id) as count from {} where territory_id = {} limit {}".format(Telefonica_table, territory_id, limit))
+
+            found_phones = list(map(lambda p: phone_date_to_locale(p), db_result_to_dict(found_phones)))
+            count = list(count)[0]["count"]
+
+            return jsonify(phones= found_phones, count= count)
 
         filters = {
             "info" : request.args.get("info", "undefined"),
@@ -329,6 +370,7 @@ def get_phones():
             "no_call": request.args.get("noCall", "undefined"),
             "non_existent": request.args.get("nonExistent", "undefined"),
             "comments": request.args.get("comments", "undefined"),
+            "territory_id": request.args.get("territory_id", "undefined"),
         }
 
         if all(x == 'undefined' for x in filters.values()):
@@ -336,8 +378,12 @@ def get_phones():
 
         filters = {k: filters.get(k) if filters.get(k) != 'never' else None for k in filters if filters.get(k) != "undefined"}
 
-        retrieve_query = "select * from {} where territory_id = {} and ".format(Telefonica_table, territory_id)
-        count_query = "select count(*) as count from {} where territory_id = {} and ".format(Telefonica_table, territory_id)
+        retrieve_query = "select * from {} where ".format(Telefonica_table)
+        count_query = "select count(id) as count from {} where ".format(Telefonica_table)
+
+        if not request.args.get("territory_id"):
+            retrieve_query += "territory_id = {} and ".format(territory_id)
+            count_query += "territory_id = {} and ".format(territory_id)
 
         where_clause = ""
 
@@ -368,28 +414,10 @@ def get_phones():
         found_phones = db.engine.execute(retrieve_query)
         count = db.engine.execute(count_query)
 
-        def phone_date_to_locale(phone):
-            if phone.get("answered_on") is not None:
-                phone["answered_on"] = to_locale_string(phone.get("answered_on"), True)
-
-            if phone.get("fulfilled_on") is not None:
-                phone["fulfilled_on"] = to_locale_string(phone.get("fulfilled_on"), True)
-
-            if phone.get("unanswered_date") is not None:
-                phone["unanswered_date"] = to_locale_string(phone.get("unanswered_date"), True)
-
-            if phone.get("answering_machine_date") is not None:
-                phone["answering_machine_date"] = to_locale_string(phone.get("answering_machine_date"))
-
-            if phone.get("commented_on") is not None:
-                phone["commented_on"] = to_locale_string(phone.get("commented_on"))
-
-            return phone
-
         found_phones = list(map(lambda p: phone_date_to_locale(p), db_result_to_dict(found_phones)))
         count = list(count)[0]["count"]
 
-        return jsonify(phones= found_phones, count= count)
+        return jsonify(phones=found_phones, count=count)
     except Exception as e:
         return handle_error(e, "get_phones")
 
@@ -626,6 +654,7 @@ def create_territory():
 @admin_required
 def modify_territory(territory_id):
     try:
+        validate_territory_param()
         is_test = request.args.get("test")
         data = request.get_json()
 
@@ -644,8 +673,6 @@ def modify_territory(territory_id):
 
         Terr = Territories_test if is_test else Territories
         territory = Terr().query.get(territory_id)
-
-        validate("territory_id", territory_id, lambda t: territory is not None)
 
         for key, value in data.items():
             setattr(territory, key, value)
@@ -688,3 +715,44 @@ def delete_territory(territory_id):
 
     except Exception as e:
         return handle_error(e, "delete_territory")
+
+@app.route("/phones/import", methods=["POST"])
+@cross_origin()
+@admin_required
+def import_phones():
+    try:
+        validate_territory_param()
+        is_test = request.args.get("test")
+        territory_id = request.args.get("territory")
+        table = "telefonica_test" if is_test else "telefonica"
+
+        data = request.get_json()
+        validate("body", data, lambda d: len(d) > 0)
+
+        allowed_keys = ["ids"]
+        invalid_key = validate_keys(data, allowed_keys)
+
+        if invalid_key is not None:
+            return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
+
+        ids = data.get('ids')
+        validate("body.ids", ids, lambda l: isinstance(l, list) and len(l) > 0 and all(isinstance(x, int) for x in l))
+
+        id_list = "("
+
+        for index, id in enumerate(ids):
+            id_list += str(id)
+            if len(ids) -1 != index:
+                id_list += ","
+
+        id_list += ")"
+
+        result = db.engine.execute("UPDATE {} set territory_id = {} where id in {}".format(table, territory_id, id_list))
+
+        if result.rowcount > 0:
+            return "", 200
+        else:
+            return "No phones where imported", 400
+
+    except Exception as e:
+        return handle_error(e, "import_phones")
