@@ -1,15 +1,23 @@
 import React, { useState } from 'react'
-import { Collapse, Table } from 'reactstrap'
+import { Collapse, Table, Button } from 'reactstrap'
 import styled from 'styled-components'
 import { useConfig, usePhoneStorage } from 'hooks'
-import { Feedback, StoragePhone } from 'types'
+import {
+  CampaignFeedback,
+  Feedback,
+  FeedbackExtended,
+  StoragePhone,
+} from 'types'
 import { isToday } from 'utils'
 import { colors, labels } from 'consts'
 import { useConfirmationModal, ConfirmationModal } from 'components'
 
 interface PhonesInStorageProps {
   currentPhoneId: number
-  onEditRequest: (storagePhone: StoragePhone, newStatus: Feedback) => void
+  onEditRequest: (
+    storagePhone: StoragePhone,
+    newStatus: FeedbackExtended
+  ) => void
   PhoneStorage: ReturnType<typeof usePhoneStorage>
 }
 
@@ -27,7 +35,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     reset,
   } = useConfirmationModal<{
     storagePhoneToConfirm: StoragePhone
-    feedbackToConfirm: Feedback
+    feedbackToConfirm: FeedbackExtended
   }>()
 
   const {
@@ -35,8 +43,22 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     currentTerritory: { campaignMode },
   } = useConfig()
 
-  const isAllowed = (f: Feedback) =>
-    !hiddenButtons.split(',').includes(f.toString())
+  const isAllowed = (f: FeedbackExtended) =>
+    !hiddenButtons.split(',').includes(f.toString()) &&
+    !(
+      campaignMode &&
+      [
+        Feedback.UNANSWERED,
+        Feedback.ANSWERED,
+        Feedback.NON_EXISTENT,
+        Feedback.NO_CALL,
+        Feedback.ANSWERING_MACHINE,
+        Feedback.IGNORE,
+        // @ts-ignore
+      ].includes(f)
+    ) &&
+    // @ts-ignore
+    !(!campaignMode && [CampaignFeedback.RUSHED].includes(f))
 
   const feedbackToConfirm = data?.feedbackToConfirm ?? null
   const storagePhoneToConfirm = data?.storagePhoneToConfirm ?? null
@@ -47,7 +69,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
   }
 
   const onAskEditConfirmation = (
-    feedbackToConfirm: Feedback,
+    feedbackToConfirm: FeedbackExtended,
     storagePhoneToConfirm: StoragePhone
   ) => askEditConfirmation({ storagePhoneToConfirm, feedbackToConfirm })
 
@@ -80,90 +102,92 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     return (
       <tr key={p.id} style={{ position: 'relative' }}>
         <td>{p.phone}</td>
-        {!campaignMode && (
-          <td>
-            <span className={`text-${color}`}>{statusLabel}</span>
-          </td>
-        )}
-        {!campaignMode && (
-          <td>
-            {phoneIsFromToday && (
-              <button
-                className="btn btn-secondary"
-                onClick={() => handleCollapsed(i)}
-              >
-                Editar
-              </button>
-            )}
-            <CollapseButtons isOpen={isCollapsed}>
-              {p.status !== Feedback.ANSWERED && isAllowed(Feedback.ANSWERED) && (
+        <td>
+          <span className={`text-${color}`}>{statusLabel}</span>
+        </td>
+        <td>
+          {phoneIsFromToday && (
+            <Button color="secondary" onClick={() => handleCollapsed(i)}>
+              Editar
+            </Button>
+          )}
+          <CollapseButtons isOpen={isCollapsed}>
+            {p.status !== CampaignFeedback.RUSHED &&
+              isAllowed(CampaignFeedback.RUSHED) && (
                 <button
                   className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
-                  onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
+                  onClick={() =>
+                    onAskEditConfirmation(CampaignFeedback.RUSHED, p)
+                  }
                 >
-                  Atendió
+                  Completado
                 </button>
               )}
-              {p.status !== Feedback.UNANSWERED &&
-                isAllowed(Feedback.UNANSWERED) && (
-                  <button
-                    className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
-                    onClick={() =>
-                      onAskEditConfirmation(Feedback.UNANSWERED, p)
-                    }
-                  >
-                    No en casa
-                  </button>
-                )}
-              {p.status !== Feedback.ANSWERING_MACHINE &&
-                isAllowed(Feedback.ANSWERING_MACHINE) && (
-                  <button
-                    className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
-                    onClick={() =>
-                      onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
-                    }
-                  >
-                    Contestador
-                  </button>
-                )}
-              {p.status !== Feedback.POSTPONE && isAllowed(Feedback.POSTPONE) && (
+            {p.status !== Feedback.ANSWERED && isAllowed(Feedback.ANSWERED) && (
+              <button
+                className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
+                onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
+              >
+                Atendió
+              </button>
+            )}
+            {p.status !== Feedback.UNANSWERED &&
+              isAllowed(Feedback.UNANSWERED) && (
                 <button
-                  className="btn btn-info btn-sm d-inline-block mr-1 mb-2"
-                  onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
+                  className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() => onAskEditConfirmation(Feedback.UNANSWERED, p)}
                 >
-                  Aplazar
+                  No en casa
                 </button>
               )}
-              {p.status !== Feedback.IGNORE && isAllowed(Feedback.IGNORE) && (
+            {p.status !== Feedback.ANSWERING_MACHINE &&
+              isAllowed(Feedback.ANSWERING_MACHINE) && (
                 <button
-                  className="btn btn-secondary btn-sm d-inline-block mr-1 mb-2"
-                  onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
+                  className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() =>
+                    onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
+                  }
                 >
-                  Ignorar
+                  Contestador
                 </button>
               )}
-              {p.status !== Feedback.NO_CALL && isAllowed(Feedback.NO_CALL) && (
+            {p.status !== Feedback.POSTPONE && isAllowed(Feedback.POSTPONE) && (
+              <button
+                className="btn btn-info btn-sm d-inline-block mr-1 mb-2"
+                onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
+              >
+                Aplazar
+              </button>
+            )}
+            {p.status !== Feedback.IGNORE && isAllowed(Feedback.IGNORE) && (
+              <button
+                className="btn btn-secondary btn-sm d-inline-block mr-1 mb-2"
+                onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
+              >
+                Ignorar
+              </button>
+            )}
+            {p.status !== Feedback.NO_CALL && isAllowed(Feedback.NO_CALL) && (
+              <button
+                className="btn btn-warning btn-sm d-inline-block mr-1 mb-2"
+                onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
+              >
+                No visitar
+              </button>
+            )}
+            {p.status !== Feedback.NON_EXISTENT &&
+              isAllowed(Feedback.NON_EXISTENT) && (
                 <button
-                  className="btn btn-warning btn-sm d-inline-block mr-1 mb-2"
-                  onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
+                  className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
+                  onClick={() =>
+                    onAskEditConfirmation(Feedback.NON_EXISTENT, p)
+                  }
                 >
-                  No visitar
+                  No existe
                 </button>
               )}
-              {p.status !== Feedback.NON_EXISTENT &&
-                isAllowed(Feedback.NON_EXISTENT) && (
-                  <button
-                    className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
-                    onClick={() =>
-                      onAskEditConfirmation(Feedback.NON_EXISTENT, p)
-                    }
-                  >
-                    No existe
-                  </button>
-                )}
-            </CollapseButtons>
-          </td>
-        )}
+          </CollapseButtons>
+        </td>
       </tr>
     )
   })
@@ -181,8 +205,8 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
         <thead>
           <tr>
             <th>Teléfono</th>
-            {!campaignMode && <th>Estado</th>}
-            {!campaignMode && <th>Acciones</th>}
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>

@@ -3,6 +3,7 @@ import { Button, Table, Input } from 'reactstrap'
 import styled, { css } from 'styled-components'
 import { Phone } from 'types'
 import { useConfig } from 'hooks'
+import { Spinner } from 'components'
 
 interface SearchResultProps {
   entries: Phone[]
@@ -10,6 +11,9 @@ interface SearchResultProps {
   onEditRequest: (phone: Phone) => void
   onDeleteRequest: (id: number) => void
   onDeleteManyRequest: (ids: number[]) => void
+  onImport: (ids: number[]) => void
+  isImport: boolean
+  isImporting: boolean
 }
 
 type CheckedMap = { [k: number]: boolean }
@@ -20,6 +24,9 @@ const SearchResult: React.FC<SearchResultProps> = ({
   onEditRequest,
   onDeleteRequest,
   onDeleteManyRequest,
+  onImport,
+  isImport,
+  isImporting,
 }) => {
   const { currentTerritory } = useConfig()
   const buildCheckedInputs = useCallback(
@@ -57,6 +64,13 @@ const SearchResult: React.FC<SearchResultProps> = ({
         .map(([id]) => parseInt(id))
     )
 
+  const handleImport = () =>
+    onImport(
+      Object.entries(checkedInputs)
+        .filter(([, checked]) => checked)
+        .map(([id]) => parseInt(id))
+    )
+
   const onSelfAssign = (id: number) => {
     const a = document.createElement('a')
     a.href = `/${currentTerritory.name}/telefonica?id=${id}`
@@ -73,18 +87,34 @@ const SearchResult: React.FC<SearchResultProps> = ({
       </h3>
       <Hr />
       <ActionPanel>
-        ({selectedCount} seleccionados)
-        <span style={{ margin: '0 1rem' }}>|</span>
-        <Button color="secondary" onClick={onToggleSelectAll}>
-          {allSelected ? 'Des' : 'S'}eleccionar todos
-        </Button>
-        <Button
-          color="danger"
-          disabled={selectedCount === 0}
-          onClick={handleDeleteMany}
-        >
-          Borrar todos los seleccionados
-        </Button>
+        {isImporting ? (
+          <Spinner />
+        ) : (
+          <>
+            ({selectedCount} seleccionados)
+            <span style={{ margin: '0 1rem' }}>|</span>
+            <Button color="secondary" onClick={onToggleSelectAll}>
+              {allSelected ? 'Des' : 'S'}eleccionar todos
+            </Button>
+            {isImport ? (
+              <Button
+                color="success"
+                disabled={selectedCount === 0}
+                onClick={handleImport}
+              >
+                Importar todos los seleccionados
+              </Button>
+            ) : (
+              <Button
+                color="danger"
+                disabled={selectedCount === 0}
+                onClick={handleDeleteMany}
+              >
+                Borrar todos los seleccionados
+              </Button>
+            )}
+          </>
+        )}
       </ActionPanel>
       <Table striped responsive>
         <Thead>
@@ -98,7 +128,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
             <th>Comentarios</th>
             <th>Días pospuesto</th>
             <th>Características</th>
-            <th>Acciones</th>
+            {!isImport && <th>Acciones</th>}
           </tr>
         </Thead>
         <Tbody>
@@ -129,20 +159,25 @@ const SearchResult: React.FC<SearchResultProps> = ({
                   .filter(Boolean)
                   .join(', ')}
               </td>
-              <ActionCell>
-                <Button color="success" onClick={() => onSelfAssign(phone.id)}>
-                  Autoasignar
-                </Button>
-                <Button color="warning" onClick={() => onEditRequest(phone)}>
-                  Editar
-                </Button>
-                <Button
-                  color="danger"
-                  onClick={() => onDeleteRequest(phone.id)}
-                >
-                  Borrar
-                </Button>
-              </ActionCell>
+              {!isImport && (
+                <ActionCell>
+                  <Button
+                    color="success"
+                    onClick={() => onSelfAssign(phone.id)}
+                  >
+                    Autoasignar
+                  </Button>
+                  <Button color="warning" onClick={() => onEditRequest(phone)}>
+                    Editar
+                  </Button>
+                  <Button
+                    color="danger"
+                    onClick={() => onDeleteRequest(phone.id)}
+                  >
+                    Borrar
+                  </Button>
+                </ActionCell>
+              )}
             </tr>
           ))}
         </Tbody>

@@ -1,8 +1,8 @@
 import React from 'react'
 import { Button, Container } from 'reactstrap'
 import styled from 'styled-components'
-import { Buttons, Description, Title } from '../styles'
-import { NewPhone } from '../types'
+import { Buttons, Description, Title } from '../../styles'
+import { NewPhone } from '../../types'
 
 interface ReviewProps {
   entryData: NewPhone[]

@@ -1,5 +1,5 @@
 import { backendURL, LOCAL_STORAGE } from 'consts'
-import { camelizeKeys, decamelizeKeys } from 'humps'
+import { camelizeKeys, decamelizeKeys, decamelize } from 'humps'
 import { Territory } from 'types'
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
@@ -84,7 +84,12 @@ class Fetch {
 
   private composeQueryParams(params: Record<string, string>): string {
     const query = Object.keys(params)
-      .map((k) => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+      .map(
+        (k) =>
+          encodeURIComponent(decamelize(k)) +
+          '=' +
+          encodeURIComponent(params[k])
+      )
       .join('&')
     return query && '?' + query
   }

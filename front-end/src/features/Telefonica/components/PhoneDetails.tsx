@@ -158,7 +158,6 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           Comentarios (opcional):
         </span>
         <Input
-          autoFocus
           placeholder="Sus comentarios acá..."
           type="text"
           value={comments}

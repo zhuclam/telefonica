@@ -1,4 +1,4 @@
-import { Feedback } from 'types'
+import { Feedback, CampaignFeedback, FeedbackExtended } from 'types'
 
 export const backendURL =
   process.env.NODE_ENV === 'development'
@@ -21,9 +21,10 @@ export const colors = {
   4: 'primary',
   5: 'info',
   6: 'secondary',
+  7: 'success',
 }
 
-export const labels: Record<Feedback, string> = {
+export const labels: Record<FeedbackExtended, string> = {
   [Feedback.UNANSWERED]: 'No en casa',
   [Feedback.ANSWERED]: 'Atendió',
   [Feedback.NON_EXISTENT]: 'No existe',
@@ -31,4 +32,5 @@ export const labels: Record<Feedback, string> = {
   [Feedback.ANSWERING_MACHINE]: 'Contestador',
   [Feedback.POSTPONE]: 'Aplazar',
   [Feedback.IGNORE]: 'Ignorar',
+  [CampaignFeedback.RUSHED]: 'Completado',
 }

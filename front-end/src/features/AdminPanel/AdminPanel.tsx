@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Container, Jumbotron, Button, Collapse, Input } from 'reactstrap'
+import { Container, Jumbotron, Button, Collapse } from 'reactstrap'
 import styled from 'styled-components'
-import { RouterLink } from 'components'
+import { RouterLink, TerritorySelector } from 'components'
 import { useConfig } from 'hooks'
 import { useHistory, useLocation } from 'react-router'
 
 const AdminPanel: React.FC = () => {
-  const { currentTerritory, territories } = useConfig()
+  const { currentTerritory } = useConfig()
   const [isTerritoryChangerOpen, setIsTerritoryChangerOpen] = useState<boolean>(
     false
   )
@@ -17,8 +17,8 @@ const AdminPanel: React.FC = () => {
   const history = useHistory()
   const location = useLocation()
 
-  const handleTerritoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    history.push(`/${e.target.value}/admin-panel/${location.search}`)
+  const handleTerritoryChange = (territoryName: string) => {
+    history.push(`/${territoryName}/admin-panel/${location.search}`)
     setIsTerritoryChangerOpen(false)
   }
 
@@ -43,17 +43,10 @@ const AdminPanel: React.FC = () => {
             </StyledButton>
           </div>
           <Collapse isOpen={isTerritoryChangerOpen}>
-            <Input
-              type="select"
+            <TerritorySelector
+              defaultValue="current"
               onChange={handleTerritoryChange}
-              defaultValue={currentTerritory.name}
-            >
-              {territories.map((t) => (
-                <option key={t.id} value={t.name}>
-                  {t.name}
-                </option>
-              ))}
-            </Input>
+            />
           </Collapse>
         </TerritoryLabel>
         <Item>
@@ -109,7 +102,7 @@ const AdminPanel: React.FC = () => {
   )
 }
 
-const Item = styled.div`
+export const Item = styled.div`
   margin: 1em 0;
   background: #343a40 !important;
   padding: 0 1em;

@@ -11,6 +11,8 @@ export interface Filters {
   noCall?: boolean
   nonExistent?: boolean
   comments?: string
+  territoryId?: string
+  any?: boolean
 }
 
 export interface SearchResponse {

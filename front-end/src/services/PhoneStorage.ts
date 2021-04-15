@@ -1,4 +1,4 @@
-import { Feedback, StoragePhone } from 'types'
+import { FeedbackExtended, StoragePhone } from 'types'
 
 class PhoneStorage {
   private phonesStorageKey: string
@@ -29,7 +29,7 @@ class PhoneStorage {
     }
   }
 
-  public update(id: number, newStatus: Feedback) {
+  public update(id: number, newStatus: FeedbackExtended) {
     const phones = this.getAll()
     const toUpdate = phones.find((p) => p.id === id)
     if (!toUpdate) return

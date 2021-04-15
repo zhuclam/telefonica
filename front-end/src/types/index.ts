@@ -45,11 +45,11 @@ export type OriginalData = Pick<
 
 export interface StoragePhone {
   id: Phone['id']
-  status: null | Feedback
+  status: null | FeedbackExtended
   phone: Phone['phone']
   savedOn: number
   restore: OriginalData & {
-    lastStatus: null | Feedback
+    lastStatus: null | FeedbackExtended
   }
 }
 

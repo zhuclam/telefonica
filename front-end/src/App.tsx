@@ -17,6 +17,8 @@ const Login = lazy(() => import('./features/Login'))
 const Telefonica = lazy(() => import('./features/Telefonica'))
 const StatisticsPanel = lazy(() => import('./features/StatisticsPanel'))
 const AddPhones = lazy(() => import('./features/AddPhones'))
+const AddNewPhones = lazy(() => import('./features/AddPhones/AddNewPhones'))
+const ImportPhones = lazy(() => import('./features/AddPhones/Import'))
 const SearchAndEdit = lazy(() => import('./features/SearchAndEdit'))
 const Configurations = lazy(() => import('./features/Configurations'))
 const Passwords = lazy(() => import('./features/Passwords'))
@@ -134,6 +136,20 @@ const MainRouter: React.FC = () => {
                 path="/:territory/admin-panel/add-phones"
                 exact
                 component={AddPhones}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/add-phones/new-list"
+                exact
+                component={AddNewPhones}
+                condition={isAdmin}
+                fallbackURL={`/${territory}/telefonica`}
+              />
+              <ProtectedRoute
+                path="/:territory/admin-panel/add-phones/import"
+                exact
+                component={ImportPhones}
                 condition={isAdmin}
                 fallbackURL={`/${territory}/telefonica`}
               />

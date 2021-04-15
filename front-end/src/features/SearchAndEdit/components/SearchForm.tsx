@@ -3,6 +3,8 @@ import { Button, Col, Form, FormGroup, Input, Label, Row } from 'reactstrap'
 import { useForm } from 'react-hook-form'
 import { Filters } from '../types'
 import { useRerender } from 'hooks/utils'
+import { TerritorySelector } from 'components'
+import { useConfig } from 'hooks'
 
 const Error: React.FC = ({ children }) => (
   <span className="text-danger">{children}</span>
@@ -13,9 +15,11 @@ const delocalizeDateString = (date: string): string =>
 
 interface SearchFormProps {
   onSearch: (filters: Filters) => void
+  isImport: boolean
 }
 
-const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
+const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isImport }) => {
+  const { territories } = useConfig()
   const {
     register,
     handleSubmit,
@@ -29,6 +33,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     reValidateMode: 'onChange',
     defaultValues: {
       count: 100,
+      territoryId: '',
     },
   })
 
@@ -43,6 +48,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     nonExistent,
     comments,
     count,
+    territoryId: territoryName,
   }: Required<Filters>) => {
     const filters: Filters = {}
 
@@ -63,6 +69,19 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     noWeekends && (filters.noWeekends = noWeekends)
     noCall && (filters.noCall = noCall)
     nonExistent && (filters.nonExistent = nonExistent)
+    if (territoryName) {
+      const id = territories.find((t) => t.name === territoryName)!.id
+      id && (filters.territoryId = id.toString())
+    }
+
+    onSearch(filters)
+  }
+
+  const searchAny = () => {
+    const filters: Filters = {}
+
+    filters.count = getValues('count')
+    filters.any = true
 
     onSearch(filters)
   }
@@ -76,7 +95,19 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       </span>
       <Form onSubmit={handleSubmit(onApplyFilters)}>
         <Row>
-          <Col>
+          {isImport && (
+            <Col xs={12} md={6}>
+              <FormGroup>
+                <Label>Territorio</Label>
+                <TerritorySelector
+                  excludeCurrent
+                  name="territoryId"
+                  ref={register}
+                />
+              </FormGroup>
+            </Col>
+          )}
+          <Col xs={12} md={isImport ? 6 : 12}>
             <FormGroup>
               <Label>Cantidad a mostrar</Label>
               <Input
@@ -136,7 +167,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
                   type="checkbox"
                   checked={getValues('comments') === '*'}
                   onChange={(e) => {
-                    setValue('comments', e.target.checked ? '*' : '')
+                    setValue('comments', e.target.checked ? '*' : '', {
+                      shouldDirty: true,
+                    })
                     forceUpdate()
                   }}
                 />
@@ -168,7 +201,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
                   type="checkbox"
                   checked={getValues('answeredOn') === 'Nunca'}
                   onChange={(e) => {
-                    setValue('answeredOn', e.target.checked ? 'Nunca' : '')
+                    setValue('answeredOn', e.target.checked ? 'Nunca' : '', {
+                      shouldDirty: true,
+                    })
                     forceUpdate()
                   }}
                 />
@@ -201,7 +236,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
                   type="checkbox"
                   checked={getValues('calledOn') === 'Nunca'}
                   onChange={(e) => {
-                    setValue('calledOn', e.target.checked ? 'Nunca' : '')
+                    setValue('calledOn', e.target.checked ? 'Nunca' : '', {
+                      shouldDirty: true,
+                    })
                     forceUpdate()
                   }}
                 />
@@ -239,17 +276,16 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
         </Row>
         <hr />
         <Row>
-          <Col md="6">
+          <Col md={isImport ? 6 : 4}>
             <Button block outline onClick={() => reset()}>
               Limpiar campos
             </Button>
           </Col>
-          <Col md="6">
+          <Col md={isImport ? 6 : 4}>
             <Button
               type="submit"
               disabled={
                 (!isDirty &&
-                  // fix because using setValue still won't change isDirty...
                   !getValues('answeredOn') &&
                   !getValues('calledOn') &&
                   !getValues('comments')) ||
@@ -259,9 +295,16 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
               color="primary"
               block
             >
-              Buscar
+              Buscar{!isImport ? ' con filtros' : ''}
             </Button>
           </Col>
+          {!isImport && (
+            <Col md="4">
+              <Button color="success" block onClick={searchAny}>
+                Buscar todos
+              </Button>
+            </Col>
+          )}
         </Row>
       </Form>
     </>

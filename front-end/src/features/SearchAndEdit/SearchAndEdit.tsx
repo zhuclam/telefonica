@@ -23,12 +23,33 @@ const breadcrumbItems = [
   },
 ]
 
-const SearchAndEdit: FunctionComponent = () => {
+const importBreadcrumbItems = [
+  {
+    title: 'Panel de Administración',
+    linkTo: '/admin-panel',
+  },
+  {
+    title: 'Agregar Números',
+    linkTo: '/admin-panel/add-phones',
+  },
+  {
+    title: 'Importar',
+  },
+]
+
+type SearchAndEditProps = {
+  isImport?: boolean
+}
+
+const SearchAndEdit: FunctionComponent<SearchAndEditProps> = ({
+  isImport = false,
+}) => {
   const [foundPhones, setFoundPhones] = useState<
     SearchResponse['phones'] | null
   >(null)
   const [foundCount, setFoundCount] = useState<SearchResponse['count']>(0)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isImporting, setIsImporting] = useState<boolean>(false)
 
   const [editingPhone, setEditingPhone] = useState<Phone | null>(null)
 
@@ -135,6 +156,31 @@ const SearchAndEdit: FunctionComponent = () => {
     }
   }
 
+  const handleImport = async (ids: number[]) => {
+    if (ids.length === 0) return
+    try {
+      setIsImporting(true)
+
+      const [err] = await Fetch().post<{ ids: number[] }, void>(
+        'phones/import',
+        {
+          ids,
+        }
+      )
+
+      if (err) throw err
+
+      const newPhones = foundPhones!.filter((p) => !ids.includes(p.id))
+      setFoundPhones(newPhones)
+      setFoundCount(foundCount - ids.length)
+      AlertManager.show('import-success')
+    } catch {
+      AlertManager.show('import-error')
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
   const handleBack = () => setEditingPhone(null)
 
   const handleUpdatedPhone = (updatedPhone: Phone) =>
@@ -163,9 +209,17 @@ const SearchAndEdit: FunctionComponent = () => {
       <Alert name="deletion-error" position="top" variant="failure">
         No se pudo eliminar. Por favor, intente de nuevo.
       </Alert>
+      <Alert name="import-success" position="top" variant="success">
+        ¡Números importados exitosamente!
+      </Alert>
+      <Alert name="import-error" position="top" variant="failure">
+        No se pudo importar. Por favor, intente de nuevo.
+      </Alert>
       <Container className="pt-4 mb-5">
-        <Breadcrumb items={breadcrumbItems} />
-        <SearchForm onSearch={handleSearch} />
+        <Breadcrumb
+          items={isImport ? importBreadcrumbItems : breadcrumbItems}
+        />
+        <SearchForm onSearch={handleSearch} isImport={isImport} />
       </Container>
       <Container fluid>
         {isLoading ? (
@@ -173,11 +227,14 @@ const SearchAndEdit: FunctionComponent = () => {
         ) : (
           foundPhones && (
             <SearchResult
+              isImport={isImport}
               entries={foundPhones}
               count={foundCount}
               onEditRequest={handleEditRequest}
               onDeleteRequest={handleDeleteRequest}
               onDeleteManyRequest={handleDeleteManyRequest}
+              onImport={handleImport}
+              isImporting={isImporting}
             />
           )
         )}

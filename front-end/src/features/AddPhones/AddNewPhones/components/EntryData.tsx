@@ -2,9 +2,9 @@ import { useConfig } from 'hooks'
 import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import { Button, Col, Row } from 'reactstrap'
 import styled from 'styled-components'
-import { Buttons, Description, Title } from '../styles'
-import { NewPhone } from '../types'
-import { generateRandomInfo, generateRandomNumber } from '../utils'
+import { Buttons, Description, Title } from '../../styles'
+import { NewPhone } from '../../types'
+import { generateRandomInfo, generateRandomNumber } from '../../utils'
 
 const LineIndicator: React.ForwardRefExoticComponent<
   {

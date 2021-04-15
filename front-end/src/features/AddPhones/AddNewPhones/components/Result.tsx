@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Container } from 'reactstrap'
-import { Buttons, Description, Title } from '../styles'
-import { AddPhoneResponse } from '../types'
+import { Buttons, Description, Title } from '../../styles'
+import { AddPhoneResponse } from '../../types'
 
 interface ResultProps {
   response: AddPhoneResponse
