@@ -7,6 +7,7 @@ import React, {
 import { useFetch } from 'hooks'
 import { Configurations, Territory } from 'types'
 import { LOCAL_STORAGE } from 'consts'
+import { inferTerritory } from 'utils'
 
 interface ConfigType {
   darkModeEnabled: boolean
@@ -17,6 +18,7 @@ interface ConfigType {
   configsLoading: boolean
   configsError: boolean
   currentTerritory: Territory
+  potentialTerritory: string
   toggleDarkMode: (checked: boolean) => void
   toggleAdvancedMode: (checked: boolean) => void
   toggleTestMode: (checked: boolean) => void
@@ -105,6 +107,8 @@ export const useConfig = (): ConfigType => {
     setTestModeEnabled(checked)
   }
 
+  const potentialTerritory = inferTerritory(window.location.pathname)
+
   return {
     darkModeEnabled,
     advancedModeEnabled,
@@ -114,6 +118,7 @@ export const useConfig = (): ConfigType => {
     configsLoading,
     configsError,
     currentTerritory: currentTerritory!,
+    potentialTerritory,
     toggleDarkMode,
     toggleAdvancedMode,
     toggleTestMode,

@@ -66,16 +66,19 @@ const MainRouter: React.FC = () => {
 
   const Fetch = useFetch()
 
+  const returnTo = new URLSearchParams(window.location.search).get('returnTo')
+
   useLayoutEffect(() => {
-    if (!isAuth && !location.pathname.includes('/login')) history.push('/login')
+    if (!isAuth && !location.pathname.includes('/login'))
+      history.push(`/login?returnTo=${window.location.pathname}`)
     if (
       isAuth &&
       (location.pathname.includes('/login') || location.pathname === '/')
     )
       isAdmin
-        ? history.push('/base/admin-panel')
-        : history.push('/base/telefonica')
-  }, [isAuth, isAdmin, location.pathname, history])
+        ? history.push(returnTo ?? '/base/admin-panel')
+        : history.push(returnTo ?? '/base/telefonica')
+  }, [isAuth, isAdmin, location.pathname, history, returnTo])
 
   const prevTestModeEnabled = usePreviousValue(testModeEnabled)
 
@@ -91,7 +94,7 @@ const MainRouter: React.FC = () => {
     prevTestModeEnabled,
   ])
 
-  if (configsLoading) return <Spinner container fulfill />
+  if (isAuth && configsLoading) return <Spinner container fulfill />
 
   if (configsError) return <ErrorDisplay />
 

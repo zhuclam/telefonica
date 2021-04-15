@@ -69,8 +69,8 @@ const Telefonica: React.FC = () => {
   }, [AlertManager, PhoneStorage, Fetch, paramId])
 
   useEffect(() => {
-    fetchPhone()
-  }, [fetchPhone])
+    currentTerritory.active && fetchPhone()
+  }, [fetchPhone, currentTerritory])
 
   const onFeedback = async (feedback: FeedbackExtended) => {
     if (!phone) return
@@ -135,6 +135,9 @@ const Telefonica: React.FC = () => {
     return (
       <ErrorDisplay message="No hay más números disponibles por el día de hoy" />
     )
+
+  if (!currentTerritory.active)
+    return <ErrorDisplay message="Este territorio está desactivado." />
 
   if (isLoading || !phone) return <Spinner fulfill container />
 
