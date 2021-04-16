@@ -83,9 +83,9 @@ def next():
         else:
             is_weekend = days_utils.check_today_is_weekend()
             if is_weekend:
-                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.territory_id == territory_id, Tel.no_weekends == False).order_by(Tel.fulfilled_on.asc()).first()
+                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.territory_id == territory_id, Tel.campaign_status == False, Tel.no_weekends == False).order_by(Tel.fulfilled_on.asc()).first()
             else:
-                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.territory_id == territory_id).order_by(Tel.fulfilled_on.asc()).first()
+                phone = Tel().query.filter(Tel.no_call != 1, Tel.postponed_days == 0, Tel.territory_id == territory_id, Tel.campaign_status == False).order_by(Tel.fulfilled_on.asc()).first()
             phone.postponed_days = 1
             phone.non_existent = 0
             db.session.commit()
@@ -548,11 +548,40 @@ def get_configurations():
         Configs = Configurations_test if is_test else Configurations
         configs = Configs().query.get(1).as_dict()
 
-        Terr = Territories_test if is_test else Territories
-        territories = Terr().query.all()
-        territories = list(map(lambda t: t.as_dict(), territories))
+        territories_table = "territories_test" if is_test else "territories"
+        telefonica_table = "telefonica_test" if is_test else "telefonica"
+
+        territories = db.engine.execute("""
+            SELECT
+                t.*,
+                coalesce(a.completed, 0) / coalesce(a.total, 1) * 100 as completed,
+                coalesce(b.total_numbers, 0) as total_numbers
+            FROM {} t
+            LEFT JOIN (
+                SELECT
+                    sum(campaign_status) as completed,
+                    count(id) as total,
+                    territory_id
+                FROM {}
+                WHERE no_call = 0 and non_existent = 0
+                GROUP BY territory_id
+            ) a
+            ON t.id = a.territory_id
+            LEFT JOIN (
+                SELECT
+                    count(id) as total_numbers,
+                    territory_id
+                FROM {}
+                GROUP BY territory_id
+            ) b
+            ON t.id = b.territory_id
+        """.format(territories_table, telefonica_table, telefonica_table))
+
+        territories = db_result_to_dict(territories)
 
         task_service.check_task_executed()
+
+        db.session.commit()
 
         return jsonify(configs=configs, territories=territories), 200
 
@@ -645,7 +674,11 @@ def create_territory():
         db.session.add(new_territory)
         db.session.commit()
 
-        return jsonify(territory=new_territory.as_dict()), 201
+        new_territory = new_territory.as_dict()
+        new_territory["completed"] = 0
+        new_territory["total_numbers"] = 0
+
+        return jsonify(territory=new_territory), 201
     except Exception as e:
         return handle_error(e, "create_territory")
 
@@ -672,14 +705,42 @@ def modify_territory(territory_id):
         validate("body.campaign_mode", campaign_mode, lambda a: a in (0, 1, True, False), optional=True)
 
         Terr = Territories_test if is_test else Territories
+        telefonica_table = "telefonica_test" if is_test else "telefonica"
+
         territory = Terr().query.get(territory_id)
 
         for key, value in data.items():
             setattr(territory, key, value)
 
+        if campaign_mode in (0, False):
+            db.engine.execute("UPDATE {} set campaign_status = 0 where territory_id = {}".format(telefonica_table, territory_id))
+
         db.session.commit()
 
-        return jsonify(territory=territory.as_dict()), 200
+        completed = db_result_to_dict(db.engine.execute("""
+            SELECT
+                coalesce (r.completed, 0) / coalesce(r.total, 1) * 100 as completed
+            FROM (
+                SELECT
+                    sum(campaign_status) as completed,
+                    count(id) as total,
+                    territory_id
+                FROM {}
+                WHERE no_call = 0 and non_existent = 0 and territory_id = {}
+            ) r
+            where territory_id = {}
+        """.format(telefonica_table, territory_id, territory_id)))
+
+        total_numbers = db.engine.execute("select count(id) as count from {} where territory_id = {}".format(telefonica_table, territory_id))
+
+        completed = completed[0]["completed"] if len(completed) else 0
+        total_numbers = db_result_to_dict(total_numbers)[0]["count"]
+
+        territory = territory.as_dict()
+        territory["completed"] = completed
+        territory["total_numbers"] = total_numbers
+
+        return jsonify(territory=territory), 200
     except Exception as e:
         return handle_error(e, "modify_territory")
 
@@ -707,6 +768,7 @@ def delete_territory(territory_id):
 
         for phone in phones:
             phone.territory_id = 1
+            phone.campaign_status = 0
 
         db.session.delete(territory)
         db.session.commit()
@@ -747,7 +809,7 @@ def import_phones():
 
         id_list += ")"
 
-        result = db.engine.execute("UPDATE {} set territory_id = {} where id in {}".format(table, territory_id, id_list))
+        result = db.engine.execute("UPDATE {} set territory_id = {}, campaign_status = 0 where id in {}".format(table, territory_id, id_list))
 
         if result.rowcount > 0:
             return "", 200

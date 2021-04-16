@@ -136,6 +136,7 @@ class phone_service():
         is_genuine = phone_service.is_genuine(phone)
         if restore is None:
             phone_service.handle_comments(phone, comments)
+        phone.campaign_status = False
         if phone.unanswered_count >= config.unanswered_max_attemps - 1:
             phone.unanswered_count = 0
             phone.unanswered_date = None
@@ -166,6 +167,7 @@ class phone_service():
         is_genuine = phone_service.is_genuine(phone)
         if restore is None:
             phone_service.handle_comments(phone, comments)
+        phone.campaign_status = True
         phone_service.send_to_end_of_queue(phone)
         db.session.commit()
         if restore and restore["last_status"] is not None:
@@ -244,7 +246,8 @@ class history_service():
 class task_service():
     def check_task_executed():
         # task is run at 2am (ARG time) so don't check this until then
-        if now().hour in (0, 1, 2): return
+        if now().hour in (0, 1, 2):
+            return
 
         status = Watch_task().query.get(1)
         if status.last_checked == today().date(): return

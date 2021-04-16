@@ -67,6 +67,7 @@ class Telefonica(db.Model):
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
     territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, server_default="1")
+    campaign_status = db.Column(db.Boolean, nullable=False, server_default="0")
     territory = db.relationship("Territories")
 
     def as_dict(self):
@@ -91,6 +92,7 @@ class Telefonica_test(db.Model):
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
     territory_id = db.Column(db.Integer, db.ForeignKey('territories_test.id'), nullable=False, server_default="1")
+    campaign_status = db.Column(db.Boolean, nullable=False, server_default="0")
     territory = db.relationship("Territories_test")
 
     def as_dict(self):
@@ -115,6 +117,7 @@ class Telefonica_backup(db.Model):
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
     territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, server_default="1")
+    campaign_status = db.Column(db.Boolean, nullable=False, server_default="0")
     territory = db.relationship("Territories")
 
     def as_dict(self):
