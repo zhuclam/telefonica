@@ -309,7 +309,7 @@ const ManageTerritories: React.FC = () => {
                   </Button>
                 </LinkTd>
                 <CampaignCell
-                  active={territory.campaignMode}
+                  active={!!territory.campaignMode}
                   completed={territory.completed === 100}
                 >
                   {territory.campaignMode

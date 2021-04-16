@@ -129,7 +129,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
             <th>Comentarios</th>
             <th>Días pospuesto</th>
             <th>Características</th>
-            {!isImport && currentTerritory.campaignMode && (
+            {!isImport && !!currentTerritory.campaignMode && (
               <th style={{ color: 'gold' }}>Completado en campaña</th>
             )}
             {!isImport && <th>Acciones</th>}
@@ -168,7 +168,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
                   .filter(Boolean)
                   .join(', ')}
               </td>
-              {!isImport && currentTerritory.campaignMode && (
+              {!isImport && !!currentTerritory.campaignMode && (
                 <td style={{ color: 'gold' }}>
                   {phone.campaignStatus ? 'Sí' : 'No'}
                 </td>
