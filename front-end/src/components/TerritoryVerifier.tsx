@@ -24,7 +24,8 @@ const TerritoryVerifier: React.FC<TerritoryVerifierProps> = ({
     if (isValid) setCurrentTerritory(territoryData!)
   }, [territoryData, isValid, setCurrentTerritory])
 
-  if (configsLoading) return <Spinner fulfill container />
+  if (configsLoading && !territories.length)
+    return <Spinner fulfill container />
 
   return isValid ? (
     <>{children}</>

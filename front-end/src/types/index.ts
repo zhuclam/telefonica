@@ -30,6 +30,7 @@ export interface Phone {
   unansweredDate: null | string
   noWeekends: boolean
   territoryId: number
+  campaignStatus: boolean
 }
 
 export type OriginalData = Pick<
@@ -58,7 +59,6 @@ export interface PhoneOptionsType {
 }
 
 export interface Configurations {
-  campaignMode: boolean
   unansweredMaxAttemps: number
   answeringMachineMaxAttemps: number
   answeringMachinePostponedDays: number
@@ -73,4 +73,6 @@ export interface Territory {
   name: string
   active: boolean
   campaignMode: boolean
+  completed: number
+  totalNumbers: number
 }

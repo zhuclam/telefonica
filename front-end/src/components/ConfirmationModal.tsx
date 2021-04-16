@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Button, Modal, ModalHeader, ModalFooter, ModalBody } from 'reactstrap'
 
 const useConfirmationModal = <Data extends {}>() => {
@@ -15,10 +15,10 @@ const useConfirmationModal = <Data extends {}>() => {
     setData(data)
   }
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setIsModalOpen(false)
     setData(null)
-  }
+  }, [])
 
   return {
     isModalOpen,

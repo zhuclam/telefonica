@@ -96,7 +96,8 @@ const MainRouter: React.FC = () => {
     prevTestModeEnabled,
   ])
 
-  if (isAuth && configsLoading) return <Spinner container fulfill />
+  if (isAuth && configsLoading && !configurations)
+    return <Spinner container fulfill />
 
   if (configsError) return <ErrorDisplay />
 

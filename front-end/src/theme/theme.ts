@@ -22,6 +22,7 @@ const theme = (darkMode: boolean) => ({
       lightgreen: 'lightgreen',
       info: '#007bff',
       red: '#dc3545',
+      yellow: 'gold',
     },
   },
   breakpoints: {

@@ -29,7 +29,6 @@ const translations: Record<
   keyof Omit<TConfigurations, 'hiddenButtons' | 'territoryId'>,
   string
 > = {
-  campaignMode: 'Modo de campaña',
   unansweredMaxAttemps: 'Máximo de intentos para no en casa',
   answeringMachineMaxAttemps: 'Máximo de intentos para el contestador',
   answeringMachinePostponedDays:
@@ -40,7 +39,6 @@ const translations: Record<
 }
 
 type EditableConfigurations = {
-  campaignMode: boolean
   unansweredMaxAttemps: string
   answeringMachineMaxAttemps: string
   answeringMachinePostponedDays: string
@@ -76,7 +74,6 @@ const Configurations: React.FC = () => {
     mode: 'all',
     reValidateMode: 'onChange',
     defaultValues: {
-      campaignMode: configurations.campaignMode,
       unansweredMaxAttemps: configurations.unansweredMaxAttemps.toString(),
       answeringMachineMaxAttemps: configurations.answeringMachineMaxAttemps.toString(),
       answeringMachinePostponedDays: configurations.answeringMachinePostponedDays.toString(),
@@ -99,7 +96,6 @@ const Configurations: React.FC = () => {
       setIsLoading(true)
       const payload = {} as TConfigurations
 
-      payload.campaignMode = formData.campaignMode
       payload.unansweredMaxAttemps = parseInt(formData.unansweredMaxAttemps)
       payload.answeringMachineMaxAttemps = parseInt(
         formData.answeringMachineMaxAttemps

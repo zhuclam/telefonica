@@ -33,7 +33,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isImport }) => {
     reValidateMode: 'onChange',
     defaultValues: {
       count: 100,
-      territoryId: '',
+      territoryId: 'base',
     },
   })
 
@@ -100,9 +100,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isImport }) => {
               <FormGroup>
                 <Label>Territorio</Label>
                 <TerritorySelector
-                  excludeCurrent
                   name="territoryId"
                   ref={register}
+                  noEmptyValue
+                  excludeCurrent
                 />
               </FormGroup>
             </Col>
@@ -285,12 +286,14 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isImport }) => {
             <Button
               type="submit"
               disabled={
-                (!isDirty &&
-                  !getValues('answeredOn') &&
-                  !getValues('calledOn') &&
-                  !getValues('comments')) ||
-                !isValid ||
-                isSubmitting
+                isImport
+                  ? !isValid || isSubmitting
+                  : (!isDirty &&
+                      !getValues('answeredOn') &&
+                      !getValues('calledOn') &&
+                      !getValues('comments')) ||
+                    !isValid ||
+                    isSubmitting
               }
               color="primary"
               block

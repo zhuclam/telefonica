@@ -28,7 +28,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   isImport,
   isImporting,
 }) => {
-  const { currentTerritory } = useConfig()
+  const { currentTerritory, territories } = useConfig()
   const buildCheckedInputs = useCallback(
     (checked: boolean) =>
       entries.reduce((acc, curr) => {
@@ -121,6 +121,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
           <tr>
             <th />
             <th>ID</th>
+            {isImport && <th>Territorio</th>}
             <th>Número</th>
             <th>Info</th>
             <th>Última vez llamado</th>
@@ -128,6 +129,9 @@ const SearchResult: React.FC<SearchResultProps> = ({
             <th>Comentarios</th>
             <th>Días pospuesto</th>
             <th>Características</th>
+            {!isImport && currentTerritory.campaignMode && (
+              <th style={{ color: 'gold' }}>Completado en campaña</th>
+            )}
             {!isImport && <th>Acciones</th>}
           </tr>
         </Thead>
@@ -144,6 +148,11 @@ const SearchResult: React.FC<SearchResultProps> = ({
                 </Centered>
               </td>
               <td>{phone.id}</td>
+              {isImport && (
+                <td>
+                  {territories.find((t) => t.id === phone.territoryId)?.name}
+                </td>
+              )}
               <PhoneCell>{phone.phone}</PhoneCell>
               <td>{phone.info}</td>
               <td>{phone.unansweredDate || phone.fulfilledOn || 'Nunca'}</td>
@@ -159,6 +168,11 @@ const SearchResult: React.FC<SearchResultProps> = ({
                   .filter(Boolean)
                   .join(', ')}
               </td>
+              {!isImport && currentTerritory.campaignMode && (
+                <td style={{ color: 'gold' }}>
+                  {phone.campaignStatus ? 'Sí' : 'No'}
+                </td>
+              )}
               {!isImport && (
                 <ActionCell>
                   <Button

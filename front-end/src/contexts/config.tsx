@@ -83,8 +83,10 @@ export const useConfig = (): ConfigType => {
 
   const updateConfigs = (configs: Configurations) => setConfigurations(configs)
 
-  const updateTerritories = (territories: Territory[]) =>
-    setTerritories(territories)
+  const updateTerritories = useCallback(
+    (territories: Territory[]) => setTerritories(territories),
+    []
+  )
 
   const toggleDarkMode = (checked: boolean) => {
     checked

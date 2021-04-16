@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useState, useEffect, useCallback } from 'react'
 import { Container, Table, Button, Collapse, Input } from 'reactstrap'
 import {
   Alert,
@@ -23,13 +23,23 @@ const breadcrumbItems = [
 ]
 
 const ManageTerritories: React.FC = () => {
-  const { territories, currentTerritory, updateTerritories } = useConfig()
+  const {
+    territories,
+    currentTerritory,
+    updateTerritories,
+    getConfigs,
+  } = useConfig()
 
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const [showNewTerritoryForm, setShowNewTerritoryForm] = useState<boolean>(
     false
   )
+
+  const [hoveringId, setHoveringId] = useState<number>(0)
+  const [editingName, setEditingName] = useState<
+    { id: number; name: string } | undefined
+  >()
 
   const toggleNewTerritoryForm = () => setShowNewTerritoryForm((open) => !open)
 
@@ -45,7 +55,18 @@ const ManageTerritories: React.FC = () => {
     reset: resetDeleteModal,
   } = useConfirmationModal<number>()
 
-  const territoryToDelete = territories.find((t) => t.id === idToDelete)
+  const {
+    isModalOpen: isCampaignOffModalOpen,
+    data: idToUpdate,
+    askEditConfirmation: askCampaignOffconfirmation,
+    toggleModal: toggleCampaignOffModal,
+    reset: resetCampaignOffModal,
+  } = useConfirmationModal<number>()
+
+  const territoryToDelete =
+    !!idToDelete && territories.find((t) => t.id === idToDelete)
+  const territoryToUpdate =
+    !!idToUpdate && territories.find((t) => t.id === idToUpdate)
 
   const buildTerritoryURL = (name: string) =>
     `${window.location.origin}/${name}/`
@@ -56,6 +77,11 @@ const ManageTerritories: React.FC = () => {
   }
 
   const invalidNewName = /[^\w\d-]/i.test(newName)
+  const invalidEditingName = /[^\w\d-]/i.test(editingName?.name ?? '')
+
+  useEffect(() => {
+    getConfigs(Fetch)
+  }, [Fetch, getConfigs])
 
   const onCreateNew = async () => {
     if (invalidNewName) return
@@ -81,7 +107,7 @@ const ManageTerritories: React.FC = () => {
   }
 
   const onDelete = async () => {
-    if (idToDelete === null) return
+    if (idToDelete === null || !territoryToDelete) return
 
     try {
       setIsDeleting(true)
@@ -89,7 +115,10 @@ const ManageTerritories: React.FC = () => {
 
       if (err) throw err
 
-      updateTerritories(territories.filter((t) => t.id !== idToDelete))
+      const newTerritories = territories.filter((t) => t.id !== idToDelete)
+      // Assuming territory at index 0 is always 'base'
+      newTerritories[0].totalNumbers += territoryToDelete.totalNumbers
+      updateTerritories(newTerritories)
       resetDeleteModal()
       AlertManager.show('delete-success')
     } catch {
@@ -99,30 +128,57 @@ const ManageTerritories: React.FC = () => {
     }
   }
 
-  const bindUpdateAction = (
-    id: number,
-    key: 'active' | 'campaignMode'
-  ) => async () => {
-    try {
-      const territory = territories.find((t) => t.id === id)!
-      if (!territory) throw new Error()
+  const onUpdate = useCallback(
+    async (
+      id: number,
+      field: 'active' | 'campaignMode' | 'name',
+      newName?: string
+    ) => {
+      try {
+        const territory = territories.find((t) => t.id === id)!
+        if (!territory) throw new Error()
 
-      const [err, { territory: updatedTerritory }] = await Fetch().put<
-        Partial<Territory>,
-        { territory: Territory }
-      >(`territories/${id}`, { [key]: !territory[key] })
+        const newState = field === 'name' ? newName : !territory[field]
+        field === 'campaignMode' &&
+          newState === false &&
+          resetCampaignOffModal()
 
-      if (err) throw err
+        const [err, { territory: updatedTerritory }] = await Fetch().put<
+          Partial<Territory>,
+          { territory: Territory }
+        >(`territories/${id}`, { [field]: newState })
 
-      updateTerritories(
-        territories.map((t) => (t.id === id ? updatedTerritory : t))
-      )
-      resetDeleteModal()
-      AlertManager.show('update-success', { timeout: 1500 })
-    } catch {
-      AlertManager.show('update-fail')
+        if (err) throw err
+
+        updateTerritories(
+          territories.map((t) => (t.id === id ? updatedTerritory : t))
+        )
+        resetDeleteModal()
+        AlertManager.show('update-success', { timeout: 1500 })
+      } catch {
+        AlertManager.show('update-fail')
+      }
+    },
+    [
+      AlertManager,
+      Fetch,
+      resetCampaignOffModal,
+      resetDeleteModal,
+      territories,
+      updateTerritories,
+    ]
+  )
+
+  useEffect(() => {
+    const saveEditedName = (e: any) => {
+      if (e.target?.id !== 'editing-input' && editingName) {
+        onUpdate(editingName.id, 'name', editingName.name)
+        setEditingName(undefined)
+      }
     }
-  }
+    document.addEventListener('click', saveEditedName)
+    return () => document.removeEventListener('click', saveEditedName)
+  }, [editingName, onUpdate])
 
   return (
     <>
@@ -184,64 +240,115 @@ const ManageTerritories: React.FC = () => {
         <p>(No se puede eliminar el territorio base ni el actual)</p>
         <Table borderless responsive>
           <thead>
-            <th>Nombre</th>
-            <th>Estado</th>
-            <th>Enlace</th>
-            <th>En campaña</th>
-            <th>Acciones</th>
-          </thead>
-          {territories.map((territory) => (
-            <tr key={territory.id}>
-              <td>{territory.name}</td>
-              <ActiveCell active={territory.active}>
-                {territory.active ? 'Habilitado' : 'Deshabilitado'}
-              </ActiveCell>
-              <LinkTd>
-                <a href={buildTerritoryURL(territory.name)} target="_new">
-                  {buildTerritoryURL(territory.name)}
-                </a>
-                <Button
-                  color="secondary"
-                  size="sm"
-                  style={{ marginRight: '.5em' }}
-                  onClick={() => copyLink(territory.name)}
-                >
-                  Copiar
-                </Button>
-              </LinkTd>
-              <ActiveCell active={territory.campaignMode} neutral>
-                {territory.campaignMode ? 'Activa (45% completado)' : 'No'}
-              </ActiveCell>
-              <td style={{ display: 'flex', justifyContent: 'center' }}>
-                <Button
-                  color={territory.active ? 'warning' : 'success'}
-                  size="sm"
-                  onClick={bindUpdateAction(territory.id, 'active')}
-                >
-                  {territory.active ? 'Deshabilitar' : 'Habilitar'}
-                </Button>
-                <Button
-                  color={territory.campaignMode ? 'secondary' : 'info'}
-                  size="sm"
-                  style={{ marginLeft: '.5em' }}
-                  onClick={bindUpdateAction(territory.id, 'campaignMode')}
-                >
-                  {territory.campaignMode ? 'Desactivar' : 'Activar'} campaña
-                </Button>
-                <Button
-                  style={{ marginLeft: '.5em' }}
-                  color="danger "
-                  size="sm"
-                  onClick={() => askDeleteConfirmation(territory.id)}
-                  disabled={
-                    territory.id === currentTerritory.id || territory.id === 1
-                  }
-                >
-                  Eliminar
-                </Button>
-              </td>
+            <tr>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th>Enlace</th>
+              <th>En campaña</th>
+              <th>Acciones</th>
             </tr>
-          ))}
+          </thead>
+          <tbody>
+            {territories.map((territory) => (
+              <tr key={territory.id}>
+                <td
+                  onMouseEnter={() => setHoveringId(territory.id)}
+                  onMouseLeave={() => setHoveringId(0)}
+                >
+                  {editingName?.id === territory.id ? (
+                    <StyledInput
+                      id="editing-input"
+                      value={editingName.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setEditingName({ ...editingName, name: e.target.value })
+                      }
+                      error={invalidEditingName}
+                    />
+                  ) : (
+                    <>
+                      {territory.name}
+                      {hoveringId !== territory.id ? (
+                        ` (${territory.totalNumbers})`
+                      ) : (
+                        <>
+                          {' '}
+                          <span
+                            style={{ cursor: 'pointer' }}
+                            onClick={() =>
+                              setImmediate(() =>
+                                setEditingName({
+                                  id: territory.id,
+                                  name: territory.name,
+                                })
+                              )
+                            }
+                          >
+                            💱
+                          </span>
+                        </>
+                      )}
+                    </>
+                  )}
+                </td>
+                <ActiveCell active={territory.active}>
+                  {territory.active ? 'Habilitado' : 'Deshabilitado'}
+                </ActiveCell>
+                <LinkTd>
+                  <a href={buildTerritoryURL(territory.name)} target="_new">
+                    {buildTerritoryURL(territory.name)}
+                  </a>
+                  <Button
+                    color="secondary"
+                    size="sm"
+                    style={{ marginRight: '.5em' }}
+                    onClick={() => copyLink(territory.name)}
+                  >
+                    Copiar
+                  </Button>
+                </LinkTd>
+                <CampaignCell
+                  active={territory.campaignMode}
+                  completed={territory.completed === 100}
+                >
+                  {territory.campaignMode
+                    ? `Activa (${territory.completed}% completado)`
+                    : 'No'}
+                </CampaignCell>
+                <td style={{ display: 'flex', justifyContent: 'center' }}>
+                  <Button
+                    color={territory.active ? 'warning' : 'success'}
+                    size="sm"
+                    onClick={() => onUpdate(territory.id, 'active')}
+                  >
+                    {territory.active ? 'Deshabilitar' : 'Habilitar'}
+                  </Button>
+                  <Button
+                    color={territory.campaignMode ? 'secondary' : 'info'}
+                    size="sm"
+                    style={{ marginLeft: '.5em' }}
+                    onClick={
+                      territory.campaignMode
+                        ? () => askCampaignOffconfirmation(territory.id)
+                        : () => onUpdate(territory.id, 'campaignMode')
+                    }
+                  >
+                    {territory.campaignMode ? 'Desactivar' : 'Activar'} campaña
+                  </Button>
+                  <Button
+                    style={{ marginLeft: '.5em' }}
+                    color="danger "
+                    size="sm"
+                    onClick={() => askDeleteConfirmation(territory.id)}
+                    disabled={
+                      territory.id === currentTerritory.id || territory.id === 1
+                    }
+                  >
+                    Eliminar
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </Table>
       </Container>
       {idToDelete !== null && territoryToDelete && (
@@ -269,6 +376,29 @@ const ManageTerritories: React.FC = () => {
           }
           buttonColor="danger"
           confirmationLabel="Eliminar"
+        />
+      )}
+      {idToUpdate !== null && territoryToUpdate && (
+        <ConfirmationModal
+          isOpen={isCampaignOffModalOpen}
+          toggleModal={toggleCampaignOffModal}
+          onConfirm={() => onUpdate(idToUpdate, 'campaignMode')}
+          title="¡Advertencia!"
+          body={
+            <div>
+              <p>
+                Al desactivar la campaña de este territorio, la campaña se
+                reinicirá a cero y se perderá todo el progreso actual.
+              </p>
+              <p>
+                ¿Seguro que desea desactivar la campaña del siguiente
+                territorio?
+              </p>
+              <span className="d-block">Nombre: {territoryToUpdate.name}</span>
+            </div>
+          }
+          buttonColor="danger"
+          confirmationLabel="Desactivar"
         />
       )}
     </>
@@ -315,6 +445,15 @@ const StyledInput = styled(Input)<{ error?: boolean }>`
 const ActiveCell = styled.td<{ active: boolean; neutral?: boolean }>`
   color: ${({ active, theme, neutral }) =>
     active ? theme.text.colors.green : neutral ? '' : theme.text.colors.error};
+`
+
+const CampaignCell = styled.td<{ active: boolean; completed: boolean }>`
+  color: ${({ active, theme, completed }) =>
+    !active
+      ? ''
+      : completed
+      ? theme.text.colors.green
+      : theme.text.colors.yellow};
 `
 
 export { ManageTerritories }

@@ -326,7 +326,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
       {DesktopTable}
       {MobileTable}
       {CommentsSection}
-      {campaignMode && (
+      {!!campaignMode && (
         <Jumbotron fluid className="my-2">
           <Container>
             <h6>¡Estamos en campaña!</h6>

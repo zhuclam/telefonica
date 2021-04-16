@@ -7,8 +7,8 @@ const useFetch = () => {
 
   const FetchFunction = useCallback(
     (useToken: boolean = true) =>
-      new Fetch(testModeEnabled, useToken, currentTerritory),
-    [testModeEnabled, currentTerritory]
+      new Fetch(testModeEnabled, useToken, currentTerritory?.id),
+    [testModeEnabled, currentTerritory?.id]
   )
 
   return FetchFunction
