@@ -252,7 +252,9 @@ const ManageTerritories: React.FC = () => {
             {territories.map((territory) => (
               <tr key={territory.id}>
                 <td
-                  onMouseEnter={() => setHoveringId(territory.id)}
+                  onMouseEnter={() =>
+                    territory.id !== 1 && setHoveringId(territory.id)
+                  }
                   onMouseLeave={() => setHoveringId(0)}
                 >
                   {editingName?.id === territory.id ? (
