@@ -17,13 +17,14 @@ depends_on = None
 
 
 def upgrade():
-    op.drop_constraint('configurations.territory_id.foreign', 'configurations', type_='foreignkey')
-    op.drop_index('configurations.territory_id.unique', table_name='configurations')
+    # All drop_index/drop_constraints commands in this file are failing on new apps, commenting out for now
+    # I'm not sure but maybe the drop_constraint works but not the index ones?
+    #op.drop_constraint('configurations.territory_id.foreign', 'configurations', type_='foreignkey')
+    #op.drop_index('configurations.territory_id.unique', table_name='configurations')
     op.drop_column('configurations', 'campaign_mode')
     op.drop_column('configurations', 'territory_id')
-    # Missing the below line according to my logic. Also, all drop_index/drop_constraints commands in this file are failing on new apps, remove them to procceed
     #op.drop_constraint('configurations_test.territory_id.foreign', 'configurations_test', type_='foreignkey')  
-    op.drop_index('configurations.territory_id.unique', table_name='configurations_test')
+    #op.drop_index('configurations.territory_id.unique', table_name='configurations_test')
     op.drop_column('configurations_test', 'campaign_mode')
     op.drop_column('configurations_test', 'territory_id')
     op.add_column('territories', sa.Column('campaign_mode', sa.Boolean(), nullable=False, default=False))
