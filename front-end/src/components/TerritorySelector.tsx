@@ -8,6 +8,7 @@ type TerritorySelectorProps = {
   excludeCurrent?: boolean
   name?: string
   noEmptyValue?: boolean
+  availableTerritories?: 'all' | 'registered'
 }
 
 const TerritorySelector = React.forwardRef<
@@ -21,10 +22,16 @@ const TerritorySelector = React.forwardRef<
       excludeCurrent = false,
       name,
       noEmptyValue = false,
+      availableTerritories = 'all',
     },
     ref
   ) => {
-    const { currentTerritory, territories } = useConfig()
+    const { currentTerritory, territories, registeredTerritories } = useConfig()
+
+    const options =
+      availableTerritories === 'all'
+        ? territories
+        : territories.filter((t) => registeredTerritories.includes(t.id))
 
     return (
       <Input
@@ -41,7 +48,7 @@ const TerritorySelector = React.forwardRef<
         name={name}
       >
         {defaultValue === 'none' && !noEmptyValue && <option value=""></option>}
-        {territories.map((t) =>
+        {options.map((t) =>
           t.id === currentTerritory.id && excludeCurrent ? null : (
             <option key={t.id} value={t.name}>
               {t.name}

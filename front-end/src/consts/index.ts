@@ -11,6 +11,7 @@ export const LOCAL_STORAGE = {
   TEST_MODE: 'test-mode',
   DARK_MODE: 'dark-mode',
   ADVANCED_MODE: 'advanced-mode',
+  REGISTERED_TERRITORIES: 'registered-territories',
 }
 
 export const colors = {

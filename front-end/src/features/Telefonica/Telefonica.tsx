@@ -43,7 +43,7 @@ const Telefonica: React.FC = () => {
       setPhone(newPhone.phone)
       setComments(newPhone.phone.comments)
       AlertManager.show('new-phone-received', {
-        timeout: 5000,
+        timeout: 2000,
       })
       PhoneStorage.add({
         id: newPhone.phone.id,

@@ -23,6 +23,7 @@ const theme = (darkMode: boolean) => ({
       info: '#007bff',
       red: '#dc3545',
       yellow: 'gold',
+      lightblue: 'lightblue',
     },
   },
   breakpoints: {

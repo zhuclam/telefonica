@@ -7,7 +7,7 @@ import React, {
 import { useFetch } from 'hooks'
 import { Configurations, Territory } from 'types'
 import { LOCAL_STORAGE } from 'consts'
-import { inferTerritory } from 'utils'
+import { useAlerts } from 'components'
 
 interface ConfigType {
   darkModeEnabled: boolean
@@ -18,7 +18,7 @@ interface ConfigType {
   configsLoading: boolean
   configsError: boolean
   currentTerritory: Territory
-  potentialTerritory: string
+  registeredTerritories: number[]
   toggleDarkMode: (checked: boolean) => void
   toggleAdvancedMode: (checked: boolean) => void
   toggleTestMode: (checked: boolean) => void
@@ -26,6 +26,8 @@ interface ConfigType {
   updateConfigs: (configs: Configurations) => void
   setCurrentTerritory: (territory: Territory) => void
   updateTerritories: (territories: Territory[]) => void
+  registerTerritory: (id: number, name: string, isAdmin: boolean) => void
+  unregisterTerritory: (id: number) => void
 }
 
 export const ConfigContext = createContext<ConfigType>({} as ConfigType)
@@ -60,6 +62,24 @@ export const useConfig = (): ConfigType => {
   >()
   const [configsLoading, setConfigsLoading] = useState<boolean>(true)
   const [configsError, setConfigsError] = useState<boolean>(false)
+
+  const [registeredTerritories, setRegisteredTerritories] = useState<number[]>(
+    () => {
+      const stored = JSON.parse(
+        localStorage.getItem(LOCAL_STORAGE.REGISTERED_TERRITORIES) ?? '[]'
+      )
+      if (stored.length) return stored
+
+      const initialState = [1] // [base]
+      localStorage.setItem(
+        LOCAL_STORAGE.REGISTERED_TERRITORIES,
+        JSON.stringify(initialState)
+      )
+      return initialState
+    }
+  )
+
+  const { AlertManager } = useAlerts()
 
   const getConfigs = useCallback(async (Fetch: ReturnType<typeof useFetch>) => {
     try {
@@ -109,7 +129,45 @@ export const useConfig = (): ConfigType => {
     setTestModeEnabled(checked)
   }
 
-  const potentialTerritory = inferTerritory(window.location.pathname)
+  const registerTerritory = useCallback(
+    (id: number, name: string, isAdmin: boolean) => {
+      const stored: number[] = JSON.parse(
+        localStorage.getItem(LOCAL_STORAGE.REGISTERED_TERRITORIES) ?? '[]'
+      )
+      const alreadyRegistered = stored.some((i) => i === id)
+
+      if (alreadyRegistered) return
+
+      stored.push(id)
+      localStorage.setItem(
+        LOCAL_STORAGE.REGISTERED_TERRITORIES,
+        JSON.stringify(stored)
+      )
+      setRegisteredTerritories(stored)
+      !isAdmin &&
+        AlertManager.show('territory-registered-alert', {
+          timeout: 2000,
+          data: name,
+        })
+    },
+    [AlertManager]
+  )
+
+  const unregisterTerritory = useCallback((id: number) => {
+    const stored: number[] = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE.REGISTERED_TERRITORIES) ?? '[]'
+    )
+    const alreadyUnregistered = !stored.some((i) => i === id)
+
+    if (alreadyUnregistered) return
+
+    const newStore = stored.filter((i) => i !== id)
+    localStorage.setItem(
+      LOCAL_STORAGE.REGISTERED_TERRITORIES,
+      JSON.stringify(newStore)
+    )
+    setRegisteredTerritories(newStore)
+  }, [])
 
   return {
     darkModeEnabled,
@@ -120,7 +178,7 @@ export const useConfig = (): ConfigType => {
     configsLoading,
     configsError,
     currentTerritory: currentTerritory!,
-    potentialTerritory,
+    registeredTerritories,
     toggleDarkMode,
     toggleAdvancedMode,
     toggleTestMode,
@@ -128,5 +186,7 @@ export const useConfig = (): ConfigType => {
     updateConfigs,
     setCurrentTerritory,
     updateTerritories,
+    registerTerritory,
+    unregisterTerritory,
   }
 }

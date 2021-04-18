@@ -158,7 +158,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           Comentarios (opcional):
         </span>
         <Input
-          placeholder="Sus comentarios acá..."
+          placeholder="Su comentario acá..."
           type="text"
           value={comments}
           onChange={(e) => handleComments(e.target.value)}

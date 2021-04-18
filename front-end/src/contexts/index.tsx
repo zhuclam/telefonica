@@ -7,6 +7,7 @@ const ContextProviders: React.FC = ({ children }) => {
   return (
     <AlertProvider>
       <ConfigProvider>
+        {/* AuthProvider uses useFetch, which uses useConfig(), so don't swap them around */}
         <AuthProvider>{children}</AuthProvider>
       </ConfigProvider>
     </AlertProvider>
