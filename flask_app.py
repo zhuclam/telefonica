@@ -320,7 +320,7 @@ def get_phones():
         is_test = request.args.get("test")
         Telefonica_table = 'telefonica_test' if is_test else 'telefonica'
 
-        invalid_key = validate_keys(request.args, ['count', 'info', 'number', 'id', 'answeredOn', 'calledOn', 'noWeekends', 'noCall', 'nonExistent', 'comments', 'territory_id', 'any'])
+        invalid_key = validate_keys(request.args, ['count', 'info', 'number', 'id', 'answered_on', 'called_on', 'no_weekends', 'no_call', 'non_existent', 'comments', 'territory_id', 'any'])
         if invalid_key is not None:
             return jsonify(error= "Invalid '{}' key detected".format(invalid_key)), 400
 
@@ -362,13 +362,13 @@ def get_phones():
             "info" : request.args.get("info", "undefined"),
             "phone": request.args.get("number", "undefined"),
             "id": request.args.get("id", "undefined"),
-            "answered_on": request.args.get("answeredOn", "undefined"),
+            "answered_on": request.args.get("answered_on", "undefined"),
             # calledOn is the same value for both fulfilled_on and unanswered_date
-            "calledOn": request.args.get("calledOn", "undefined"),
+            "calledOn": request.args.get("called_on", "undefined"),
             # end comment
-            "no_weekends": request.args.get("noWeekends", "undefined"),
-            "no_call": request.args.get("noCall", "undefined"),
-            "non_existent": request.args.get("nonExistent", "undefined"),
+            "no_weekends": request.args.get("no_weekends", "undefined"),
+            "no_call": request.args.get("no_call", "undefined"),
+            "non_existent": request.args.get("non_existent", "undefined"),
             "comments": request.args.get("comments", "undefined"),
             "territory_id": request.args.get("territory_id", "undefined"),
         }
@@ -400,7 +400,7 @@ def get_phones():
             elif value == "*":
                 where_clause += "({} is not null and {} != '')".format(k, k)
             else:
-                if k == "calledOn":
+                if k == "called_on":
                     where_clause += "(fulfilled_on like '%{}%' or unanswered_date like '%{}%')".format(value, value)
                 else:
                     where_clause += "{} like '%{}%'".format(k, value)
