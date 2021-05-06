@@ -95,7 +95,7 @@ def next():
                 Tel.campaign_status == False,
             ]
 
-            never_called_phone = Tel().query.filter(*filters, Tel.called_on == None).order_by(func.rand()).first()
+            never_called_phone = Tel().query.filter(*filters, Tel.fulfilled_on == None).order_by(func.rand()).first()
 
             if never_called_phone:
                 phone = never_called_phone
@@ -179,7 +179,6 @@ def update_phone():
         return handle_error(e, "update_phone")
 
 
-# TODO: fix since it's clearly broken
 @app.route("/statistics", methods=["GET"])
 @cross_origin()
 @admin_required
@@ -202,7 +201,7 @@ def admin_dashboard():
             select r1.called_on as date, total_calls, different, answered, no_call, non_existent from (
                 select
                 called_on,
-                count(phone_id) as different,
+                count(distinct phone_id) as different,
                 sum(if(status = 2, 1, 0)) as non_existent,
                 sum(if(status = 3, 1, 0)) as no_call
                 from {history_table} h
@@ -212,18 +211,24 @@ def admin_dashboard():
                 group by date(called_on)
             ) r1
             inner join (
-              select
+                select
                 count(*) as total_calls,
                 called_on
-              from {history_table}
-              group by date(called_on)
+                from {history_table} h
+                inner join {telefonica_table} t
+                on h.phone_id = t.id
+                where territory_id = {territory_id}
+                group by date(called_on)
             ) r2
             on date(r2.called_on) = date(r1.called_on)
             inner join (
                 select
                 sum(if(status = 1, 1, 0)) as answered,
                 called_on
-                from {history_table}
+                from {history_table} h
+                inner join {telefonica_table} t
+                on h.phone_id = t.id
+                where territory_id = {territory_id}
                 group by date(called_on)
             ) r3
             on date(r3.called_on) = date(r1.called_on)
