@@ -252,9 +252,7 @@ const ManageTerritories: React.FC = () => {
             {territories.map((territory) => (
               <tr key={territory.id}>
                 <td
-                  onMouseEnter={() =>
-                    territory.id !== 1 && setHoveringId(territory.id)
-                  }
+                  onMouseEnter={() => setHoveringId(territory.id)}
                   onMouseLeave={() => setHoveringId(0)}
                 >
                   {editingName?.id === territory.id ? (
@@ -302,7 +300,7 @@ const ManageTerritories: React.FC = () => {
                   <Button
                     color="secondary"
                     size="sm"
-                    style={{ marginRight: '.5em' }}
+                    style={{ marginRight: '.5em', marginLeft: '.5em' }}
                     onClick={() => copyLink(territory.name)}
                   >
                     Copiar

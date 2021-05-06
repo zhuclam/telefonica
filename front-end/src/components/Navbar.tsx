@@ -104,20 +104,22 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
       <div ref={mobileNavRef}>
         <BNavbar color="dark" dark>
           <Container>
-            <NavbarBrand className="mr-auto">
-              {process.env.REACT_APP_CONG_INITIALS} Telefónica
-              {territory && isAdmin && (
-                <Version ml>
-                  <span className="d-none d-md-inline">
-                    Territorio actual:{' '}
-                  </span>
-                  <span className="d-md-none">(</span>
-                  {territory}
-                  <span className="d-md-none">)</span>
-                </Version>
-              )}
-            </NavbarBrand>
-            <NavbarToggler onClick={toggleNavbar} className="mr-2" />
+            <NavBarMain>
+              <AppName className="mr-auto">
+                {process.env.REACT_APP_CONG_INITIALS} Telefónica
+                {territory && isAdmin && (
+                  <TerritoryIndicator>
+                    <span className="d-none d-md-inline mr-1">
+                      Territorio actual:{' '}
+                    </span>
+                    <span className="d-md-none">(</span>
+                    <OverflowEllipsis>{territory}</OverflowEllipsis>
+                    <span className="d-md-none">)</span>
+                  </TerritoryIndicator>
+                )}
+              </AppName>
+              <NavbarToggler onClick={toggleNavbar} className="mr-2" />
+            </NavBarMain>
             <Collapse isOpen={!collapsed} navbar>
               <MobileNav navbar>
                 {!isAdmin && !!currentTerritory && (
@@ -224,14 +226,28 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
   )
 }
 
-const Version = styled.small<{ ml?: boolean }>`
-  color: ${({ theme }) => theme.text.colors.secondary};
+const NavBarMain = styled.div`
+  display: flex;
+  width: 100%;
+`
 
-  ${({ ml }) =>
-    ml &&
-    css`
-      margin-left: 0.3em;
-    `}
+const AppName = styled(NavbarBrand)`
+  display: flex;
+  align-items: baseline;
+  max-width: calc(100% - 56px);
+  flex: 1;
+`
+
+const TerritoryIndicator = styled.small`
+  overflow: hidden;
+  padding-right: 5px;
+  display: flex;
+  margin-left: 0.3em;
+  color: ${({ theme }) => theme.text.colors.secondary};
+`
+
+const Version = styled.small`
+  color: ${({ theme }) => theme.text.colors.secondary};
 `
 
 const MobileNav = styled(Nav)`
@@ -284,6 +300,11 @@ const CurrentTerritoryLabel = styled.span<{ alignRight: boolean }>`
 const ChangeTerritoryButton = styled(Button)`
   box-shadow: none !important;
   color: ${({ theme }) => theme.text.colors.lightgreen};
+`
+
+const OverflowEllipsis = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export { Navbar, RouterLink }

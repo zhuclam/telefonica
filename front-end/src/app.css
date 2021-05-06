@@ -15,3 +15,8 @@ input {
 .nav-link {
   color: #fff !important;
 }
+
+.btn {
+  display: inline-flex !important;
+  justify-content: center;
+}

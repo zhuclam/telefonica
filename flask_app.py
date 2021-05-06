@@ -2,6 +2,7 @@ import os
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
+from sqlalchemy.sql.expression import func
 import re
 
 # mine
@@ -83,35 +84,26 @@ def next():
     try:
         Tel = Telefonica_test if request.args.get("test") else Telefonica
         territory_id = request.args.get("territory")
+
         if request.args.get("id"):
             phone = Tel().query.get(request.args.get("id"))
         else:
-            is_weekend = days_utils.check_today_is_weekend()
-            if is_weekend:
-                phone = (
-                    Tel()
-                    .query.filter(
-                        Tel.no_call != 1,
-                        Tel.postponed_days == 0,
-                        Tel.territory_id == territory_id,
-                        Tel.campaign_status == False,
-                        Tel.no_weekends == False,
-                    )
-                    .order_by(Tel.fulfilled_on.asc())
-                    .first()
-                )
+            filters = [
+                Tel.no_call != 1,
+                Tel.postponed_days == 0,
+                Tel.territory_id == territory_id,
+                Tel.campaign_status == False,
+            ]
+
+            never_called_phone = Tel().query.filter(*filters, Tel.called_on == None).order_by(func.rand()).first()
+
+            if never_called_phone:
+                phone = never_called_phone
             else:
-                phone = (
-                    Tel()
-                    .query.filter(
-                        Tel.no_call != 1,
-                        Tel.postponed_days == 0,
-                        Tel.territory_id == territory_id,
-                        Tel.campaign_status == False,
-                    )
-                    .order_by(Tel.fulfilled_on.asc())
-                    .first()
-                )
+                is_weekend = days_utils.check_today_is_weekend()
+                if is_weekend:
+                    filters.append(Tel.no_weekends == False)
+                phone = Tel().query.filter(*filters).order_by(Tel.fulfilled_on.asc()).first()
             phone.postponed_days = 1
             phone.non_existent = 0
             db.session.commit()
@@ -187,6 +179,7 @@ def update_phone():
         return handle_error(e, "update_phone")
 
 
+# TODO: fix since it's clearly broken
 @app.route("/statistics", methods=["GET"])
 @cross_origin()
 @admin_required
@@ -205,24 +198,24 @@ def admin_dashboard():
             return ("", 204)
 
         result = db.engine.execute(
-            """
+            f"""
             select r1.called_on as date, total_calls, different, answered, no_call, non_existent from (
                 select
                 called_on,
                 count(phone_id) as different,
                 sum(if(status = 2, 1, 0)) as non_existent,
                 sum(if(status = 3, 1, 0)) as no_call
-                from {} h
-                inner join {} t
+                from {history_table} h
+                inner join {telefonica_table} t
                 on h.phone_id = t.id
-                where genuine = 1 and territory_id = {}
+                where genuine = 1 and territory_id = {territory_id}
                 group by date(called_on)
             ) r1
             inner join (
               select
                 count(*) as total_calls,
                 called_on
-              from {}
+              from {history_table}
               group by date(called_on)
             ) r2
             on date(r2.called_on) = date(r1.called_on)
@@ -230,14 +223,12 @@ def admin_dashboard():
                 select
                 sum(if(status = 1, 1, 0)) as answered,
                 called_on
-                from {}
+                from {history_table}
                 group by date(called_on)
             ) r3
             on date(r3.called_on) = date(r1.called_on)
             order by date desc
-            """.format(
-                history_table, telefonica_table, territory_id, history_table, history_table
-            )
+            """
         )
 
         def row_str_to_date(row):
@@ -250,13 +241,11 @@ def admin_dashboard():
         per_day_data = list(map(row_str_to_date, result))
 
         general_result = db.engine.execute(
-            """
+            f"""
             select sum(no_call) as no_call, count(*) as total_numbers, sum(non_existent) as non_existent
-            from {}
-            where territory_id = {}
-        """.format(
-                telefonica_table, territory_id
-            )
+            from {telefonica_table}
+            where territory_id = {territory_id}
+        """
         )
 
         general_result = list(general_result)
@@ -268,21 +257,19 @@ def admin_dashboard():
         }
 
         per_month_result = db.engine.execute(
-            """
+            f"""
             select
                 count(*) total,
                 count(distinct phone_id) different,
                 date_format(called_on, '%m/%Y') date,
                 sum(if(status = 2, 1, 0)) inexistent,
                 sum(if(status = 1, 1, 0)) answered
-            from {} h
-            inner join {} t
+            from {history_table} h
+            inner join {telefonica_table} t
             on h.phone_id = t.id
-            where territory_id = {}
+            where territory_id = {territory_id}
             group by date_format(called_on, '%Y-%m')
-            order by date desc;""".format(
-                history_table, telefonica_table, territory_id
-            )
+            order by date desc;"""
         )
 
         per_month_result = db_result_to_dict(per_month_result)

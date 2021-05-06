@@ -23,6 +23,9 @@ const TerritoryVerifier: React.FC<TerritoryVerifierProps> = ({
   const { isAdmin } = useAuth()
   const location = useLocation()
 
+  const baseTerritoryName =
+    territories.find(({ id }) => id === 1)?.name ?? 'base'
+
   const territoryData = territories.find(
     ({ name }) => name.toLowerCase() === territory.toLowerCase()
   )
@@ -55,7 +58,9 @@ const TerritoryVerifier: React.FC<TerritoryVerifierProps> = ({
     <>{children}</>
   ) : (
     <Redirect
-      to={`/base/${stripTerritory(location.pathname)}${location.search}`}
+      to={`/${baseTerritoryName}/${stripTerritory(location.pathname)}${
+        location.search
+      }`}
     />
   )
 }
