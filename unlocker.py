@@ -2,7 +2,7 @@ from bootstrap import db
 
 
 def job():
-    print ("im working daily at 02:00am")
+    print("im working daily at 02:00am")
     db.engine.execute("UPDATE telefonica SET postponed_days = postponed_days - 1 WHERE postponed_days > 0;")
 
     print("gonna drop telefonica_test")
@@ -46,14 +46,9 @@ def job():
     print("saved execution date")
 
 
-print ("init")
+print("init")
 job()
 
 
-
-
-#schedule.every(1).minutes.do(job)
-#schedule.every().hour.do(job)
-
-
-
+# schedule.every(1).minutes.do(job)
+# schedule.every().hour.do(job)

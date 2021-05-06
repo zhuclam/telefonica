@@ -10,15 +10,15 @@ from env_var import username, short_name, db_name, db_password
 from utils import to_locale_string
 
 # APP
-app = Flask(__name__, static_folder='front-end/build')
+app = Flask(__name__, static_folder="front-end/build")
 app.config["DEBUG"] = True
 
 # SQLALCHEMY
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username= short_name,
-    password= db_password,
-    hostname= username + ".mysql.pythonanywhere-services.com",
-    databasename= short_name + "$" + db_name,
+    username=short_name,
+    password=db_password,
+    hostname=username + ".mysql.pythonanywhere-services.com",
+    databasename=short_name + "$" + db_name,
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
@@ -29,13 +29,14 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # AUTH
-app.config['JWT_SECRET_KEY'] = 'reino1914'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+app.config["JWT_SECRET_KEY"] = "reino1914"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 jwt = JWTManager(app)
 
 # CORS
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config["CORS_HEADERS"] = "Content-Type"
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -45,9 +46,9 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean(), nullable=False)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       del dict['password_hash']
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        del dict["password_hash"]
+        return dict
 
 
 class Telefonica(db.Model):
@@ -66,14 +67,18 @@ class Telefonica(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
-    territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, server_default="1")
+    territory_id = db.Column(db.Integer, db.ForeignKey("territories.id"), nullable=False, server_default="1")
     campaign_status = db.Column(db.Boolean, nullable=False, server_default="0")
     territory = db.relationship("Territories")
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
+
 
 class Telefonica_test(db.Model):
     __tablename__ = "telefonica_test"
@@ -91,14 +96,18 @@ class Telefonica_test(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
-    territory_id = db.Column(db.Integer, db.ForeignKey('territories_test.id'), nullable=False, server_default="1")
+    territory_id = db.Column(db.Integer, db.ForeignKey("territories_test.id"), nullable=False, server_default="1")
     campaign_status = db.Column(db.Boolean, nullable=False, server_default="0")
     territory = db.relationship("Territories_test")
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
+
 
 class Telefonica_backup(db.Model):
     __tablename__ = "telefonica_backup"
@@ -116,14 +125,18 @@ class Telefonica_backup(db.Model):
     commented_on = db.Column(db.Date)
     answering_machine_date = db.Column(db.Date)
     no_weekends = db.Column(db.Boolean, nullable=False)
-    territory_id = db.Column(db.Integer, db.ForeignKey('territories.id'), nullable=False, server_default="1")
+    territory_id = db.Column(db.Integer, db.ForeignKey("territories.id"), nullable=False, server_default="1")
     campaign_status = db.Column(db.Boolean, nullable=False, server_default="0")
     territory = db.relationship("Territories")
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
+
 
 class History(db.Model):
     __tablename__ = "history"
@@ -134,9 +147,13 @@ class History(db.Model):
     genuine = db.Column(db.Boolean, nullable=False)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
+
 
 class History_test(db.Model):
     __tablename__ = "history_test"
@@ -147,9 +164,12 @@ class History_test(db.Model):
     genuine = db.Column(db.Boolean, nullable=False)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
 
 
 class History_backup(db.Model):
@@ -161,9 +181,13 @@ class History_backup(db.Model):
     genuine = db.Column(db.Boolean, nullable=False)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
+
 
 class Configurations(db.Model):
     __tablename__ = "configurations"
@@ -176,10 +200,14 @@ class Configurations(db.Model):
     hidden_buttons = db.Column(db.String(40), nullable=True)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       del dict['id']
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        del dict["id"]
+        return dict
+
 
 class Configurations_test(db.Model):
     __tablename__ = "configurations_test"
@@ -192,10 +220,14 @@ class Configurations_test(db.Model):
     hidden_buttons = db.Column(db.String(40), nullable=True)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       del dict['id']
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        del dict["id"]
+        return dict
+
 
 class Territories(db.Model):
     __tablename__ = "territories"
@@ -205,9 +237,13 @@ class Territories(db.Model):
     campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
+
 
 class Territories_test(db.Model):
     __tablename__ = "territories_test"
@@ -217,9 +253,13 @@ class Territories_test(db.Model):
     campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
-       dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-       dict = {key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))  for key in dict}
-       return dict
+        dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dict = {
+            key: dict.get(key) if not isinstance(dict.get(key), date) else to_locale_string(dict.get(key))
+            for key in dict
+        }
+        return dict
+
 
 class Watch_task(db.Model):
     __tablename__ = "watch_task"

@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, verify_jwt
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
 
-#mine
+# mine
 from bootstrap import User, db
 
 
@@ -13,16 +13,18 @@ def admin_required(func):
         verify_jwt_in_request()
         user = get_jwt_identity()
         if not user.get("is_admin"):
-            return jsonify({ "msg": "Only admins are allowed to access this resource." }), 403
+            return jsonify({"msg": "Only admins are allowed to access this resource."}), 403
         return func(*args, **kwargs)
+
     return wrapper
+
 
 def authenticate():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
-    username = request.json.get('username', None)
-    password = request.json.get('password', None)
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
     if not username:
         return jsonify({"msg": "Missing username parameter"}), 400
     if not password:
@@ -35,7 +37,8 @@ def authenticate():
     access_token = create_access_token(identity=user.as_dict())
     return jsonify({"access_token": access_token, "is_admin": user.is_admin}), 200
 
-def update_passwords(*, admin_p = None, user_p = None):
+
+def update_passwords(*, admin_p=None, user_p=None):
     if admin_p:
         password_hash = generate_password_hash(admin_p)
         db.engine.execute(f"UPDATE users set password_hash = '{password_hash}' where is_admin = 1")
