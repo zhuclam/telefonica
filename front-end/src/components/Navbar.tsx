@@ -47,6 +47,7 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
   const { AlertManager } = useAlerts()
 
   const {
+    CONG_INITIALS,
     darkModeEnabled,
     advancedModeEnabled,
     testModeEnabled,
@@ -106,7 +107,7 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
           <Container>
             <NavBarMain>
               <AppName className="mr-auto">
-                {process.env.REACT_APP_CONG_INITIALS} Telefónica
+                {CONG_INITIALS} Telefónica
                 {territory && isAdmin && (
                   <TerritoryIndicator>
                     <span className="d-none d-md-inline mr-1">

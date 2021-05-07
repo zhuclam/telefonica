@@ -9,13 +9,14 @@ import {
 } from 'reactstrap'
 import { Helmet } from 'react-helmet'
 import { Alert, Spinner } from 'components'
-import { useAuth } from 'hooks'
+import { useAuth, useConfig } from 'hooks'
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
 
   const { doLogin, isLoading } = useAuth()
+  const { CONG_INITIALS } = useConfig()
 
   const submit = () => {
     if (!username || !password) return
@@ -30,7 +31,7 @@ const Login: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>{process.env.REACT_APP_CONG_INITIALS} Telefónica Login</title>
+        <title>{CONG_INITIALS} Telefónica Login</title>
       </Helmet>
       <Alert name="wrong-login-credentials" position="bottom">
         Usuario o contraseña incorrectos.

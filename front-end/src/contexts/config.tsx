@@ -10,6 +10,7 @@ import { LOCAL_STORAGE } from 'consts'
 import { useAlerts } from 'components'
 
 interface ConfigType {
+  CONG_INITIALS: string
   darkModeEnabled: boolean
   advancedModeEnabled: boolean
   testModeEnabled: boolean
@@ -33,7 +34,7 @@ interface ConfigType {
 export const ConfigContext = createContext<ConfigType>({} as ConfigType)
 
 export const ConfigProvider: FunctionComponent = ({ children }) => {
-  const configValue = useConfig()
+  const configValue = useConfigInternal()
 
   return (
     <ConfigContext.Provider value={configValue}>
@@ -42,7 +43,7 @@ export const ConfigProvider: FunctionComponent = ({ children }) => {
   )
 }
 
-export const useConfig = (): ConfigType => {
+const useConfigInternal = (): ConfigType => {
   const [darkModeEnabled, setDarkModeEnabled] = useState<boolean>(
     !!localStorage.getItem(LOCAL_STORAGE.DARK_MODE)
   )
@@ -52,6 +53,8 @@ export const useConfig = (): ConfigType => {
   const [testModeEnabled, setTestModeEnabled] = useState<boolean>(
     !!localStorage.getItem(LOCAL_STORAGE.TEST_MODE)
   )
+
+  const [CONG_INITIALS, setCongInitials] = useState<string>('')
 
   const [configurations, setConfigurations] = useState<
     Configurations | undefined
@@ -87,10 +90,12 @@ export const useConfig = (): ConfigType => {
       const [err, response] = await Fetch().get<{
         configs: Configurations
         territories: Territory[]
+        initials: string
       }>('/configurations')
 
       if (err) throw err
 
+      setCongInitials(response.initials)
       setConfigurations(response.configs)
       setTerritories(response.territories)
       setConfigsError(false)
@@ -170,6 +175,7 @@ export const useConfig = (): ConfigType => {
   }, [])
 
   return {
+    CONG_INITIALS,
     darkModeEnabled,
     advancedModeEnabled,
     testModeEnabled,

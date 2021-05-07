@@ -19,6 +19,7 @@ from bootstrap import (
 from auth import authenticate, admin_required, update_passwords
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
 from services import phone_service, task_service
+from env_var import congregation_initials
 
 
 def validate_territory_param():
@@ -647,7 +648,7 @@ def get_configurations():
 
         db.session.commit()
 
-        return jsonify(configs=configs, territories=territories), 200
+        return jsonify(configs=configs, territories=territories, initials=congregation_initials), 200
 
     except Exception as e:
         return handle_error(e, "get_configurations")

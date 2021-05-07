@@ -4,6 +4,7 @@ db_name = "default"
 db_password = ""
 
 sendgrid_token = ""
+congregation_initials = "TT"
 
 ## only for initial setup (creating the users)
 admin_username = ""

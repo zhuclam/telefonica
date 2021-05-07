@@ -17,7 +17,7 @@ const Telefonica: React.FC = () => {
 
   const PhoneStorage = usePhoneStorage()
 
-  const { advancedModeEnabled, currentTerritory } = useConfig()
+  const { CONG_INITIALS, advancedModeEnabled, currentTerritory } = useConfig()
 
   const { AlertManager } = useAlerts()
 
@@ -134,7 +134,7 @@ const Telefonica: React.FC = () => {
   const Main = () => (
     <>
       <Helmet>
-        <title>{process.env.REACT_APP_CONG_INITIALS} Telefónica</title>
+        <title>{CONG_INITIALS} Telefónica</title>
       </Helmet>
       <Alert name="new-phone-received" position="top" variant="success">
         <div className="text-center">✨ ¡Nuevo número recibido! ✨🎉</div>
@@ -164,14 +164,7 @@ const Telefonica: React.FC = () => {
     </>
   )
 
-  const Help = () => (
-    <>
-      <Helmet>
-        <title>{process.env.REACT_APP_CONG_INITIALS} Telefónica Ayuda</title>
-      </Helmet>
-      <HelpSection close={closeHelpSection} />
-    </>
-  )
+  const Help = () => <HelpSection close={closeHelpSection} />
 
   return (
     <Container>
