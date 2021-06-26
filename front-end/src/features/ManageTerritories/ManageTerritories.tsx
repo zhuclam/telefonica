@@ -9,7 +9,7 @@ import {
   ConfirmationModal,
 } from 'components'
 import { useConfig, useFetch } from 'hooks'
-import styled, { css } from 'styled-components'
+import styled, { css } from 'styled'
 import { Territory } from 'types'
 
 const breadcrumbItems = [
@@ -23,23 +23,17 @@ const breadcrumbItems = [
 ]
 
 const ManageTerritories: React.FC = () => {
-  const {
-    territories,
-    currentTerritory,
-    updateTerritories,
-    getConfigs,
-  } = useConfig()
+  const { territories, currentTerritory, updateTerritories, getConfigs } =
+    useConfig()
 
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
-  const [showNewTerritoryForm, setShowNewTerritoryForm] = useState<boolean>(
-    false
-  )
+  const [showNewTerritoryForm, setShowNewTerritoryForm] =
+    useState<boolean>(false)
 
   const [hoveringId, setHoveringId] = useState<number>(0)
-  const [editingName, setEditingName] = useState<
-    { id: number; name: string } | undefined
-  >()
+  const [editingName, setEditingName] =
+    useState<{ id: number; name: string } | undefined>()
 
   const toggleNewTerritoryForm = () => setShowNewTerritoryForm((open) => !open)
 

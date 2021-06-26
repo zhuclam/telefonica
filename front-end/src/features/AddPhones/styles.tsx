@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled'
 
 export const Title = styled.h1`
   font-weight: 400;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Collapse, Table, Button } from 'reactstrap'
-import styled from 'styled-components'
+import styled from 'styled'
 import { useConfig, usePhoneStorage } from 'hooks'
 import {
   CampaignFeedback,
@@ -27,16 +27,11 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
   PhoneStorage,
 }) => {
   const [collapsed, setCollapsed] = useState<number | null>(null)
-  const {
-    isModalOpen,
-    data,
-    askEditConfirmation,
-    toggleModal,
-    reset,
-  } = useConfirmationModal<{
-    storagePhoneToConfirm: StoragePhone
-    feedbackToConfirm: FeedbackExtended
-  }>()
+  const { isModalOpen, data, askEditConfirmation, toggleModal, reset } =
+    useConfirmationModal<{
+      storagePhoneToConfirm: StoragePhone
+      feedbackToConfirm: FeedbackExtended
+    }>()
 
   const {
     configurations: { hiddenButtons },
@@ -236,6 +231,7 @@ const CollapseButtons = styled(Collapse)`
   justify-content: space-evenly;
   flex-wrap: wrap;
   transition: padding 0.3s, height 0.3s;
+  z-index: 1;
 `
 
 export { PhonesInStorage }

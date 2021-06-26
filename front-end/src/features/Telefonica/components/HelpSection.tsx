@@ -1,6 +1,6 @@
 import { useConfig } from 'hooks'
 import React from 'react'
-import styled from 'styled-components'
+import styled from 'styled'
 import { Feedback } from 'types'
 
 interface HelpSectionProps {

@@ -1,4 +1,4 @@
-import { css } from 'styled-components'
+import { css } from 'styled'
 import { AllowedPositions } from './types'
 import { popUp, popDown, popUpCentered, popDownCentered } from './animations'
 

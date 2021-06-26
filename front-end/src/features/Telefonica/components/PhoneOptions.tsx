@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from 'react'
-import styled from 'styled-components'
+import styled from 'styled'
 import { Collapse } from 'reactstrap'
 import { useFetch } from 'hooks'
 import { Alert, useAlerts, Switch } from 'components'
@@ -8,13 +8,18 @@ import { PhoneOptionsType } from 'types'
 interface PhoneOptionsProps {
   phoneId: number
   initialNoCallOnWeekends: boolean
+  initiallyOpen: boolean
+  onNoCall: false | (() => void)
 }
 
 const PhoneOptions: FunctionComponent<PhoneOptionsProps> = ({
   phoneId,
   initialNoCallOnWeekends,
+  initiallyOpen,
+  onNoCall,
 }) => {
-  const [showPhoneOptions, setShowPhoneOptions] = useState<boolean>(false)
+  const [showPhoneOptions, setShowPhoneOptions] =
+    useState<boolean>(initiallyOpen)
   const [noCallOnWeekends, setNoCallOnWeekends] = useState<boolean>(
     initialNoCallOnWeekends
   )
@@ -75,42 +80,50 @@ const PhoneOptions: FunctionComponent<PhoneOptionsProps> = ({
       </Alert>
 
       <PhoneOptionsContainer>
-        <div className="title" onClick={togglePhoneOptions}>
+        <Title onClick={togglePhoneOptions}>
           Opciones de teléfono
           <span>{showPhoneOptions ? '-' : '+'}</span>
-        </div>
+        </Title>
         <Collapse isOpen={showPhoneOptions}>
-          <div className="inner">
+          <Inner>
             <span>No llamar los fin de semana:</span>
             <Switch
-              label=""
+              id="no-weekends"
               checked={noCallOnWeekends}
               onChange={(checked) =>
                 handleOptionChanged('callOnWeekends', checked)
               }
             />
-          </div>
+          </Inner>
+          {onNoCall && (
+            <Inner>
+              <span>No visitar:</span>
+              <Switch id="no-call" checked={false} onChange={onNoCall} />
+            </Inner>
+          )}
         </Collapse>
       </PhoneOptionsContainer>
     </>
   )
 }
 
-const PhoneOptionsContainer = styled.div`
-  .title {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 500;
+const PhoneOptionsContainer = styled.div``
 
-    span {
-      font-weight: 800;
-    }
-  }
+const Inner = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.5em;
+`
 
-  .inner {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 0.5em;
+const Title = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  color: ${({ theme }) =>
+    theme.text.colors[theme.darkMode ? 'lightgreen' : 'green']};
+
+  span {
+    font-weight: 800;
   }
 `
 

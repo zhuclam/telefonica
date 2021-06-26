@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap'
-import styled, { css } from 'styled-components'
+import styled, { css } from 'styled'
 import { Alert, Breadcrumb, Spinner, useAlerts } from 'components'
 import { useFetch } from 'hooks'
 import { PasswordsPayload } from './types'

@@ -4,7 +4,7 @@ import { Alert, Breadcrumb, Spinner, useAlerts } from 'components'
 import { AddPhonePayload, AddPhoneResponse, NewPhone } from '../types'
 import { EntryData, Result, Review } from './components'
 import { useConfig, useFetch } from 'hooks'
-import { css } from 'styled-components'
+import { css } from 'styled'
 import { useHistory } from 'react-router'
 
 const breadcrumbItems = [
@@ -25,9 +25,8 @@ const AddNewPhones: React.FC = () => {
   const [step, setStep] = useState<number>(1)
   const [entryData, setEntryData] = useState<NewPhone[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [serverResponse, setServerResponse] = useState<AddPhoneResponse | null>(
-    null
-  )
+  const [serverResponse, setServerResponse] =
+    useState<AddPhoneResponse | null>(null)
   const { currentTerritory } = useConfig()
 
   const Fetch = useFetch()

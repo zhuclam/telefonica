@@ -1,6 +1,6 @@
 import React from 'react'
 import { Spinner as RSSpinner, Container } from 'reactstrap'
-import styled, { css } from 'styled-components'
+import styled, { css } from 'styled'
 
 const colors = ['success', 'danger', 'warning', 'info']
 const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)]

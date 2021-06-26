@@ -1,5 +1,5 @@
 import React from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled'
 import { useConfig } from 'hooks'
 import { theme } from './theme'
 

@@ -1,7 +1,7 @@
 import { useConfig } from 'hooks'
 import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import { Button, Col, Row } from 'reactstrap'
-import styled from 'styled-components'
+import styled from 'styled'
 import { Buttons, Description, Title } from '../../styles'
 import { NewPhone } from '../../types'
 import { generateRandomInfo, generateRandomNumber } from '../../utils'
@@ -52,19 +52,19 @@ const EntryData: React.FC<EntryDataProps> = ({
     setAdditional((prev) => prev + info + '\n')
   }
 
-  const handleIndicatorsScroll = (type: 'number' | 'additional') => (
-    e: React.UIEvent<HTMLTextAreaElement, UIEvent>
-  ) => {
-    const position: number =
-      // @ts-ignore
-      e.target.scrollTop
-    const el =
-      type === 'number'
-        ? numberLineIndicatorRef?.current
-        : additionalLineIndicatorRef?.current
-    if (!el) return
-    el.scroll(0, position)
-  }
+  const handleIndicatorsScroll =
+    (type: 'number' | 'additional') =>
+    (e: React.UIEvent<HTMLTextAreaElement, UIEvent>) => {
+      const position: number =
+        // @ts-ignore
+        e.target.scrollTop
+      const el =
+        type === 'number'
+          ? numberLineIndicatorRef?.current
+          : additionalLineIndicatorRef?.current
+      if (!el) return
+      el.scroll(0, position)
+    }
 
   const onNumberScroll = handleIndicatorsScroll('number')
   const onAdditionalScroll = handleIndicatorsScroll('additional')

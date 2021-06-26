@@ -10,7 +10,7 @@ import {
   Container,
   Button,
 } from 'reactstrap'
-import styled, { css } from 'styled-components'
+import styled, { css } from 'styled'
 import { Link } from 'react-router-dom'
 import { useAuth, useConfig } from 'hooks'
 import { useOnClickOutside } from 'hooks/utils'
@@ -25,9 +25,8 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
   const [showInstallButton, setShowInstallButton] = useState<boolean>(true)
   const installEventRef = useRef<any>(null)
 
-  const [isTerritoryChangerOpen, setIsTerritoryChangerOpen] = useState<boolean>(
-    false
-  )
+  const [isTerritoryChangerOpen, setIsTerritoryChangerOpen] =
+    useState<boolean>(false)
 
   const toggleTerritoryChanger = () =>
     setIsTerritoryChangerOpen(!isTerritoryChangerOpen)
@@ -81,8 +80,9 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
     })
     // @ts-ignore
     const isInWebAppiOS = window.navigator.standalone === true
-    const isInWebAppChrome = window.matchMedia('(display-mode: standalone)')
-      .matches
+    const isInWebAppChrome = window.matchMedia(
+      '(display-mode: standalone)'
+    ).matches
 
     if (isInWebAppiOS || isInWebAppChrome) setShowInstallButton(false)
   }, [])

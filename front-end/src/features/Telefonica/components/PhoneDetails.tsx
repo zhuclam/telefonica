@@ -1,6 +1,6 @@
 import React from 'react'
 import { useConfig } from 'hooks'
-import styled from 'styled-components'
+import styled from 'styled'
 import { CampaignFeedback, Feedback, FeedbackExtended, Phone } from 'types'
 import { ConfirmationModal, useConfirmationModal } from 'components'
 import { PhoneLink } from './PhoneLink'
@@ -326,6 +326,16 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
       {DesktopTable}
       {MobileTable}
       {CommentsSection}
+      {!!advancedModeEnabled && (
+        <MiniSection>
+          <PhoneOptions
+            phoneId={phone.id}
+            initialNoCallOnWeekends={phone.noWeekends}
+            initiallyOpen={false}
+            onNoCall={!!campaignMode && handleNoCall}
+          />
+        </MiniSection>
+      )}
       {!!campaignMode && (
         <Jumbotron fluid className="my-2">
           <Container>
@@ -335,14 +345,6 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             </small>
           </Container>
         </Jumbotron>
-      )}
-      {advancedModeEnabled && !campaignMode && (
-        <MiniSection>
-          <PhoneOptions
-            phoneId={phone.id}
-            initialNoCallOnWeekends={phone.noWeekends}
-          />
-        </MiniSection>
       )}
       {ButtonGroup}
       {advancedModeEnabled && !campaignMode && helpButton}

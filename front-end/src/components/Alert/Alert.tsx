@@ -9,7 +9,7 @@ import React, {
   useRef,
 } from 'react'
 import ReactDOM from 'react-dom'
-import styled, { css, Keyframes } from 'styled-components'
+import styled, { css, Keyframes } from 'styled'
 import { AlertContext } from './Provider'
 import { fadeIn, fadeOut } from './animations'
 import { AllowedPositions } from './types'
@@ -85,9 +85,9 @@ export const Alert: FunctionComponent<AlertProps> = ({
 
   if (!isShowing) return null
 
-  const processedChildren = (typeof children === 'function'
-    ? children(storedData)
-    : children) as ReactElement | ReactElement[] | string
+  const processedChildren = (
+    typeof children === 'function' ? children(storedData) : children
+  ) as ReactElement | ReactElement[] | string
 
   const Snack = (
     <Container

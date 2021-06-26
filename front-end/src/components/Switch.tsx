@@ -1,21 +1,27 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled from 'styled'
 
 export interface SwitchProps {
   label?: string
+  id?: string
   onChange: (checked: boolean) => void
   checked: boolean
 }
 
-const Switch: React.FC<SwitchProps> = ({ label = '', onChange, checked }) => (
+const Switch: React.FC<SwitchProps> = ({
+  label = '',
+  id = label,
+  onChange,
+  checked,
+}) => (
   <SwitchContainer>
     <input
       type="checkbox"
-      id={`${label.split(' ').join('-')}-check`}
+      id={`${id.split(' ').join('-')}-check`}
       checked={checked}
       onChange={(e) => onChange(e.target.checked)}
     />
-    <label htmlFor={`${label.split(' ').join('-')}-check`}>
+    <label htmlFor={`${id.split(' ').join('-')}-check`}>
       {label || <span>&nbsp;</span>}
     </label>
   </SwitchContainer>

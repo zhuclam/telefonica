@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Container } from 'reactstrap'
-import styled from 'styled-components'
+import styled from 'styled'
 import { Buttons, Description, Title } from '../../styles'
 import { NewPhone } from '../../types'
 

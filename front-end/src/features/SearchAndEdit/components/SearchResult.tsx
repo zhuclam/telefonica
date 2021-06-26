@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Button, Table, Input } from 'reactstrap'
-import styled, { css } from 'styled-components'
+import styled, { css } from 'styled'
 import { Phone } from 'types'
 import { useConfig } from 'hooks'
 import { Spinner } from 'components'

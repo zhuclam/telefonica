@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Container } from 'reactstrap'
-import styled from 'styled-components'
+import styled from 'styled'
 
 interface ErrorDisplayProps {
   message?: ReactNode

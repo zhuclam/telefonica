@@ -1,15 +1,14 @@
 import React, { useState } from 'react'
 import { Container, Jumbotron, Button, Collapse } from 'reactstrap'
-import styled from 'styled-components'
+import styled from 'styled'
 import { RouterLink, TerritorySelector } from 'components'
 import { useConfig } from 'hooks'
 import { useHistory, useLocation } from 'react-router'
 
 const AdminPanel: React.FC = () => {
   const { currentTerritory } = useConfig()
-  const [isTerritoryChangerOpen, setIsTerritoryChangerOpen] = useState<boolean>(
-    false
-  )
+  const [isTerritoryChangerOpen, setIsTerritoryChangerOpen] =
+    useState<boolean>(false)
 
   const toggleTerritoryChanger = () =>
     setIsTerritoryChangerOpen(!isTerritoryChangerOpen)

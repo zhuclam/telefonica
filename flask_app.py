@@ -424,8 +424,8 @@ def get_phones():
             "phone": request.args.get("number", "undefined"),
             "id": request.args.get("id", "undefined"),
             "answered_on": request.args.get("answered_on", "undefined"),
-            # calledOn is the same value for both fulfilled_on and unanswered_date
-            "calledOn": request.args.get("called_on", "undefined"),
+            # called_on is the same value for both fulfilled_on and unanswered_date
+            "called_on": request.args.get("called_on", "undefined"),
             # end comment
             "no_weekends": request.args.get("no_weekends", "undefined"),
             "no_call": request.args.get("no_call", "undefined"),
@@ -458,7 +458,7 @@ def get_phones():
                 value = 1
 
             if value is None:
-                if k == "calledOn":
+                if k == "called_on":
                     where_clause += "fulfilled_on is null and unanswered_date is null".format(value, value)
                 else:
                     where_clause += "{} is null".format(k)
