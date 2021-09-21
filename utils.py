@@ -5,6 +5,7 @@ from flask import jsonify
 from env_var import username
 import calendar
 import locale
+from decimal import Decimal
 
 locale.setlocale(locale.LC_TIME, "es_AR")
 
@@ -17,7 +18,13 @@ def handle_error(e, id):
 
 def db_result_to_dict(db_result):
     def to_dict(row):
-        return dict(row)
+        dictionary = dict(row)
+
+        for key, value in dictionary.items():
+            if isinstance(value, Decimal):
+                dictionary[key] = float(value)
+
+        return dictionary
 
     return list(map(to_dict, db_result))
 
