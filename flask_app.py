@@ -254,7 +254,7 @@ def admin_dashboard():
         """
         )
 
-        general_result = list(general_result)
+        general_result = db_result_to_dict(general_result)
 
         general_data = {
             "no_call": general_result[0]["no_call"],
