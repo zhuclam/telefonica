@@ -3,7 +3,7 @@ from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
 from sqlalchemy.sql.expression import func
-import re
+from decimal import Decimal
 
 # mine
 from bootstrap import (
@@ -244,7 +244,7 @@ def admin_dashboard():
 
             return row
 
-        per_day_data = list(map(row_str_to_date, result))
+        per_day_data = list(map(row_str_to_date, db_result_to_dict(result)))
 
         general_result = db.engine.execute(
             f"""
