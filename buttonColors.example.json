@@ -1,0 +1,10 @@
+{
+    "unanswered": "danger",
+    "answered": "success",
+    "nonExistent": "dark",
+    "noCall": "warning",
+    "answeringMachine": "primary",
+    "postponed": "info",
+    "ignored": "secondary",
+    "rushed": "success"
+}

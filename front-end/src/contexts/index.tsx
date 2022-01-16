@@ -2,6 +2,7 @@ import React from 'react'
 import { ConfigContext, ConfigProvider } from './config'
 import { AuthContext, AuthProvider } from './auth'
 import { TranslationContext, TranslationProvider } from './translation'
+import { ButtonColorContext, ButtonColorProvider } from './buttonColor'
 import { AlertProvider } from 'components/Alert'
 
 const ContextProviders: React.FC = ({ children }) => {
@@ -10,7 +11,9 @@ const ContextProviders: React.FC = ({ children }) => {
       <ConfigProvider>
         {/* All providers that use useFetch must be below ConfigProvider, I think... */}
         <TranslationProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <ButtonColorProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ButtonColorProvider>
         </TranslationProvider>
       </ConfigProvider>
     </AlertProvider>
@@ -24,3 +27,4 @@ export { ContextProviders }
 export { ConfigContext }
 export { AuthContext }
 export { TranslationContext }
+export { ButtonColorContext }

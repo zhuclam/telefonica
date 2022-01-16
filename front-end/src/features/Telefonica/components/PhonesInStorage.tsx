@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Collapse, Table, Button } from 'reactstrap'
 import styled from 'styled'
-import { useConfig, usePhoneStorage } from 'hooks'
+import { useConfig, usePhoneStorage, useButtonColor } from 'hooks'
 import {
   CampaignFeedback,
   Feedback,
@@ -9,7 +9,7 @@ import {
   StoragePhone,
 } from 'types'
 import { isToday } from 'utils'
-import { colors, labels } from 'consts'
+import { labels } from 'consts'
 import { useConfirmationModal, ConfirmationModal } from 'components'
 
 interface PhonesInStorageProps {
@@ -37,6 +37,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     configurations: { hiddenButtons },
     currentTerritory: { campaignMode },
   } = useConfig()
+  const { buttonColors } = useButtonColor()
 
   const isAllowed = (f: FeedbackExtended) =>
     !hiddenButtons.split(',').includes(f.toString()) &&
@@ -77,13 +78,24 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     resetStates()
   }
 
+  const feedbackColor = {
+    0: buttonColors.unanswered,
+    1: buttonColors.answered,
+    2: buttonColors.nonExistent,
+    3: buttonColors.noCall,
+    4: buttonColors.answeringMachine,
+    5: buttonColors.postponed,
+    6: buttonColors.ignored,
+    7: buttonColors.rushed,
+  }
+
   const phones = PhoneStorage.getAll()
 
   const rows = phones.reverse().map((p, i) => {
     if (p.id === currentPhoneId) return null
 
     const phoneIsFromToday = isToday(p.savedOn)
-    const color = p.status !== null ? colors[p.status] : ''
+    const color = p.status !== null ? feedbackColor[p.status] : ''
 
     const statusLabel =
       !phoneIsFromToday && p.status === null
@@ -109,77 +121,85 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
           <CollapseButtons isOpen={isCollapsed}>
             {p.status !== CampaignFeedback.RUSHED &&
               isAllowed(CampaignFeedback.RUSHED) && (
-                <button
-                  className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
+                <Button
+                  color={buttonColors.rushed}
+                  className="btn-sm d-inline-block mr-1 mb-2"
                   onClick={() =>
                     onAskEditConfirmation(CampaignFeedback.RUSHED, p)
                   }
                 >
                   Completado
-                </button>
+                </Button>
               )}
             {p.status !== Feedback.ANSWERED && isAllowed(Feedback.ANSWERED) && (
-              <button
-                className="btn btn-success btn-sm d-inline-block mr-1 mb-2"
+              <Button
+                color={buttonColors.answered}
+                className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
               >
                 Atendió
-              </button>
+              </Button>
             )}
             {p.status !== Feedback.UNANSWERED &&
               isAllowed(Feedback.UNANSWERED) && (
-                <button
-                  className="btn btn-danger btn-sm d-inline-block mr-1 mb-2"
+                <Button
+                  color={buttonColors.unanswered}
+                  className="btn-sm d-inline-block mr-1 mb-2"
                   onClick={() => onAskEditConfirmation(Feedback.UNANSWERED, p)}
                 >
                   No en casa
-                </button>
+                </Button>
               )}
             {p.status !== Feedback.ANSWERING_MACHINE &&
               isAllowed(Feedback.ANSWERING_MACHINE) && (
-                <button
-                  className="btn btn-primary btn-sm d-inline-block mr-1 mb-2"
+                <Button
+                  color={buttonColors.answeringMachine}
+                  className="btn-sm d-inline-block mr-1 mb-2"
                   onClick={() =>
                     onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
                   }
                 >
                   Contestador
-                </button>
+                </Button>
               )}
             {p.status !== Feedback.POSTPONE && isAllowed(Feedback.POSTPONE) && (
-              <button
-                className="btn btn-info btn-sm d-inline-block mr-1 mb-2"
+              <Button
+                color={buttonColors.postponed}
+                className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
               >
                 Aplazar
-              </button>
+              </Button>
             )}
             {p.status !== Feedback.IGNORE && isAllowed(Feedback.IGNORE) && (
-              <button
-                className="btn btn-secondary btn-sm d-inline-block mr-1 mb-2"
+              <Button
+                color={buttonColors.ignored}
+                className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
               >
                 Ignorar
-              </button>
+              </Button>
             )}
             {p.status !== Feedback.NO_CALL && isAllowed(Feedback.NO_CALL) && (
-              <button
-                className="btn btn-warning btn-sm d-inline-block mr-1 mb-2"
+              <Button
+                color={buttonColors.noCall}
+                className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
               >
                 No visitar
-              </button>
+              </Button>
             )}
             {p.status !== Feedback.NON_EXISTENT &&
               isAllowed(Feedback.NON_EXISTENT) && (
-                <button
-                  className="btn btn-dark btn-sm d-inline-block mr-1 mb-2"
+                <Button
+                  color={buttonColors.nonExistent}
+                  className="btn-sm d-inline-block mr-1 mb-2"
                   onClick={() =>
                     onAskEditConfirmation(Feedback.NON_EXISTENT, p)
                   }
                 >
                   No existe
-                </button>
+                </Button>
               )}
           </CollapseButtons>
         </td>
@@ -212,7 +232,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
           toggleModal={toggleModal}
           onConfirm={doConfirm}
           title="¿Seguro?"
-          buttonColor={colors[feedbackToConfirm]}
+          buttonColor={feedbackColor[feedbackToConfirm]}
           confirmationLabel={labels[feedbackToConfirm]}
         />
       )}

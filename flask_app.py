@@ -57,6 +57,16 @@ def get_translations():
     except Exception as e:
         return handle_error(e, "get_translations")
 
+@app.route("/button_colors", methods=["GET"])
+@cross_origin()
+def get_button_colors():
+    try:
+        if os.path.exists("./mysite/buttonColors.json"):
+            with open("./mysite/buttonColors.json", encoding = 'utf-8') as f:
+                return jsonify(json.load(f)), 200
+        return ""
+    except Exception as e:
+        return handle_error(e, "get_button_colors")
 
 @app.route("/login", methods=["POST"])
 @cross_origin()

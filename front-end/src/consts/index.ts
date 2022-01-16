@@ -15,17 +15,6 @@ export const LOCAL_STORAGE = {
   TRANSLATION_WANTED: 'translation-wanted',
 }
 
-export const colors = {
-  0: 'danger',
-  1: 'success',
-  2: 'dark',
-  3: 'warning',
-  4: 'primary',
-  5: 'info',
-  6: 'secondary',
-  7: 'success',
-}
-
 export const labels: Record<FeedbackExtended, string> = {
   [Feedback.UNANSWERED]: 'No en casa',
   [Feedback.ANSWERED]: 'Atendió',

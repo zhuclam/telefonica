@@ -1,4 +1,4 @@
-import { useConfig } from 'hooks'
+import { useConfig, useButtonColor } from 'hooks'
 import React from 'react'
 import styled from 'styled'
 import { Feedback } from 'types'
@@ -9,6 +9,7 @@ interface HelpSectionProps {
 
 const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
   const { advancedModeEnabled, configurations } = useConfig()
+  const { buttonColors } = useButtonColor()
 
   const isAllowed = (f: Feedback) =>
     !configurations.hiddenButtons.split(',').includes(f.toString())
@@ -18,7 +19,8 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
       {isAllowed(Feedback.ANSWERED) && (
         <div className="text-center">
           <h6>
-            ¿Qué hace el botón de <span className="text-success">atendió</span>?
+            ¿Qué hace el botón de{' '}
+            <span className={`text-${buttonColors.answered}`}>atendió</span>?
           </h6>
           <p>
             Manda el número al final de la cola y registra la fecha en que se
@@ -30,7 +32,10 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
         <div className="text-center">
           <h6>
             ¿Qué hace el botón de{' '}
-            <span className="text-danger">no en casa</span>?
+            <span className={`text-${buttonColors.unanswered}`}>
+              no en casa
+            </span>
+            ?
           </h6>
           <p>
             Guarda el número para llamarlo de vuelta mañana, hasta un máximo de{' '}
@@ -45,7 +50,10 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
             <div className="text-center">
               <h6>
                 ¿Qué hace el botón de{' '}
-                <span className="text-primary">contestador</span>?
+                <span className={`text-${buttonColors.answeringMachine}`}>
+                  contestador
+                </span>
+                ?
               </h6>
               <p>
                 Registra la última vez que se le dejó un mensaje en el
@@ -66,7 +74,10 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
           {isAllowed(Feedback.POSTPONE) && (
             <div className="text-center">
               <h6>
-                ¿Qué hace el botón de <span className="text-info">aplazar</span>
+                ¿Qué hace el botón de{' '}
+                <span className={`text-${buttonColors.postponed}`}>
+                  aplazar
+                </span>
                 ?
               </h6>
               <p>
@@ -80,7 +91,7 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
             <div className="text-center">
               <h6>
                 ¿Qué hace el botón de{' '}
-                <span className="text-secondary">ignorar</span>?
+                <span className={`text-${buttonColors.ignored}`}>ignorar</span>?
               </h6>
               <p>Manda el número directamente al final de la cola.</p>
             </div>
@@ -91,7 +102,7 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
         <div className="text-center">
           <h6>
             ¿Qué hace el botón de{' '}
-            <span className="text-warning">no visitar</span>?
+            <span className={`text-${buttonColors.noCall}`}>no visitar</span>?
           </h6>
           <p>
             Quita el número de la cola. No se lo borra pero tampoco se lo
@@ -103,7 +114,10 @@ const HelpSection: React.FC<HelpSectionProps> = ({ close }) => {
         <div className="text-center">
           <h6>
             ¿Qué hace el botón de{' '}
-            <span className="text-secondary">no existe</span>?
+            <span className={`text-${buttonColors.nonExistent}`}>
+              no existe
+            </span>
+            ?
           </h6>
           <p>
             Suspende el número durante {configurations.nonExistentPostponedDays}{' '}
