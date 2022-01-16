@@ -750,12 +750,12 @@ def create_territory():
         Terr = Territories_test if is_test else Territories
 
         name = data.get("name")
-        is_valid_name = re.search("[^\w\-\d]", name) is None and Terr().query.filter(Terr.name == name).first() is None
+        is_valid_name = Terr().query.filter(Terr.name == name).first() is None
 
         if not is_valid_name:
             return jsonify(error="invalid or duplicated name"), 400
 
-        new_territory = Terr(name=name, active=1, campaign_mode=0)
+        new_territory = Terr(name=name, active=1, campaign_mode=0, public=0)
         db.session.add(new_territory)
         db.session.commit()
 
@@ -778,17 +778,19 @@ def modify_territory(territory_id):
         data = request.get_json()
 
         validate("body", data, lambda d: len(d) > 0)
-        invalid_key = validate_keys(data, ["name", "active", "campaign_mode"])
+        invalid_key = validate_keys(data, ["name", "active", "campaign_mode", "public"])
         if invalid_key is not None:
             return jsonify(error="Invalid '{}' key detected".format(invalid_key)), 400
 
         name = data.get("name")
         active = data.get("active")
         campaign_mode = data.get("campaign_mode")
+        public = data.get("public")
 
-        validate("body.name", name, lambda name: re.search("[^\w\-\d]", name) is None, optional=True)
+        validate("body.name", name, lambda name: len(name) > 0, optional=True)
         validate("body.active", active, lambda a: a in (0, 1, True, False), optional=True)
         validate("body.campaign_mode", campaign_mode, lambda a: a in (0, 1, True, False), optional=True)
+        validate("body.public", public, lambda a: a in (0, 1, True, False), optional=True)
 
         Terr = Territories_test if is_test else Territories
         telefonica_table = "telefonica_test" if is_test else "telefonica"

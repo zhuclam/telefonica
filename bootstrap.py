@@ -235,6 +235,7 @@ class Territories(db.Model):
     name = db.Column(db.String(40), nullable=False, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=False)
     campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
+    public = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
         dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -251,6 +252,7 @@ class Territories_test(db.Model):
     name = db.Column(db.String(40), nullable=False, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=False)
     campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
+    public = db.Column(db.Boolean, nullable=False, default=False)
 
     def as_dict(self):
         dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
