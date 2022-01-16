@@ -232,7 +232,7 @@ class Configurations_test(db.Model):
 class Territories(db.Model):
     __tablename__ = "territories"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40), nullable=False, unique=True)
+    name = db.Column(db.String(120), nullable=False, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=False)
     campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
     public = db.Column(db.Boolean, nullable=False, default=False)
@@ -249,7 +249,7 @@ class Territories(db.Model):
 class Territories_test(db.Model):
     __tablename__ = "territories_test"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40), nullable=False, unique=True)
+    name = db.Column(db.String(120), nullable=False, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=False)
     campaign_mode = db.Column(db.Boolean, nullable=False, default=False)
     public = db.Column(db.Boolean, nullable=False, default=False)

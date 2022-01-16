@@ -71,11 +71,18 @@ export interface Configurations {
 export interface Territory {
   id: number
   name: string
-  active: boolean
+  /**
+   * This should be a boolean, but BE is sending back a 0 | 1 for now, beware
+   */
+  active: number
   /**
    * This should be a boolean, but BE is sending back a 0 | 1 for now, beware
    */
   campaignMode: number
   completed: number
   totalNumbers: number
+  /**
+   * This should be a boolean, but BE is sending back a 0 | 1 for now, beware
+   */
+  public: number
 }

@@ -8,8 +8,8 @@ import {
   Jumbotron,
 } from 'reactstrap'
 import { Helmet } from 'react-helmet'
-import { Alert, Spinner } from 'components'
-import { useAuth, useConfig } from 'hooks'
+import { Alert, Spinner, Switch } from 'components'
+import { useAuth, useConfig, useTranslation } from 'hooks'
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('')
@@ -17,6 +17,12 @@ const Login: React.FC = () => {
 
   const { doLogin, isLoading } = useAuth()
   const { CONG_INITIALS } = useConfig()
+  const {
+    translationWanted,
+    toggleTranslationWanted,
+    translations,
+    shouldTranslate,
+  } = useTranslation()
 
   const submit = () => {
     if (!username || !password) return
@@ -38,13 +44,25 @@ const Login: React.FC = () => {
       </Alert>
       <Jumbotron fluid>
         <Container>
-          <h1 className="display-5">Iniciar sesión</h1>
+          <h1 className="display-5">
+            {!shouldTranslate ? 'Iniciar sesión' : translations?.['a']}
+          </h1>
           <p className="lead">
             Solicite los datos de ingreso a su superintendente de servicio.
           </p>
         </Container>
       </Jumbotron>
       <Container>
+        {translations && (
+          <div className="mb-4">
+            <Switch
+              label={translations['a0']}
+              checked={translationWanted}
+              onChange={toggleTranslationWanted}
+              theme="white"
+            />
+          </div>
+        )}
         <FormGroup>
           <Label for="username">Usuario</Label>
           <Input

@@ -12,7 +12,7 @@ import {
 } from 'reactstrap'
 import styled, { css } from 'styled'
 import { Link } from 'react-router-dom'
-import { useAuth, useConfig } from 'hooks'
+import { useAuth, useConfig, useTranslation } from 'hooks'
 import { useOnClickOutside } from 'hooks/utils'
 import { Alert, useAlerts, Switch } from '.'
 import { useHistory, useLocation } from 'react-router'
@@ -35,7 +35,8 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
   const location = useLocation()
 
   const handleTerritoryChange = (territoryName: string) => {
-    history.push(`/${territoryName}/admin-panel/${location.search}`)
+    const encoded = encodeURIComponent(territoryName)
+    history.push(`/${encoded}/admin-panel/${location.search}`)
     setIsTerritoryChangerOpen(false)
   }
 
@@ -52,12 +53,18 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
     testModeEnabled,
     currentTerritory,
     registeredTerritories,
+    territories,
     toggleAdvancedMode,
     toggleDarkMode,
     toggleTestMode,
   } = useConfig()
 
+  const availableTerritories =
+    territories.filter((t) => !!t.public).length + registeredTerritories.length
+
   const { isAuth, isAdmin, doLogout } = useAuth()
+  const { translationWanted, toggleTranslationWanted, translations } =
+    useTranslation()
 
   const onLogout = () => {
     doLogout()
@@ -107,16 +114,19 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
           <Container>
             <NavBarMain>
               <AppName className="mr-auto">
-                {CONG_INITIALS} Telefónica
+                {CONG_INITIALS && CONG_INITIALS.length < 5
+                  ? `${CONG_INITIALS} `
+                  : ''}
+                Telefónica
                 {territory && isAdmin && (
-                  <TerritoryIndicator>
+                  <AdminTerritoryIndicator>
                     <span className="d-none d-md-inline mr-1">
                       Territorio actual:{' '}
                     </span>
                     <span className="d-md-none">(</span>
                     <OverflowEllipsis>{territory}</OverflowEllipsis>
                     <span className="d-md-none">)</span>
-                  </TerritoryIndicator>
+                  </AdminTerritoryIndicator>
                 )}
               </AppName>
               <NavbarToggler onClick={toggleNavbar} className="mr-2" />
@@ -125,13 +135,11 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
               <MobileNav navbar>
                 {!isAdmin && !!currentTerritory && (
                   <>
-                    <CurrentTerritoryLabel
-                      alignRight={registeredTerritories.length < 2}
-                    >
-                      <span>
+                    <CurrentTerritoryLabel>
+                      <span style={{ display: 'block' }}>
                         Territorio actual: <span>{currentTerritory.name}</span>{' '}
                       </span>
-                      {registeredTerritories.length >= 2 && (
+                      {availableTerritories >= 2 && (
                         <ChangeTerritoryButton
                           color="link"
                           onClick={toggleTerritoryChanger}
@@ -147,11 +155,20 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                       <TerritorySelector
                         defaultValue="current"
                         onChange={handleTerritoryChange}
-                        availableTerritories="registered"
+                        availableTerritories="registered&public"
                       />
                     </Collapse>
                     <Separator spacing="0.5rem" />
                   </>
+                )}
+                {translations && (
+                  <NavItem>
+                    <Switch
+                      label={translations['a0']}
+                      checked={translationWanted}
+                      onChange={toggleTranslationWanted}
+                    />
+                  </NavItem>
                 )}
                 <NavItem>
                   <Switch
@@ -217,7 +234,10 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                     </Button>
                   </Separator>
                 )}
-                <Version>v{process.env.REACT_APP_VERSION}</Version>
+                {CONG_INITIALS && CONG_INITIALS.length >= 5 && (
+                  <Legend>{CONG_INITIALS}</Legend>
+                )}
+                <Legend>v{process.env.REACT_APP_VERSION}</Legend>
               </MobileNav>
             </Collapse>
           </Container>
@@ -239,15 +259,15 @@ const AppName = styled(NavbarBrand)`
   flex: 1;
 `
 
-const TerritoryIndicator = styled.small`
+const AdminTerritoryIndicator = styled.small`
   overflow: hidden;
-  padding-right: 5px;
+  padding-right: 15px;
   display: flex;
-  margin-left: 0.3em;
+  margin-left: auto;
   color: ${({ theme }) => theme.text.colors.secondary};
 `
 
-const Version = styled.small`
+const Legend = styled.small`
   color: ${({ theme }) => theme.text.colors.secondary};
 `
 
@@ -284,10 +304,8 @@ const Separator = styled.div<{ spacing?: string }>`
     `}
 `
 
-const CurrentTerritoryLabel = styled.span<{ alignRight: boolean }>`
-  display: flex;
-  justify-content: ${({ alignRight }) =>
-    alignRight ? 'flex-end' : 'space-between'};
+const CurrentTerritoryLabel = styled.span`
+  display: block;
   align-items: center;
   > span {
     color: ${({ theme }) => theme.text.colors.yellow};
@@ -300,12 +318,14 @@ const CurrentTerritoryLabel = styled.span<{ alignRight: boolean }>`
 
 const ChangeTerritoryButton = styled(Button)`
   box-shadow: none !important;
+  padding-right: 0;
   color: ${({ theme }) => theme.text.colors.lightgreen};
 `
 
 const OverflowEllipsis = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
+  color: ${({ theme }) => theme.text.colors.yellow};
 `
 
 export { Navbar, RouterLink }

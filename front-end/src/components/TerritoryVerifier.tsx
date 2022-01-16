@@ -27,7 +27,8 @@ const TerritoryVerifier: React.FC<TerritoryVerifierProps> = ({
     territories.find(({ id }) => id === 1)?.name ?? 'base'
 
   const territoryData = territories.find(
-    ({ name }) => name.toLowerCase() === territory.toLowerCase()
+    ({ name }) =>
+      name.toLowerCase() === decodeURIComponent(territory).toLowerCase()
   )
   const isValid = !!territoryData
 
@@ -38,7 +39,7 @@ const TerritoryVerifier: React.FC<TerritoryVerifierProps> = ({
   useEffect(() => {
     // register territory once we checked if is valid
     if (!territories.length) return
-    if (isValid)
+    if (isValid && !territoryData!.public)
       registerTerritory(territoryData!.id, territoryData!.name, isAdmin)
   }, [territories, isValid, territoryData, registerTerritory, isAdmin])
 

@@ -8,7 +8,7 @@ type TerritorySelectorProps = {
   excludeCurrent?: boolean
   name?: string
   noEmptyValue?: boolean
-  availableTerritories?: 'all' | 'registered'
+  availableTerritories?: 'all' | 'registered&public'
 }
 
 const TerritorySelector = React.forwardRef<
@@ -31,7 +31,9 @@ const TerritorySelector = React.forwardRef<
     const options =
       availableTerritories === 'all'
         ? territories
-        : territories.filter((t) => registeredTerritories.includes(t.id))
+        : territories.filter(
+            (t) => registeredTerritories.includes(t.id) || !!t.public
+          )
 
     return (
       <Input

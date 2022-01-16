@@ -7,6 +7,7 @@ import {
   useAlerts,
   useConfirmationModal,
   ConfirmationModal,
+  Switch,
 } from 'components'
 import { useConfig, useFetch } from 'hooks'
 import styled, { css } from 'styled'
@@ -70,15 +71,16 @@ const ManageTerritories: React.FC = () => {
     AlertManager.show('copy-success')
   }
 
-  const invalidNewName = /[^\w\d-]/i.test(newName)
-  const invalidEditingName = /[^\w\d-]/i.test(editingName?.name ?? '')
+  const invalidEditingName = (editingName?.name ?? '').length === 0
 
   useEffect(() => {
     getConfigs(Fetch)
   }, [Fetch, getConfigs])
 
   const onCreateNew = async () => {
-    if (invalidNewName) return
+    if (newName.length === 0) return
+
+    const encodedNewName = encodeURIComponent(newName)
 
     try {
       setIsCreatingNew(true)
@@ -86,13 +88,15 @@ const ManageTerritories: React.FC = () => {
         { name: string },
         { territory: Territory }
       >('/territories', {
-        name: newName,
+        name: encodedNewName,
       })
 
       if (err) throw err
 
       updateTerritories(territories.concat(territory))
       AlertManager.show('new-success')
+      setNewName('')
+      setShowNewTerritoryForm(false)
     } catch {
       AlertManager.show('new-fail')
     } finally {
@@ -125,16 +129,20 @@ const ManageTerritories: React.FC = () => {
   const onUpdate = useCallback(
     async (
       id: number,
-      field: 'active' | 'campaignMode' | 'name',
+      field: 'active' | 'campaignMode' | 'name' | 'public',
       newName?: string
     ) => {
       try {
         const territory = territories.find((t) => t.id === id)!
-        if (!territory) throw new Error()
+        if (!territory || (field === 'name' && !newName))
+          throw new Error('onUpdate got wrong data')
 
-        const newState = field === 'name' ? newName : !territory[field]
-        field === 'campaignMode' &&
-          newState === false &&
+        const newState =
+          field === 'name' && newName
+            ? encodeURIComponent(newName)
+            : !territory[field]
+
+        if (field === 'campaignMode' && newState === false)
           resetCampaignOffModal()
 
         const [err, { territory: updatedTerritory }] = await Fetch().put<
@@ -200,12 +208,19 @@ const ManageTerritories: React.FC = () => {
       <Container className="pt-3 mb-5">
         <Breadcrumb items={breadcrumbItems} />
         <hr />
-        <SpaceBetween>
-          <h2>Territorios:</h2>
-          <Button color="success" onClick={toggleNewTerritoryForm}>
-            Nuevo
-          </Button>
-        </SpaceBetween>
+        <h2 className="mb-4">Territorios</h2>
+        <ul className="mb-4">
+          <li>
+            No se puede eliminar el primer territorio ni el actual seleccionado
+          </li>
+          <li>
+            Los territorios privados solo pueden "desbloquearse" con el enlace
+            de territorio, por dispositivo
+          </li>
+        </ul>
+        <Button color="success" onClick={toggleNewTerritoryForm}>
+          Nuevo
+        </Button>
         <Collapse isOpen={showNewTerritoryForm}>
           <NewTerritoryForm>
             {isCreatingNew ? (
@@ -213,17 +228,16 @@ const ManageTerritories: React.FC = () => {
             ) : (
               <>
                 <StyledInput
-                  placeholder="Nombre (solo se permiten letras, numeros y guiones)"
+                  placeholder="Nombre"
                   value={newName}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setNewName(e.target.value)
                   }
-                  error={invalidNewName}
                 />
                 <Button
                   color="info"
                   onClick={onCreateNew}
-                  disabled={invalidNewName}
+                  disabled={newName.length === 0}
                 >
                   Crear
                 </Button>
@@ -231,7 +245,6 @@ const ManageTerritories: React.FC = () => {
             )}
           </NewTerritoryForm>
         </Collapse>
-        <p>(No se puede eliminar el territorio base ni el actual)</p>
         <Table borderless responsive>
           <thead>
             <tr>
@@ -239,6 +252,7 @@ const ManageTerritories: React.FC = () => {
               <th>Estado</th>
               <th>Enlace</th>
               <th>En campaña</th>
+              <th>Público</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -277,14 +291,14 @@ const ManageTerritories: React.FC = () => {
                               )
                             }
                           >
-                            💱
+                            ✏️
                           </span>
                         </>
                       )}
                     </>
                   )}
                 </td>
-                <ActiveCell active={territory.active}>
+                <ActiveCell active={!!territory.active}>
                   {territory.active ? 'Habilitado' : 'Deshabilitado'}
                 </ActiveCell>
                 <LinkTd>
@@ -308,6 +322,13 @@ const ManageTerritories: React.FC = () => {
                     ? `Activa (${territory.completed}% completado)`
                     : 'No'}
                 </CampaignCell>
+                <td>
+                  <Switch
+                    id={territory.id.toString()}
+                    checked={!!territory.public}
+                    onChange={() => onUpdate(territory.id, 'public')}
+                  />
+                </td>
                 <td style={{ display: 'flex', justifyContent: 'center' }}>
                   <Button
                     color={territory.active ? 'warning' : 'success'}
@@ -411,11 +432,6 @@ const LinkTd = styled.td`
     text-overflow: ellipsis;
     overflow: hidden;
   }
-`
-
-const SpaceBetween = styled.div`
-  display: flex;
-  justify-content: space-between;
 `
 
 const NewTerritoryForm = styled.div`

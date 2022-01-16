@@ -17,7 +17,8 @@ const AdminPanel: React.FC = () => {
   const location = useLocation()
 
   const handleTerritoryChange = (territoryName: string) => {
-    history.push(`/${territoryName}/admin-panel/${location.search}`)
+    const encoded = encodeURIComponent(territoryName)
+    history.push(`/${encoded}/admin-panel/${location.search}`)
     setIsTerritoryChangerOpen(false)
   }
 

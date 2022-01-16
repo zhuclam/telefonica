@@ -4,6 +4,7 @@ db_name = "default"
 db_password = ""
 
 sendgrid_token = ""
+# 5 or more initials should stop being initials and be a full name
 congregation_initials = "TT"
 
 ## only for initial setup (creating the users)

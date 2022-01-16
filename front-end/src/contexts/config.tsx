@@ -56,13 +56,11 @@ const useConfigInternal = (): ConfigType => {
 
   const [CONG_INITIALS, setCongInitials] = useState<string>('')
 
-  const [configurations, setConfigurations] = useState<
-    Configurations | undefined
-  >()
+  const [configurations, setConfigurations] =
+    useState<Configurations | undefined>()
   const [territories, setTerritories] = useState<Territory[]>([])
-  const [currentTerritory, setCurrentTerritory] = useState<
-    Territory | undefined
-  >()
+  const [currentTerritory, setCurrentTerritory] =
+    useState<Territory | undefined>()
   const [configsLoading, setConfigsLoading] = useState<boolean>(true)
   const [configsError, setConfigsError] = useState<boolean>(false)
 
@@ -97,7 +95,12 @@ const useConfigInternal = (): ConfigType => {
 
       setCongInitials(response.initials)
       setConfigurations(response.configs)
-      setTerritories(response.territories)
+      setTerritories(
+        response.territories.map((t) => ({
+          ...t,
+          name: decodeURIComponent(t.name),
+        }))
+      )
       setConfigsError(false)
     } catch {
       setConfigsError(true)
@@ -108,10 +111,11 @@ const useConfigInternal = (): ConfigType => {
 
   const updateConfigs = (configs: Configurations) => setConfigurations(configs)
 
-  const updateTerritories = useCallback(
-    (territories: Territory[]) => setTerritories(territories),
-    []
-  )
+  const updateTerritories = useCallback((territories: Territory[]) => {
+    setTerritories(
+      territories.map((t) => ({ ...t, name: decodeURIComponent(t.name) }))
+    )
+  }, [])
 
   const toggleDarkMode = (checked: boolean) => {
     checked

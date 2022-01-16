@@ -6,6 +6,7 @@ export interface SwitchProps {
   id?: string
   onChange: (checked: boolean) => void
   checked: boolean
+  theme?: 'white' | 'dark'
 }
 
 const Switch: React.FC<SwitchProps> = ({
@@ -13,8 +14,9 @@ const Switch: React.FC<SwitchProps> = ({
   id = label,
   onChange,
   checked,
+  theme = 'dark',
 }) => (
-  <SwitchContainer>
+  <SwitchContainer labelTheme={theme}>
     <input
       type="checkbox"
       id={`${id.split(' ').join('-')}-check`}
@@ -27,7 +29,7 @@ const Switch: React.FC<SwitchProps> = ({
   </SwitchContainer>
 )
 
-const SwitchContainer = styled.div`
+const SwitchContainer = styled.div<{ labelTheme: 'white' | 'dark' }>`
   display: inline-block;
   position: relative;
   font-size: 16px;
@@ -57,7 +59,10 @@ const SwitchContainer = styled.div`
     display: block;
     padding: 0 0 0 44px;
     cursor: pointer;
-    color: #fff;
+    color: ${({ labelTheme, theme }) =>
+      labelTheme === 'dark'
+        ? theme.text.colors.white
+        : theme.text.colors.black};
 
     ::before {
       content: '';

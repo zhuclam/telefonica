@@ -5,3 +5,4 @@ schedule.py
 logs.txt
 __pycache__/
 templates/
+translations.json
