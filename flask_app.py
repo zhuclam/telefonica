@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
 from sqlalchemy.sql.expression import func
 from decimal import Decimal
+import json
 
 # mine
 from bootstrap import (
@@ -44,6 +45,17 @@ def serve(path):
         return app.send_static_file(path)
     else:
         return app.send_static_file("index.html")
+
+@app.route("/translations", methods=["GET"])
+@cross_origin()
+def get_translations():
+    try:
+        if os.path.exists("./mysite/translations.json"):
+            with open("./mysite/translations.json", encoding = 'utf-8') as f:
+                return jsonify(json.load(f)), 200
+        return ""
+    except Exception as e:
+        return handle_error(e, "get_translations")
 
 
 @app.route("/login", methods=["POST"])

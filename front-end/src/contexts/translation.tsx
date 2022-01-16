@@ -5,6 +5,7 @@ import React, {
   useEffect,
 } from 'react'
 import { LOCAL_STORAGE } from 'consts'
+import { useFetch } from 'hooks'
 
 type TranslationContextValue = {
   translations: Record<string, string> | null
@@ -43,12 +44,20 @@ export const useTranslation = (): TranslationContextValue => {
     setTranslationWanted(checked)
   }
 
+  const Fetch = useFetch()
+
   useEffect(() => {
-    try {
-      const translations = require('../translations.json')
-      setTranslations(translations)
-    } catch {}
-  }, [])
+    const doFetch = async () => {
+      try {
+        const [err, response] = await Fetch(false).get<Record<string, string>>(
+          'translations'
+        )
+        if (err) throw err
+        if (response) setTranslations(response)
+      } catch {}
+    }
+    doFetch()
+  }, [Fetch])
 
   return {
     translations,

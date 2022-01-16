@@ -7,12 +7,12 @@ import { AlertProvider } from 'components/Alert'
 const ContextProviders: React.FC = ({ children }) => {
   return (
     <AlertProvider>
-      <TranslationProvider>
-        <ConfigProvider>
-          {/* AuthProvider uses useFetch, which uses useConfig(), so don't swap them around */}
+      <ConfigProvider>
+        {/* All providers that use useFetch must be below ConfigProvider, I think... */}
+        <TranslationProvider>
           <AuthProvider>{children}</AuthProvider>
-        </ConfigProvider>
-      </TranslationProvider>
+        </TranslationProvider>
+      </ConfigProvider>
     </AlertProvider>
   )
 }
