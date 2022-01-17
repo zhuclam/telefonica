@@ -15,13 +15,28 @@ export const LOCAL_STORAGE = {
   TRANSLATION_WANTED: 'translation-wanted',
 }
 
-export const labels: Record<FeedbackExtended, string> = {
-  [Feedback.UNANSWERED]: 'No en casa',
-  [Feedback.ANSWERED]: 'Atendió',
-  [Feedback.NON_EXISTENT]: 'No existe',
-  [Feedback.NO_CALL]: 'No visitar',
-  [Feedback.ANSWERING_MACHINE]: 'Contestador',
-  [Feedback.POSTPONE]: 'Aplazar',
-  [Feedback.IGNORE]: 'Ignorar',
-  [CampaignFeedback.RUSHED]: 'Completado',
-}
+export const labels = (
+  shouldTranslate: boolean,
+  translations: Record<string, string>
+): Record<FeedbackExtended, string> =>
+  !shouldTranslate
+    ? {
+        [Feedback.UNANSWERED]: 'No en casa',
+        [Feedback.ANSWERED]: 'Atendió',
+        [Feedback.NON_EXISTENT]: 'No existe',
+        [Feedback.NO_CALL]: 'No visitar',
+        [Feedback.ANSWERING_MACHINE]: 'Contestador',
+        [Feedback.POSTPONE]: 'Aplazar',
+        [Feedback.IGNORE]: 'Ignorar',
+        [CampaignFeedback.RUSHED]: 'Completado',
+      }
+    : {
+        [Feedback.UNANSWERED]: translations?.['d5'],
+        [Feedback.ANSWERED]: translations?.['d4'],
+        [Feedback.NON_EXISTENT]: translations?.['e1'],
+        [Feedback.NO_CALL]: translations?.['d9'],
+        [Feedback.ANSWERING_MACHINE]: translations?.['d6'],
+        [Feedback.POSTPONE]: translations?.['d7'],
+        [Feedback.IGNORE]: translations?.['d8'],
+        [CampaignFeedback.RUSHED]: translations?.['e7'],
+      }

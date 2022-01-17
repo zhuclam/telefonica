@@ -1,7 +1,12 @@
 import React, { useState } from 'react'
 import { Collapse, Table, Button } from 'reactstrap'
 import styled from 'styled'
-import { useConfig, usePhoneStorage, useButtonColor } from 'hooks'
+import {
+  useConfig,
+  usePhoneStorage,
+  useButtonColor,
+  useTranslation,
+} from 'hooks'
 import {
   CampaignFeedback,
   Feedback,
@@ -38,6 +43,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
     currentTerritory: { campaignMode },
   } = useConfig()
   const { buttonColors } = useButtonColor()
+  const { shouldTranslate, translations } = useTranslation()
 
   const isAllowed = (f: FeedbackExtended) =>
     !hiddenButtons.split(',').includes(f.toString()) &&
@@ -99,10 +105,14 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
 
     const statusLabel =
       !phoneIsFromToday && p.status === null
-        ? 'Asignado a otro publicador'
+        ? !shouldTranslate
+          ? 'Asignado a otro publicador'
+          : translations?.['e5']
         : p.status !== null
-        ? labels[p.status]
-        : 'Sin respuesta'
+        ? labels(shouldTranslate, translations!)[p.status]
+        : !shouldTranslate
+        ? 'Pendiente'
+        : translations?.['e6']
 
     const isCollapsed = i === collapsed
 
@@ -115,7 +125,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
         <td>
           {phoneIsFromToday && (
             <Button color="secondary" onClick={() => handleCollapsed(i)}>
-              Editar
+              {!shouldTranslate ? 'Editar' : translations?.['c2']}
             </Button>
           )}
           <CollapseButtons isOpen={isCollapsed}>
@@ -128,7 +138,11 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                     onAskEditConfirmation(CampaignFeedback.RUSHED, p)
                   }
                 >
-                  Completado
+                  {
+                    labels(shouldTranslate, translations!)[
+                      CampaignFeedback.RUSHED
+                    ]
+                  }
                 </Button>
               )}
             {p.status !== Feedback.ANSWERED && isAllowed(Feedback.ANSWERED) && (
@@ -137,7 +151,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                 className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.ANSWERED, p)}
               >
-                Atendió
+                {labels(shouldTranslate, translations!)[Feedback.ANSWERED]}
               </Button>
             )}
             {p.status !== Feedback.UNANSWERED &&
@@ -147,7 +161,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                   className="btn-sm d-inline-block mr-1 mb-2"
                   onClick={() => onAskEditConfirmation(Feedback.UNANSWERED, p)}
                 >
-                  No en casa
+                  {labels(shouldTranslate, translations!)[Feedback.UNANSWERED]}
                 </Button>
               )}
             {p.status !== Feedback.ANSWERING_MACHINE &&
@@ -159,7 +173,11 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                     onAskEditConfirmation(Feedback.ANSWERING_MACHINE, p)
                   }
                 >
-                  Contestador
+                  {
+                    labels(shouldTranslate, translations!)[
+                      Feedback.ANSWERING_MACHINE
+                    ]
+                  }
                 </Button>
               )}
             {p.status !== Feedback.POSTPONE && isAllowed(Feedback.POSTPONE) && (
@@ -168,7 +186,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                 className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.POSTPONE, p)}
               >
-                Aplazar
+                {labels(shouldTranslate, translations!)[Feedback.POSTPONE]}
               </Button>
             )}
             {p.status !== Feedback.IGNORE && isAllowed(Feedback.IGNORE) && (
@@ -177,7 +195,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                 className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.IGNORE, p)}
               >
-                Ignorar
+                {labels(shouldTranslate, translations!)[Feedback.IGNORE]}
               </Button>
             )}
             {p.status !== Feedback.NO_CALL && isAllowed(Feedback.NO_CALL) && (
@@ -186,7 +204,7 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                 className="btn-sm d-inline-block mr-1 mb-2"
                 onClick={() => onAskEditConfirmation(Feedback.NO_CALL, p)}
               >
-                No visitar
+                {labels(shouldTranslate, translations!)[Feedback.NO_CALL]}
               </Button>
             )}
             {p.status !== Feedback.NON_EXISTENT &&
@@ -198,7 +216,11 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
                     onAskEditConfirmation(Feedback.NON_EXISTENT, p)
                   }
                 >
-                  No existe
+                  {
+                    labels(shouldTranslate, translations!)[
+                      Feedback.NON_EXISTENT
+                    ]
+                  }
                 </Button>
               )}
           </CollapseButtons>
@@ -214,14 +236,17 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
   return (
     <>
       <h6 className="container mb-3">
-        Números anteriores en este dispositivo:
+        {!shouldTranslate
+          ? 'Números anteriores en este dispositivo'
+          : translations?.['e2']}
+        :
       </h6>
       <Table responsive className="text-center">
         <thead>
           <tr>
-            <th>Teléfono</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th>{!shouldTranslate ? 'Teléfono' : translations?.['c4']}</th>
+            <th>{!shouldTranslate ? 'Estado' : translations?.['e3']}</th>
+            <th>{!shouldTranslate ? 'Acciones' : translations?.['e4']}</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
@@ -231,9 +256,11 @@ const PhonesInStorage: React.FC<PhonesInStorageProps> = ({
           isOpen={isModalOpen}
           toggleModal={toggleModal}
           onConfirm={doConfirm}
-          title="¿Seguro?"
+          title={!shouldTranslate ? '¿Seguro?' : translations?.['e9']}
           buttonColor={feedbackColor[feedbackToConfirm]}
-          confirmationLabel={labels[feedbackToConfirm]}
+          confirmationLabel={
+            labels(shouldTranslate, translations!)[feedbackToConfirm]
+          }
         />
       )}
     </>

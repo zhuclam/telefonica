@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from 'react'
 import styled from 'styled'
 import { Collapse } from 'reactstrap'
-import { useFetch } from 'hooks'
+import { useFetch, useTranslation } from 'hooks'
 import { Alert, useAlerts, Switch } from 'components'
 import { PhoneOptionsType } from 'types'
 
@@ -27,6 +27,7 @@ const PhoneOptions: FunctionComponent<PhoneOptionsProps> = ({
   const { AlertManager } = useAlerts()
 
   const Fetch = useFetch()
+  const { shouldTranslate, translations } = useTranslation()
 
   const togglePhoneOptions = () => setShowPhoneOptions(!showPhoneOptions)
 
@@ -69,24 +70,33 @@ const PhoneOptions: FunctionComponent<PhoneOptionsProps> = ({
         position="top"
         variant="success"
       >
-        Opción de teléfono actualizada con éxito.
+        {!shouldTranslate
+          ? 'Opción de teléfono actualizada con éxito.'
+          : translations?.['h1']}
       </Alert>
       <Alert
         name="phone-option-update-failed"
         position="bottom"
         variant="failure"
       >
-        No se pudo actualizar opción de teléfono.
+        {!shouldTranslate
+          ? 'No se pudo actualizar opción de teléfono.'
+          : translations?.['h2']}
       </Alert>
 
       <PhoneOptionsContainer>
         <Title onClick={togglePhoneOptions}>
-          Opciones de teléfono
+          {!shouldTranslate ? 'Opciones de teléfono' : translations?.['d2']}
           <span>{showPhoneOptions ? '-' : '+'}</span>
         </Title>
         <Collapse isOpen={showPhoneOptions}>
           <Inner>
-            <span>No llamar los fin de semana:</span>
+            <span>
+              {!shouldTranslate
+                ? 'No llamar los fin de semana'
+                : translations?.['d3']}
+              :
+            </span>
             <Switch
               id="no-weekends"
               checked={noCallOnWeekends}
@@ -97,7 +107,9 @@ const PhoneOptions: FunctionComponent<PhoneOptionsProps> = ({
           </Inner>
           {onNoCall && (
             <Inner>
-              <span>No visitar:</span>
+              <span>
+                {!shouldTranslate ? 'No visitar' : translations?.['d9']}:
+              </span>
               <Switch id="no-call" checked={false} onChange={onNoCall} />
             </Inner>
           )}

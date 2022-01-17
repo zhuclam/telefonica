@@ -40,15 +40,19 @@ const Login: React.FC = () => {
         <title>{CONG_INITIALS} Telefónica Login</title>
       </Helmet>
       <Alert name="wrong-login-credentials" position="bottom">
-        Usuario o contraseña incorrectos.
+        {!shouldTranslate
+          ? 'Usuario o contraseña incorrectos.'
+          : translations?.['b9']}
       </Alert>
       <Jumbotron fluid>
         <Container>
           <h1 className="display-5">
-            {!shouldTranslate ? 'Iniciar sesión' : translations?.['a']}
+            {!shouldTranslate ? 'Iniciar sesión' : translations?.['a2']}
           </h1>
           <p className="lead">
-            Solicite los datos de ingreso a su superintendente de servicio.
+            {!shouldTranslate
+              ? 'Solicite los datos de ingreso a su superintendente de servicio.'
+              : translations?.['a3']}
           </p>
         </Container>
       </Jumbotron>
@@ -64,7 +68,9 @@ const Login: React.FC = () => {
           </div>
         )}
         <FormGroup>
-          <Label for="username">Usuario</Label>
+          <Label for="username">
+            {!shouldTranslate ? 'Usuario' : translations?.['a4']}
+          </Label>
           <Input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -72,7 +78,9 @@ const Login: React.FC = () => {
           />
         </FormGroup>
         <FormGroup>
-          <Label for="password">Contraseña</Label>
+          <Label for="password">
+            {!shouldTranslate ? 'Contraseña' : translations?.['a5']}
+          </Label>
           <Input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -82,7 +90,7 @@ const Login: React.FC = () => {
         </FormGroup>
         <div className="d-flex justify-content-center mt-4">
           <Button color="success" onClick={submit}>
-            Ingresar
+            {!shouldTranslate ? 'Ingresar' : translations?.['a6']}
           </Button>
         </div>
       </Container>

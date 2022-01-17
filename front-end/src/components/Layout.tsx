@@ -1,5 +1,5 @@
 import React from 'react'
-import { useConfig } from 'hooks'
+import { useConfig, useTranslation } from 'hooks'
 import { Alert } from '.'
 import { Navbar } from './Navbar'
 import { TestingLabel } from './TestingLabel'
@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet'
 
 const Layout: React.FC = ({ children }) => {
   const { testModeEnabled, darkModeEnabled, currentTerritory } = useConfig()
+  const { shouldTranslate, translations } = useTranslation()
 
   return (
     <>
@@ -15,7 +16,9 @@ const Layout: React.FC = ({ children }) => {
       <Navbar territory={currentTerritory?.name} />
       {children}
       <Alert name="not-so-fast" position="bottom" variant="failure">
-        ¡No tan rápido! No es recomendable tocar un botón tan seguido.
+        {!shouldTranslate
+          ? '¡No tan rápido! No es recomendable tocar un botón tan seguido.'
+          : translations?.['b7']}
       </Alert>
     </>
   )

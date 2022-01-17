@@ -63,8 +63,12 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
     territories.filter((t) => !!t.public).length + registeredTerritories.length
 
   const { isAuth, isAdmin, doLogout } = useAuth()
-  const { translationWanted, toggleTranslationWanted, translations } =
-    useTranslation()
+  const {
+    translationWanted,
+    toggleTranslationWanted,
+    translations,
+    shouldTranslate,
+  } = useTranslation()
 
   const onLogout = () => {
     doLogout()
@@ -107,7 +111,11 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
         En el modo de prueba, todo funciona con un duplicado de la app real.
       </Alert>
       <Alert name="territory-registered-alert" position="top" variant="success">
-        {(name: string) => `¡Nuevo territorio registrado: "${name}"!`}
+        {(name: string) =>
+          (!shouldTranslate
+            ? `¡Nuevo territorio registrado:`
+            : translations?.['b8']) + ` "${name}"!`
+        }
       </Alert>
       <div ref={mobileNavRef}>
         <BNavbar color="dark" dark>
@@ -117,7 +125,7 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                 {CONG_INITIALS && CONG_INITIALS.length < 5
                   ? `${CONG_INITIALS} `
                   : ''}
-                Telefónica
+                {shouldTranslate ? translations?.['a1'] : 'Telefónica'}
                 {territory && isAdmin && (
                   <AdminTerritoryIndicator>
                     <span className="d-none d-md-inline mr-1">
@@ -137,7 +145,10 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                   <>
                     <CurrentTerritoryLabel>
                       <span style={{ display: 'block' }}>
-                        Territorio actual: <span>{currentTerritory.name}</span>{' '}
+                        {!shouldTranslate
+                          ? 'Cerrar sesión'
+                          : translations?.['b2']}
+                        : <span>{currentTerritory.name}</span>{' '}
                       </span>
                       {availableTerritories >= 2 && (
                         <ChangeTerritoryButton
@@ -146,7 +157,8 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                           outline={false}
                           inline
                         >
-                          (Cambiar)
+                          ({!shouldTranslate ? 'Cambiar' : translations?.['c3']}
+                          )
                         </ChangeTerritoryButton>
                       )}
                     </CurrentTerritoryLabel>
@@ -172,7 +184,9 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                 )}
                 <NavItem>
                   <Switch
-                    label="Modo oscuro"
+                    label={
+                      !shouldTranslate ? 'Modo oscuro' : translations?.['a7']
+                    }
                     checked={darkModeEnabled}
                     onChange={toggleDarkMode}
                   />
@@ -180,7 +194,11 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                 {isAuth && (
                   <NavItem>
                     <Switch
-                      label="Modo avanzado"
+                      label={
+                        !shouldTranslate
+                          ? 'Modo avanzado'
+                          : translations?.['a8']
+                      }
                       checked={advancedModeEnabled}
                       onChange={toggleAdvancedMode}
                     />
@@ -218,7 +236,11 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                 {isAuth && (
                   <NavItem>
                     <ButtonContainer>
-                      <NavLink onClick={onLogout}>Cerrar sesión</NavLink>
+                      <NavLink onClick={onLogout}>
+                        {!shouldTranslate
+                          ? 'Cerrar sesión'
+                          : translations?.['b1']}
+                      </NavLink>
                     </ButtonContainer>
                   </NavItem>
                 )}
@@ -230,7 +252,7 @@ const Navbar: React.FC<{ territory?: string }> = ({ territory }) => {
                       color="info"
                       onClick={installApp}
                     >
-                      Instalar App
+                      {!shouldTranslate ? 'Instalar App' : translations?.['a9']}
                     </Button>
                   </Separator>
                 )}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useButtonColor, useConfig } from 'hooks'
+import { useButtonColor, useConfig, useTranslation } from 'hooks'
 import styled from 'styled'
 import { CampaignFeedback, Feedback, FeedbackExtended, Phone } from 'types'
 import { ConfirmationModal, useConfirmationModal } from 'components'
@@ -34,6 +34,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 }) => {
   const { advancedModeEnabled, configurations, currentTerritory } = useConfig()
   const { buttonColors } = useButtonColor()
+  const { shouldTranslate, translations } = useTranslation()
   const { hiddenButtons } = configurations
   const { campaignMode } = currentTerritory
 
@@ -68,16 +69,28 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   const handleIgnore = handleGeneric(Feedback.IGNORE)
   const handleRushed = () => handlePhoneFeedback(CampaignFeedback.RUSHED)
 
+  const NUNCA = !shouldTranslate ? 'Nunca' : translations?.['g6']
+
   const DesktopTable = (
     <div className="table-responsive d-none d-sm-block">
       <table className="table table-bordered">
         <thead>
           <tr>
-            <th>Teléfono</th>
-            <th>Otros datos</th>
-            {phone.comments ? <th>Comentarios</th> : null}
-            <th>Última fecha que atendió</th>
-            <th>Última fecha que se lo llamó</th>
+            <th>{!shouldTranslate ? 'Teléfono' : translations?.['c4']}</th>
+            <th>{!shouldTranslate ? 'Otros datos' : translations?.['c5']}</th>
+            {phone.comments ? (
+              <th>{!shouldTranslate ? 'Comentarios' : translations?.['g3']}</th>
+            ) : null}
+            <th>
+              {!shouldTranslate
+                ? 'Última fecha que atendió'
+                : translations?.['c6']}
+            </th>
+            <th>
+              {!shouldTranslate
+                ? 'Última fecha que se lo llamó'
+                : translations?.['c7']}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -87,7 +100,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             </td>
             <td>{phone.info}</td>
             {phone.comments ? <td>{phone.comments}</td> : null}
-            <td>{phone.answeredOn ?? 'Nunca'}</td>
+            <td>{phone.answeredOn ?? NUNCA}</td>
             <td>
               {phone.unansweredDate ? (
                 phone.unansweredDate
@@ -97,7 +110,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
                   {phone.fulfilledOn}
                 </>
               ) : (
-                'Nunca'
+                NUNCA
               )}
             </td>
           </tr>
@@ -108,7 +121,9 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
   const MobileTable = (
     <div className="d-block d-sm-none text-center">
-      <span style={{ fontWeight: 500 }}>Teléfono:</span>
+      <span style={{ fontWeight: 500 }}>
+        {!shouldTranslate ? 'Teléfono' : translations?.['c4']}:
+      </span>
       <div>
         <PhoneLink phone={phone.phone} />
       </div>
@@ -116,7 +131,9 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
       {phone.info && (
         <>
-          <span style={{ fontWeight: 500 }}>Otros datos:</span>
+          <span style={{ fontWeight: 500 }}>
+            {!shouldTranslate ? 'Otros datos' : translations?.['c5']}:
+          </span>
           <div>{phone.info}</div>
           <br />
         </>
@@ -124,17 +141,26 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
       {phone.comments && (
         <>
-          <span style={{ fontWeight: 500 }}>Comentarios:</span>
+          <span style={{ fontWeight: 500 }}>
+            {!shouldTranslate ? 'Comentarios' : translations?.['g3']}:
+          </span>
           <div>{phone.comments}</div>
           <br />
         </>
       )}
 
-      <span style={{ fontWeight: 500 }}>Última fecha que atendió:</span>
-      <div>{phone.answeredOn ?? 'Nunca'}</div>
+      <span style={{ fontWeight: 500 }}>
+        {!shouldTranslate ? 'Última fecha que atendió' : translations?.['c6']}:
+      </span>
+      <div>{phone.answeredOn ?? NUNCA}</div>
       <br />
 
-      <span style={{ fontWeight: 500 }}>Última fecha que se lo llamó:</span>
+      <span style={{ fontWeight: 500 }}>
+        {!shouldTranslate
+          ? 'Última fecha que se lo llamó'
+          : translations?.['c7']}
+        :
+      </span>
       <div>
         {phone.unansweredDate ? (
           phone.unansweredDate
@@ -144,7 +170,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             {phone.fulfilledOn}
           </>
         ) : (
-          'Nunca'
+          NUNCA
         )}
       </div>
     </div>
@@ -152,7 +178,9 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
   const helpButton = (
     <MiniSection>
-      <HelpButton onClick={openHelpSection}>¿Qué hace cada botón?</HelpButton>
+      <HelpButton onClick={openHelpSection}>
+        {!shouldTranslate ? '¿Qué hace cada botón?' : translations?.['f1']}
+      </HelpButton>
     </MiniSection>
   )
 
@@ -160,10 +188,12 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
     <div className="row my-4">
       <div className="col-12">
         <span className="text-secondary d-inline-block mb-2">
-          Comentarios (opcional):
+          {!shouldTranslate ? 'Comentarios (opcional)' : translations?.['c8']}:
         </span>
         <Input
-          placeholder="Su comentario acá..."
+          placeholder={
+            !shouldTranslate ? 'Su comentario acá...' : translations?.['c9']
+          }
           type="text"
           value={comments}
           onChange={(e) => handleComments(e.target.value)}
@@ -171,21 +201,23 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
 
         {phone.commentedOn && (
           <span className="input-helper text-secondary">
-            Comentado el:{' '}
+            {!shouldTranslate ? 'Comentado el' : translations?.['g9']}:{' '}
             <span className="text-success">{phone.commentedOn}</span>
           </span>
         )}
 
         {phone.answeringMachineDate && (
           <span className="d-block input-helper text-secondary">
-            Último mensaje en el contestador:{' '}
-            <span className="text-success">{phone.answeringMachineDate}</span>
+            {!shouldTranslate
+              ? 'Último mensaje en el contestador'
+              : translations?.['g8']}
+            : <span className="text-success">{phone.answeringMachineDate}</span>
           </span>
         )}
 
         {!phone.commentedOn && !phone.answeringMachineDate && (
           <span className="input-helper text-secondary">
-            Ej.: lugar de trabajo
+            {!shouldTranslate ? 'Ej.: lugar de trabajo' : translations?.['d1']}
           </span>
         )}
       </div>
@@ -195,7 +227,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
   const ButtonGroup = campaignMode ? (
     <div className="my-4">
       <Button color={buttonColors.rushed} block onClick={handleRushed}>
-        Siguiente
+        {!shouldTranslate ? 'Siguiente' : translations?.['g7']}
       </Button>
     </div>
   ) : !advancedModeEnabled ? (
@@ -207,7 +239,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg mx-auto mx-md-0 d-block w-100"
             onClick={handleAnswered}
           >
-            Atendió
+            {!shouldTranslate ? 'Atendió' : translations?.['d4']}
           </Button>
         </div>
       )}
@@ -218,7 +250,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg mx-auto mx-md-0 d-block w-100"
             onClick={handleUnanswered}
           >
-            No en casa
+            {!shouldTranslate ? 'No en casa' : translations?.['d5']}
           </Button>
         </div>
       )}
@@ -229,7 +261,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg mx-auto mx-md-0 d-block w-100"
             onClick={handleNoCall}
           >
-            No visitar
+            {!shouldTranslate ? 'No visitar' : translations?.['d9']}
           </Button>
         </div>
       )}
@@ -240,7 +272,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg mx-auto mx-md-0 d-block w-100"
             onClick={handleNonExistent}
           >
-            No existe
+            {!shouldTranslate ? 'No existe' : translations?.['e1']}
           </Button>
         </div>
       )}
@@ -254,7 +286,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg w-100 mx-auto mx-md-0 d-block"
             onClick={handleAnswered}
           >
-            Atendió
+            {!shouldTranslate ? 'Atendió' : translations?.['d4']}
           </Button>
         </div>
       )}
@@ -265,7 +297,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg w-100 mx-auto mx-md-0 d-block"
             onClick={handleUnanswered}
           >
-            No en casa
+            {!shouldTranslate ? 'No en casa' : translations?.['d5']}
           </Button>
         </div>
       )}
@@ -276,7 +308,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg w-100 mx-auto mx-md-0 d-block"
             onClick={handleAnsweringMachine}
           >
-            Contestador
+            {!shouldTranslate ? 'Contestador' : translations?.['d6']}
           </Button>
         </div>
       )}
@@ -287,7 +319,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg w-100 mx-auto mx-md-0 d-block"
             onClick={handlePostpone}
           >
-            Aplazar
+            {!shouldTranslate ? 'Aplazar' : translations?.['d7']}
           </Button>
         </div>
       )}
@@ -298,7 +330,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg w-100 mx-auto mx-md-0 d-block"
             onClick={handleIgnore}
           >
-            Ignorar
+            {!shouldTranslate ? 'Ignorar' : translations?.['d8']}
           </Button>
         </div>
       )}
@@ -309,7 +341,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg w-100 mx-auto mx-md-0 d-block"
             onClick={handleNoCall}
           >
-            No visitar
+            {!shouldTranslate ? 'No visitar' : translations?.['d9']}
           </Button>
         </div>
       )}
@@ -320,7 +352,7 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
             className="btn-lg w-100 mx-auto mx-md-0 d-block"
             onClick={handleNonExistent}
           >
-            No existe
+            {!shouldTranslate ? 'No existe' : translations?.['e1']}
           </Button>
         </div>
       )}
@@ -366,9 +398,13 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
       {!!campaignMode && (
         <Jumbotron fluid className="my-2">
           <Container>
-            <h6>¡Estamos en campaña!</h6>
+            <h6>
+              {!shouldTranslate ? '¡Estamos en campaña!' : translations?.['h3']}
+            </h6>
             <small>
-              Durante la campaña, solo habrá un botón de "siguiente".
+              {!shouldTranslate
+                ? 'Durante la campaña, solo habrá un botón de "siguiente".'
+                : translations?.['h4']}
             </small>
           </Container>
         </Jumbotron>
@@ -380,9 +416,11 @@ const PhoneDetails: React.FC<PhoneDetailsProps> = ({
           isOpen={isModalOpen}
           toggleModal={toggleModal}
           onConfirm={doConfirm}
-          title="¿Seguro?"
+          title={!shouldTranslate ? '¿Seguro?' : translations?.['e9']}
           buttonColor={feedbackToConfirmColor[feedbackToConfirm]}
-          confirmationLabel={labels[feedbackToConfirm]}
+          confirmationLabel={
+            labels(shouldTranslate, translations!)[feedbackToConfirm]
+          }
         />
       )}
     </Container>

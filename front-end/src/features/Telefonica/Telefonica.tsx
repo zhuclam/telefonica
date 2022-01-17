@@ -5,7 +5,7 @@ import { Alert, ErrorDisplay, Spinner, useAlerts } from 'components'
 import { PhoneResponse } from './types'
 import { HelpSection, PhoneDetails, PhonesInStorage } from './components'
 import { Route, Switch, useHistory } from 'react-router'
-import { useConfig, usePhoneStorage, useFetch } from 'hooks'
+import { useConfig, usePhoneStorage, useFetch, useTranslation } from 'hooks'
 import { FeedbackExtended, StoragePhone } from 'types'
 import { useThrottle } from 'hooks/utils'
 
@@ -20,6 +20,8 @@ const Telefonica: React.FC = () => {
   const { CONG_INITIALS, advancedModeEnabled, currentTerritory } = useConfig()
 
   const { AlertManager } = useAlerts()
+
+  const { shouldTranslate, translations } = useTranslation()
 
   const Fetch = useFetch()
 
@@ -123,11 +125,25 @@ const Telefonica: React.FC = () => {
 
   if (error)
     return (
-      <ErrorDisplay message="No hay más números disponibles por el día de hoy" />
+      <ErrorDisplay
+        message={
+          !shouldTranslate
+            ? 'No hay más números disponibles por el día de hoy'
+            : translations?.['b3']
+        }
+      />
     )
 
   if (!currentTerritory.active)
-    return <ErrorDisplay message="Este territorio está desactivado." />
+    return (
+      <ErrorDisplay
+        message={
+          !shouldTranslate
+            ? 'Este territorio está desactivado.'
+            : translations?.['c1']
+        }
+      />
+    )
 
   if (isLoading || !phone) return <Spinner fulfill container />
 
@@ -137,13 +153,24 @@ const Telefonica: React.FC = () => {
         <title>{CONG_INITIALS} Telefónica</title>
       </Helmet>
       <Alert name="new-phone-received" position="top" variant="success">
-        <div className="text-center">✨ ¡Nuevo número recibido! ✨🎉</div>
+        <div className="text-center">
+          ✨{' '}
+          {!shouldTranslate ? '¡Nuevo número recibido!' : translations?.['b4']}{' '}
+          ✨🎉
+        </div>
       </Alert>
       <Alert name="feedback-failed" position="top" variant="failure">
-        <div className="text-center">No se pudo enviar su feedback 😢</div>
+        <div className="text-center">
+          {!shouldTranslate
+            ? 'No se pudo enviar su feedback'
+            : translations?.['b5']}{' '}
+          😢
+        </div>
       </Alert>
       <Alert name="edit-success" position="bottom" variant="success">
-        <div className="text-center">Número actualizado.</div>
+        <div className="text-center">
+          {!shouldTranslate ? 'Número actualizado' : translations?.['b6']}
+        </div>
       </Alert>
       <PhoneDetails
         phone={phone}
