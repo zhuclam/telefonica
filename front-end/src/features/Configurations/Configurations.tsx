@@ -75,10 +75,13 @@ const Configurations: React.FC = () => {
     reValidateMode: 'onChange',
     defaultValues: {
       unansweredMaxAttemps: configurations.unansweredMaxAttemps.toString(),
-      answeringMachineMaxAttemps: configurations.answeringMachineMaxAttemps.toString(),
-      answeringMachinePostponedDays: configurations.answeringMachinePostponedDays.toString(),
+      answeringMachineMaxAttemps:
+        configurations.answeringMachineMaxAttemps.toString(),
+      answeringMachinePostponedDays:
+        configurations.answeringMachinePostponedDays.toString(),
       postponedButtonDays: configurations.postponedButtonDays.toString(),
-      nonExistentPostponedDays: configurations.nonExistentPostponedDays.toString(),
+      nonExistentPostponedDays:
+        configurations.nonExistentPostponedDays.toString(),
       ...FeedbackValues.reduce(
         (acc, curr) => ({
           ...acc,
@@ -214,7 +217,7 @@ const Configurations: React.FC = () => {
                       name={`button${i}shown`}
                       innerRef={register}
                     />
-                    {labels[i as Feedback]}
+                    {labels(false, null!)[i as Feedback]}
                   </Label>
                 </FormGroup>
               </Col>
