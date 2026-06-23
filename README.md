@@ -151,39 +151,131 @@ The release script lives at `front-end/scripts/release.js`. It:
 7. Commits the generated `front-end/build/`.
 8. Pushes the release branch.
 
-For the PythonAnywhere virtualenv/runtime-management change, create a major release from `6.3.1` to `7.0.0`:
+Use semantic versioning:
 
-```bash
-git checkout main
-git status
-cd front-end
-yarn bump major
-```
-
-That should create and push `releases/7.0.0`.
+- `major` for deployment/runtime model changes, database-breaking changes, or large user-visible behavior changes.
+- `minor` for backward-compatible features.
+- `patch` for fixes and small operational changes.
 
 This frontend was built with Create React App 4. Use Node 16 for release builds when possible:
 
 ```bash
+git checkout main
+git status
 source ~/.nvm/nvm.sh
 nvm use 16.13.0
 cd front-end
 yarn install
-yarn bump major
+yarn bump patch
 ```
 
-The script requires a clean working tree on `main` and a GitHub credential with write access to `zhuclam/telefonica`.
+Replace `patch` with `minor` or `major` when appropriate. The script requires a clean working tree on `main` and a GitHub credential with write access to `zhuclam/telefonica`.
 
-## Rolling Out To Many PythonAnywhere Servers
+## Deploying A Release
 
-For each congregation/server:
+For each congregation/server, replace `<pythonanywhere-user>` and `<version>`.
 
-1. Back up or verify the ignored local config files.
-2. Fetch the new release branch in `/home/<pythonanywhere-user>/mysite`.
-3. Check out the target `releases/<version>` branch.
-4. Create or activate `telefonica-py38`.
-5. Run `python -m pip install -r requirements.txt`.
-6. Import `flask_app` inside the virtualenv.
-7. Set the Web tab virtualenv path.
-8. Update the scheduled task command to use the virtualenv Python.
-9. Reload the web app and check the error log.
+Update the checkout:
+
+```bash
+cd /home/<pythonanywhere-user>/mysite
+git status
+git fetch origin
+git checkout releases/<version>
+git pull --ff-only origin releases/<version>
+```
+
+If `git status` shows modified tracked files, stop and inspect before pulling.
+
+Clean safe generated files and caches if disk usage is high:
+
+```bash
+du -h --max-depth=1 ~ | sort -h
+du -h --max-depth=1 ~/.cache ~/.local ~/.virtualenvs ~/mysite 2>/dev/null | sort -h
+
+rm -rf ~/.cache/pip
+rm -rf ~/.cache/virtualenv
+rm -rf ~/.local/share/virtualenv
+find ~/mysite -type d -name __pycache__ -prune -exec rm -rf {} +
+find ~/mysite -type f -name '*.pyc' -delete
+```
+
+If `~/.virtualenvs/mysite` exists and is large, verify it is unused before deleting it:
+
+```bash
+grep -R "\.virtualenvs/mysite" -n ~/.bashrc ~/.profile /var/www/*_wsgi.py ~/mysite 2>/dev/null
+```
+
+Only remove `~/.virtualenvs/mysite` if the grep command does not show active references and the Web tab is not configured to use it:
+
+```bash
+rm -rf ~/.virtualenvs/mysite
+```
+
+Create or activate the app virtualenv:
+
+```bash
+cd /home/<pythonanywhere-user>/mysite
+mkvirtualenv telefonica-py38 --python=/usr/bin/python3.8
+# If it already exists:
+# workon telefonica-py38
+```
+
+Install dependencies and verify imports:
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --no-cache-dir -r requirements.txt
+python -m compileall -q .
+
+python - <<'PY'
+import flask, flask_jwt_extended, flask_sqlalchemy, sqlalchemy, jinja2, markupsafe
+print("Flask", flask.__version__)
+print("Flask-JWT-Extended", flask_jwt_extended.__version__)
+print("Flask-SQLAlchemy", flask_sqlalchemy.__version__)
+print("SQLAlchemy", sqlalchemy.__version__)
+print("Jinja2", jinja2.__version__)
+print("MarkupSafe", markupsafe.__version__)
+from flask_app import app
+print("Imported app:", app.name)
+PY
+```
+
+PythonAnywhere Web tab:
+
+```text
+Virtualenv: /home/<pythonanywhere-user>/.virtualenvs/telefonica-py38
+Source code: /home/<pythonanywhere-user>/mysite
+Working directory: /home/<pythonanywhere-user>
+```
+
+PythonAnywhere Tasks tab:
+
+```bash
+/home/<pythonanywhere-user>/.virtualenvs/telefonica-py38/bin/python /home/<pythonanywhere-user>/mysite/unlocker.py
+```
+
+Reload the web app, log in, try one authenticated action, and check the PythonAnywhere error log.
+
+## Rollback
+
+Rollback is usually a branch checkout plus reload:
+
+```bash
+cd /home/<pythonanywhere-user>/mysite
+git fetch origin
+git checkout releases/<previous-version>
+git pull --ff-only origin releases/<previous-version>
+workon telefonica-py38
+python -m pip install --no-cache-dir -r requirements.txt
+python -m compileall -q .
+```
+
+Reload the web app after rollback. If the scheduled task command already points at `telefonica-py38`, it usually does not need to change.
+
+## Common Failure Modes
+
+- `ImportError: cannot import name 'soft_unicode' from 'markupsafe'`: the app is not using the pinned virtualenv dependencies.
+- `OSError: [Errno 122] Disk quota exceeded`: clean pip/virtualenv caches or remove unused old virtualenvs.
+- Web app works but scheduled task fails: the task command is probably still using plain `python3.8`.
+- `git pull --ff-only` refuses to update: inspect local tracked changes before overwriting anything.
