@@ -2,7 +2,12 @@ const { execSync } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 
-if (!process.cwd().endsWith('front-end'))
+const exec = (command) => execSync(command, { encoding: 'utf-8' }).trim()
+
+const gitRoot = exec('git rev-parse --show-toplevel')
+const expectedCwd = path.join(gitRoot, 'front-end')
+
+if (path.resolve(process.cwd()) !== expectedCwd)
   throw new Error('This script must be executed from the main front-end dir')
 
 const args = process.argv.slice(2)
@@ -17,14 +22,13 @@ if (!validArgs.includes(upgradeType))
     )}`
   )
 
-const exec = (path) => execSync(path, { encoding: 'utf-8' })
+const currentBranch = exec('git rev-parse --abbrev-ref HEAD')
+const gitStatusResult = exec('git status --porcelain')
 
-const gitStatusResult = exec('git status')
-
-if (!/On branch main/.test(gitStatusResult))
-  throw new Error('Must be initiated from main branch')
-if (/Changes not staged for commit:|Untracked files:/i.test(gitStatusResult))
-  throw new Error('Must have clean repo before releasing')
+if (currentBranch !== 'main')
+  throw new Error(`Must be initiated from main branch (current: ${currentBranch})`)
+if (gitStatusResult)
+  throw new Error(`Must have clean repo before releasing:\n${gitStatusResult}`)
 
 const ENV_PATH = path.resolve('.env')
 const currentVersion = fs.readFileSync(ENV_PATH).toString().split('=')[1].trim()
