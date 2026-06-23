@@ -3,7 +3,17 @@ importer-data.txt
 *.pyc
 schedule.py
 logs.txt
+requirements.lock.txt
 __pycache__/
 templates/
 translations.json
 buttonColors.json
+
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+front-end/node_modules/
