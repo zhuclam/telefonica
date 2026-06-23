@@ -45,7 +45,7 @@ mkvirtualenv telefonica-py38 --python=/usr/bin/python3.8
 # workon telefonica-py38
 
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r requirements.txt
+python -m pip install --no-cache-dir -r requirements.txt
 python -m pip freeze > requirements.lock.txt
 python -m compileall -q .
 
@@ -72,6 +72,47 @@ WSGI file imports: from flask_app import app as application
 ```
 
 Reload the web app after changing the virtualenv or code.
+
+## Disk Quota Before Virtualenv Creation
+
+Free PythonAnywhere accounts have a small disk quota. A site can be below 100% quota and still fail while creating a virtualenv because `virtualenv` temporarily extracts `pip` and `setuptools`.
+
+If `mkvirtualenv` fails with `OSError: [Errno 122] Disk quota exceeded`, run:
+
+```bash
+du -h --max-depth=1 ~ | sort -h
+du -h --max-depth=1 ~/.cache ~/.local ~/.virtualenvs ~/mysite 2>/dev/null | sort -h
+```
+
+Safe cleanup targets:
+
+```bash
+rm -rf ~/.cache/pip
+rm -rf ~/.cache/virtualenv
+rm -rf ~/.local/share/virtualenv
+rm -rf ~/.virtualenvs/telefonica-py38
+find ~/mysite -type d -name __pycache__ -prune -exec rm -rf {} +
+find ~/mysite -type f -name '*.pyc' -delete
+```
+
+If an old unused virtualenv exists, it is often the biggest item:
+
+```bash
+du -h --max-depth=1 ~/.virtualenvs | sort -h
+grep -R "\.virtualenvs/mysite" -n ~/.bashrc ~/.profile /var/www/*_wsgi.py ~/mysite 2>/dev/null
+rm -rf ~/.virtualenvs/mysite
+```
+
+Only delete `~/.virtualenvs/mysite` if it is not the Web tab virtualenv and the `grep` command does not show active references.
+
+After cleanup, retry:
+
+```bash
+mkvirtualenv telefonica-py38 --python=/usr/bin/python3.8
+python -m pip install --no-cache-dir -r requirements.txt
+```
+
+Do not delete `front-end/build/`; production Flask serves that directory.
 
 ## Scheduled Task
 

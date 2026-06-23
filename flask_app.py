@@ -19,7 +19,7 @@ from bootstrap import (
 )
 from auth import authenticate, admin_required, update_passwords
 from utils import handle_error, days_utils, PHONE_STATUS, to_locale_string, db_result_to_dict, validate, validate_keys
-from services import phone_service, task_service
+from services import phone_service
 from env_var import congregation_initials
 
 
@@ -665,8 +665,6 @@ def get_configurations():
         )
 
         territories = db_result_to_dict(territories)
-
-        task_service.check_task_executed()
 
         db.session.commit()
 

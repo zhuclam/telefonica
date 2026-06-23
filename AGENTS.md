@@ -64,7 +64,7 @@ mkvirtualenv telefonica-py38 --python=/usr/bin/python3.8
 # workon telefonica-py38
 
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r requirements.txt
+python -m pip install --no-cache-dir -r requirements.txt
 python -m pip freeze > requirements.lock.txt
 python -m compileall -q .
 
@@ -95,6 +95,40 @@ python3.8 -m pip install --user 'MarkupSafe==2.0.1'
 ```
 
 That hotfix is temporary. The durable fix is the virtualenv.
+
+## PythonAnywhere Disk Quota
+
+Free PythonAnywhere accounts can fail during `mkvirtualenv` even when the dashboard is below 100% full, because `virtualenv` needs temporary extraction space for `pip` and `setuptools`.
+
+If `mkvirtualenv telefonica-py38 --python=/usr/bin/python3.8` fails with `OSError: [Errno 122] Disk quota exceeded`, inspect usage:
+
+```bash
+du -h --max-depth=1 ~ | sort -h
+du -h --max-depth=1 ~/.cache ~/.local ~/.virtualenvs ~/mysite 2>/dev/null | sort -h
+```
+
+Targeted cleanup commands:
+
+```bash
+rm -rf ~/.cache/pip
+rm -rf ~/.cache/virtualenv
+rm -rf ~/.local/share/virtualenv
+rm -rf ~/.virtualenvs/telefonica-py38
+find ~/mysite -type d -name __pycache__ -prune -exec rm -rf {} +
+find ~/mysite -type f -name '*.pyc' -delete
+```
+
+Old virtualenvs can consume most of the free-account quota. Before deleting one, verify it is not referenced:
+
+```bash
+du -h --max-depth=1 ~/.virtualenvs | sort -h
+grep -R "\.virtualenvs/mysite" -n ~/.bashrc ~/.profile /var/www/*_wsgi.py ~/mysite 2>/dev/null
+rm -rf ~/.virtualenvs/mysite
+```
+
+Only remove `~/.virtualenvs/mysite` after confirming it is not the configured Web tab virtualenv.
+
+Do not delete `front-end/build/`; the deployed Flask app serves it.
 
 ## Release Branch Workflow
 
